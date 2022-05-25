@@ -23,19 +23,19 @@ function getNeededRam(ns, files) {
   * @param {string} server hostname
   */
 function multiscan(ns, server) {
-  	let serverList = [];
-  	function scanning(server) {
-  		let currentScan = ns.scan(server);
-  		currentScan.forEach(server => {
-  			if (!serverList.includes(server)) {
-  				serverList.push(server);
-  				scanning(server);
-  			}
-  		})
-  	}
-  	scanning(server);
-  	return serverList;
- }
+	let serverList = [];
+	function scanning(server) {
+		let currentScan = ns.scan(server);
+		currentScan.forEach(server => {
+			if (!serverList.includes(server)) {
+				serverList.push(server);
+				scanning(server);
+			}
+		})
+	}
+	scanning(server);
+	return serverList;
+}
 
 /** Given an array of server hostnames, will collect getServer info https://github.com/danielyxie/bitburner/blob/dev/markdown/bitburner.server.md
   * @param {ns} ns
@@ -43,12 +43,12 @@ function multiscan(ns, server) {
   * @returns {Object[]} Server Interface
   */
 function getServerInventory(ns, servers) {
-    let serverInventory = [];
-    for (i = 0, i < servers.length, i++) {
-      serverInventory[i] = getServer(servers[i]);
-    }
-    return serverInventory;
+  let serverInventory = [];
+  for (let i = 0, i < servers.length, i++) {
+    serverInventory[i] = ns.getServer(servers[i]);
   }
+  return serverInventory;
+}
 
 /** @param {NS} ns */
 export async function main(ns) {
