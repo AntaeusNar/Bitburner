@@ -37,6 +37,20 @@ function multiscan(ns, server) {
 	return serverList;
 }
 
+
+/** Given a server hostname, will getServer() and do other things
+ * basicly expends getServer()
+ * @param {ns} ns
+ * @param {string} server hostname
+ * @returns {Object} server
+ */
+function getModServerInfo(ns, server) {
+  //get initail info
+  objServer = ns.getServer(server);
+
+  return objServer;
+}
+
 /** Given an array of server hostnames, will collect getServer info https://github.com/danielyxie/bitburner/blob/dev/markdown/bitburner.server.md
   * @param {ns} ns
   * @param {string[]} servers hostnames
@@ -45,9 +59,9 @@ function multiscan(ns, server) {
 function getServerInventory(ns, servers) {
   let serverInventory = [];
 
-  for (let i = 0; i < servers.length; i++)
-    serverInventory[i] = ns.getServer(servers[i]);
-
+  for (let i = 0; i < servers.length; i++) {
+    serverInventory[i] = getModServerInfo(servers[i]);
+  }
   return serverInventory;
 }
 
