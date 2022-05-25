@@ -3,6 +3,8 @@
  * info that will be passed as inventory.txt
  */
 
+import {can, getRoot} from "helperFunctions.js";
+
 /** Given an array of files, returns the highest ram requirment
   * @param {ns} ns
   * @param {string[]} files
@@ -37,7 +39,6 @@ function multiscan(ns, server) {
 	return serverList;
 }
 
-
 /** Given a server hostname, will getServer() and do other things
  * basicly expends getServer()
  * @param {ns} ns
@@ -47,6 +48,25 @@ function multiscan(ns, server) {
 function getModServerInfo(ns, server) {
   //get initail info
   objServer = ns.getServer(server);
+  objServer.isTarget = false;
+  objServer.isDrone = false;
+  objServer.maxThreads = 0;
+
+  //Checks/gets root access
+  if (objServer.hasAdminRights || objServer.hostname == 'home' || getRoot(objServer)) {
+
+    //checks and sets if server is a viable target
+    if (objServer.moneyMax > 0) {
+      objServer.isTarget = true;
+    }
+
+    //checks and sets if the server is a viable drone
+    if (objServer.maxRam > inventory.neededRam) {
+      objServer.isDrone = true;
+      objServer.maxThreads = objServer.maxRam/invetory.neededRam;
+    }
+  }
+
 
   return objServer;
 }
