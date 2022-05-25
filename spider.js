@@ -52,5 +52,5 @@ function getServerInventory(ns, servers) {
 
 /** @param {NS} ns */
 export async function main(ns) {
-  ns.tprint("Welcome to Spider: Scanning Network and ")
+  ns.tprint("Welcome to Spider: Scanning Network and Building Inventory");
 }
