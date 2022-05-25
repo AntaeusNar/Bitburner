@@ -52,5 +52,36 @@ function getServerInventory(ns, servers) {
 
 /** @param {NS} ns */
 export async function main(ns) {
+
+  //initalization
   ns.tprint("Welcome to Spider: Scanning Network and Building Inventory");
+  var inventory = {
+    maxThreads: 0,
+    neededRam: 0,
+    files: [],
+    servers: [],
+  }
+
+  //get current files
+  inventory.files = ns.ls("home", '/dronescripts');
+
+  //calc needed ram
+  inventory.neededRam = getNeededRam(ns, inventory.files);
+
+  //scan the whole network and grab the server objects
+  inventory.servers = getServerInventory(ns, multiscan(ns, 'home'));
+
+  //remove the old if it is there
+  if (ns.fileExists('inventory.json')) {
+    ns.rm('inventory.json');
+    ns.tprint("Removing old JSON file.");
+  }
+
+  //output the inventory object as a JSON file
+  ns.tprint("Creating Updated JSON file; please standby.");
+  await ns.write('inventory.json', JSON.stringify(inventory, null, '\t'), 'w');
+
+  //launch c_c
+  ns.tprint("Launching C&C; please standby.");
+  ns.spawn('c_c.js');
 }
