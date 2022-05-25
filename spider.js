@@ -3,15 +3,6 @@
  * info that will be passed as inventory.txt
  */
 
-/** Checks to see if a file exsits on the home server
-  * @param {ns} ns
-  * @param {string} filename
-  * @returns {boolean} true if exsits
-  */
-function can(ns, file) {
-  	return ns.fileExists(file, "home");
-  }
-
 /** Given an array of files, returns the highest ram requirment
   * @param {ns} ns
   * @param {string[]} files
@@ -58,3 +49,8 @@ function getServerInventory(ns, servers) {
     }
     return serverInventory;
   }
+
+/** @param {NS} ns */
+export async function main(ns) {
+  ns.tprint("Welcome to Spider: Scanning Network and ")
+}
