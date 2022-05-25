@@ -44,9 +44,10 @@ function multiscan(ns, server) {
   */
 function getServerInventory(ns, servers) {
   let serverInventory = [];
-  for (let i = 0, i < servers.length, i++) {
+
+  for (let i = 0; i < servers.length; i++)
     serverInventory[i] = ns.getServer(servers[i]);
-  }
+
   return serverInventory;
 }
 
