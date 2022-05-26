@@ -90,7 +90,7 @@ function getServerInventory(ns, servers) {
   let maxThreads = 0;
 
   for (let i = 0; i < servers.length; i++) {
-    serverInventory[i] = getModServerInfo(servers[i]);
+    serverInventory[i] = getModServerInfo(ns, servers[i]);
     maxThreads += serverInventory[i].maxThreads;
   }
   let returns = {
