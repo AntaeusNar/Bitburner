@@ -148,18 +148,19 @@ async function adjustTake(ns, inventory, totalReservedThreads, indexOfAlpha) {
 }
 
 
+/** global scoping */
+var inventory = {
+  maxThreads: 0,
+  neededRam: 0,
+  files: [],
+  servers: [],
+}
 
 /** @param {NS} ns */
 export async function main(ns) {
 
   //initalization
   ns.tprint("Welcome to Spider: Scanning Network and Building Inventory");
-  var inventory = {
-    maxThreads: 0,
-    neededRam: 0,
-    files: [],
-    servers: [],
-  }
 
   //get current files
   ns.tprint("Grabbing files in /dronescripts/ and calculating maximum Ram needed per thread.")
