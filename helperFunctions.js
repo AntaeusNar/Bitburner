@@ -47,7 +47,7 @@
  * @returns {number} returns.ration - $/GB/Sec
  * @returns {number} returns.cycleThreads - threads for a full cycle
  */
-export function getRatio(ns, server, neededRam = 1.75, takePercent = .01, haveFormules = false) {
+export function getRatio(ns, server, neededRam, takePercent, haveFormules = false) {
   let ratio = 0;
   let cycleThreads = 0;
 
@@ -61,7 +61,7 @@ export function getRatio(ns, server, neededRam = 1.75, takePercent = .01, haveFo
     let targetHackMoney = server.moneyMax*takePercent;
 
     //calculate GB needed to hack/weak/grow targetHackMoney
-  	let moneyPerSingleHack = ns.hackAnalyze(server.hostname)/ns.hackAnalyzeChance(server.hostname)*server.maxMoney;
+  	let moneyPerSingleHack = ns.hackAnalyze(server.hostname)/ns.hackAnalyzeChance(server.hostname)*server.moneyMax;
   	let numHackThreads = Math.ceil(targetHackMoney/moneyPerSingleHack);
   	let growMultipler = 1/(1-takePercent);
   	let numGrowThreads = Math.ceil(ns.growthAnalyze(server.hostname, growMultipler));
@@ -75,7 +75,8 @@ export function getRatio(ns, server, neededRam = 1.75, takePercent = .01, haveFo
   	ratio = Math.floor(targetHackMoney/neededGB/totalTime*100)/100;
     if (isNaN(ratio) || ratio == 0){
       ratio = null;
-      ns.print("Ratio for "+ server.hostname+ " is NaN " + targetHackMoney + " " + neededGB + " " + totalTime);
+      ns.print("Ratio for "+ server.hostname+ " is NaN: $" + targetHackMoney
+        + " " +totalThreads + " Threads " + neededRam + " GB per Thread "+ neededGB + " GB " + totalTime +" sec.");
     }
   }
   let returns = {
