@@ -58,16 +58,17 @@ function getModServerInfo(ns, server) {
     //checks and sets if server is a viable target
     if (objServer.moneyMax > 0) {
       objServer.isTarget = true;
+      let returns = getRatio(ns, server, inventory.neededRam);
+      objServer.priority = returns.ratio;
+      objServer.cycleThreads = returns.cycleThreads;
     }
 
     //checks and sets if the server is a viable drone
     if (objServer.maxRam > inventory.neededRam) {
       objServer.isDrone = true;
-      objServer.maxThreads = objServer.maxRam/invetory.neededRam;
+      objServer.maxThreads = objServer.maxRam/inventory.neededRam;
     }
   }
-
-
   return objServer;
 }
 
