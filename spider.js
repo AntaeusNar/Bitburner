@@ -188,14 +188,14 @@ export async function main(ns) {
 
 
   //remove the old if it is there
-  if (ns.fileExists('inventory.json')) {
-    ns.rm('inventory.json');
+  if (ns.fileExists('inventory.txt')) {
+    ns.rm('inventory.txt');
     ns.tprint("Removing old JSON file.");
   }
 
   //output the inventory object as a JSON file
   ns.tprint("Creating Updated JSON file; please standby.");
-  await ns.write('inventory.json', JSON.stringify(inventory, null, '\t'), 'w');
+  await ns.write('inventory.txt', JSON.stringify(inventory, null, '\t'), 'w');
 
   //launch c_c
   ns.tprint("Launching C&C; please standby.");
