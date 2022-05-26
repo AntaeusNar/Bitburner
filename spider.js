@@ -62,7 +62,7 @@ function getModServerInfo(ns, server) {
     //checks and sets if server is a viable target
     if (objServer.moneyMax > 0) {
       objServer.isTarget = true;
-      let returns = getRatio(ns, objServer.hostname, inventory.neededRam);
+      let returns = getRatio(ns, objServer, inventory.neededRam);
       objServer.priority = returns.ratio;
       objServer.cycleThreads = returns.cycleThreads;
     }
