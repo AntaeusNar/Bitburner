@@ -96,6 +96,11 @@ function getServerInventory(ns, servers) {
   return returns
 }
 
+/** Given an array of server objects, will adjust the take % of each up until
+ * the new ratio is equal or greater then the next highest priority server objects
+ * given prioirty
+ */
+
 /** @param {NS} ns */
 export async function main(ns) {
 
@@ -120,6 +125,12 @@ export async function main(ns) {
   let returns = getServerInventory(ns, multiscan(ns, 'home'));
   inventory.servers = returns.serverInventory;
   inventory.maxThreads = returns.maxThreads;
+
+  //sort the servers by priority
+  ns.tprint("Sorting servers by priority.");
+  inventory.servers.sort(function(a,b) {
+    return (b.priority != null) - (a.priority != null) || b.priority - a.priority;
+  });
 
   //remove the old if it is there
   if (ns.fileExists('inventory.json')) {
