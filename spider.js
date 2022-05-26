@@ -77,15 +77,23 @@ function getModServerInfo(ns, server) {
 /** Given an array of server hostnames, will collect getServer info https://github.com/danielyxie/bitburner/blob/dev/markdown/bitburner.server.md
   * @param {ns} ns
   * @param {string[]} servers hostnames
-  * @returns {Object[]} Server Interface
+  * @returns {object} returns
+  * @returns {Object[]} returns.serverInventory - Server Interface
+  * @returns {number} returns.maxThreads
   */
 function getServerInventory(ns, servers) {
   let serverInventory = [];
+  let maxThreads = 0;
 
   for (let i = 0; i < servers.length; i++) {
     serverInventory[i] = getModServerInfo(servers[i]);
+    maxThreads += serverInventory[i].maxThreads;
   }
-  return serverInventory;
+  let returns = {
+    serverInventory: serverInventory,
+    maxThreads: maxThreads,
+  }
+  return returns
 }
 
 /** @param {NS} ns */
@@ -101,13 +109,17 @@ export async function main(ns) {
   }
 
   //get current files
+  ns.tprint("Grabbing files in /dronescripts/ and calculating maximum Ram needed per thread.")
   inventory.files = ns.ls("home", '/dronescripts');
 
   //calc needed ram
   inventory.neededRam = getNeededRam(ns, inventory.files);
 
   //scan the whole network and grab the server objects
-  inventory.servers = getServerInventory(ns, multiscan(ns, 'home'));
+  ns.tprint("Scanning Network and collecting server information.")
+  let returns = getServerInventory(ns, multiscan(ns, 'home'));
+  inventory.servers = returns.serverInventory;
+  inventory.maxThreads = returns.maxThreads;
 
   //remove the old if it is there
   if (ns.fileExists('inventory.json')) {
