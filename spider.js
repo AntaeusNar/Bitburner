@@ -3,7 +3,7 @@
  * info that will be passed as inventory.txt
  */
 
-import {can, getRoot} from "helperFunctions.js";
+import {can, getRoot, getRatio} from "helperFunctions.js";
 
 /** Given an array of files, returns the highest ram requirment
   * @param {ns} ns
