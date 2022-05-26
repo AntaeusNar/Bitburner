@@ -99,7 +99,14 @@ function getServerInventory(ns, servers) {
 /** Given an array of server objects, will adjust the take % of each up until
  * the new ratio is equal or greater then the next highest priority server objects
  * given prioirty
+ * @param {ns} ns
+ * @param {Object[]} servers - array of server objects
+ * @param {number} totalReservedThreads - cumulative number of threads reservered
+ * @param {number} indexOfAlpha - index of servers to start compairson
  */
+async function adjustTake(ns, servers, totalReservedThreads, indexOfAlpha) {
+  
+}
 
 /** @param {NS} ns */
 export async function main(ns) {
