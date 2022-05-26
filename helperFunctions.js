@@ -7,7 +7,7 @@
   * @param {string} filename
   * @returns {boolean} true if exsits
   */
- function can(ns, file) {
+ export function can(ns, file) {
   	return ns.fileExists(file, "home");
   }
 
@@ -16,7 +16,7 @@
   * @param {object} server
   * @returns {boolean} result
   */
- function getRoot(ns, target) {
+ export function getRoot(ns, target) {
   	let result = false;
   	let ports = 0;
   	if (target.requiredHackingSkill <= ns.getHackingLevel()) {
@@ -47,7 +47,7 @@
  * @returns {number} returns.ration - $/GB/Sec
  * @returns {number} returns.cycleThreads - threads for a full cycle
  */
-function getRatio(ns, server, neededRam = 1.75, takePercent = .01, haveFormules = false) {
+export function getRatio(ns, server, neededRam = 1.75, takePercent = .01, haveFormules = false) {
   let ratio = 0;
   let cycleThreads = 0;
 
