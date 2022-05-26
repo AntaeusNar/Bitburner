@@ -54,6 +54,7 @@ function getModServerInfo(ns, server) {
   objServer.priority = 0;
   objServer.cycleThreads = 0;
 
+
   //Checks/gets root access
   if (objServer.hasAdminRights || objServer.hostname == 'home' || getRoot(objServer)) {
 
@@ -71,6 +72,9 @@ function getModServerInfo(ns, server) {
       objServer.maxThreads = objServer.maxRam/inventory.neededRam;
     }
   }
+
+  objServer.adjustedRatio = objServer.priority;
+  objServer.adjustedTake = .01;
   return objServer;
 }
 
@@ -105,7 +109,18 @@ function getServerInventory(ns, servers) {
  * @param {number} indexOfAlpha - index of servers to start compairson
  */
 async function adjustTake(ns, servers, totalReservedThreads, indexOfAlpha) {
-  
+
+  /** Setup */
+  let targetAlpha = servers[indexOfAlpha];
+  let targetBeta = servers[indexOfAlpha + 1];
+  if (totalReservedThreads == 0) {
+    totalReservedThreads = targetAlpha.cycleThreads + targetBeta.cycleThreads;
+  } else {
+    totalReservedThreads += targetBeta.cycleThreads;
+  }
+
+  /** adjusting take perectange */
+  while(target)
 }
 
 /** @param {NS} ns */
