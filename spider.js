@@ -184,7 +184,7 @@ export async function main(ns) {
   ns.tprint("Adjusting the hack perectange to optimal conditions.")
   let totalReservedThreads = 0;
   let indexOfAlpha = 0;
-  await adjustTake(ns, inventory.servers, totalReservedThreads, indexOfAlpha);
+  await adjustTake(ns, totalReservedThreads, indexOfAlpha);
 
 
   //remove the old if it is there
