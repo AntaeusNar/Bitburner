@@ -47,6 +47,7 @@ function multiscan(ns, server) {
  */
 function getModServerInfo(ns, server) {
   //get initail info
+  let objServer = {}
   objServer = ns.getServer(server);
   objServer.isTarget = false;
   objServer.isDrone = false;
