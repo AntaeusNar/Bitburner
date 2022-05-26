@@ -105,11 +105,10 @@ function getServerInventory(ns, servers) {
  * the new ratio is equal or greater then the next highest priority server objects
  * given prioirty
  * @param {ns} ns
- * @param {Object} inventory - the current inventory
  * @param {number} totalReservedThreads - cumulative number of threads reservered
  * @param {number} indexOfAlpha - index of servers to start compairson
  */
-async function adjustTake(ns, inventory, totalReservedThreads, indexOfAlpha) {
+async function adjustTake(ns, totalReservedThreads, indexOfAlpha) {
 
   /** Setup */
   let targetAlpha = inventory.servers[indexOfAlpha];
