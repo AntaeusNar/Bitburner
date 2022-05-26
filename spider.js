@@ -132,6 +132,13 @@ export async function main(ns) {
     return (b.priority != null) - (a.priority != null) || b.priority - a.priority;
   });
 
+  //adjust the take %
+  ns.tprint("Adjusting the hack perectange to optimal conditions.")
+  let totalReservedThreads = 0;
+  let indexOfAlpha = 0;
+  await adjustTake(ns, inventory.servers, totalReservedThreads, indexOfAlpha);
+
+
   //remove the old if it is there
   if (ns.fileExists('inventory.json')) {
     ns.rm('inventory.json');
