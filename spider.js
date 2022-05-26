@@ -51,6 +51,8 @@ function getModServerInfo(ns, server) {
   objServer.isTarget = false;
   objServer.isDrone = false;
   objServer.maxThreads = 0;
+  objServer.priority = 0;
+  objServer.cycleThreads = 0;
 
   //Checks/gets root access
   if (objServer.hasAdminRights || objServer.hostname == 'home' || getRoot(objServer)) {
