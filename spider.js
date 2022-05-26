@@ -120,7 +120,16 @@ async function adjustTake(ns, servers, totalReservedThreads, indexOfAlpha) {
   }
 
   /** adjusting take perectange */
-  while(target)
+  while(targetAlpha.adjustedRatio != null
+    && targetAlpha.adjustedRatio > targetBeta.adjustedRatio
+    && totalReservedThreads < inventory.maxThreads) {
+      let adjustedTake = Math.ceil((targetAlpha.adjustedTake + .01)*100)/100;
+      ns.print("Adjusting the take perectange of " + targetAlpha.hostname + ", current take is " + targetAlpha.adjustedTake + " adjusted perectange is " + adjustedTake);
+
+      if (adjustedTake <= .99) {
+        
+      }
+    }
 }
 
 /** @param {NS} ns */
