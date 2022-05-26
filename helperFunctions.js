@@ -13,7 +13,7 @@
 
  /** Given a server object, will attempt to gain root
   * @param {ns} ns
-  * @param {string} hostname
+  * @param {object} server
   * @returns {boolean} result
   */
  function getRoot(ns, target) {
@@ -34,3 +34,46 @@
   	}
   	return result;
  }
+
+
+/** Given a server object and a takePercent, will calculate the ratio
+ * in $/GB/Sec
+ * @param {ns} ns
+ * @param {object} server
+ * @param {number} neededRam - GB of ram per thread
+ * @param {number} takePercent - as a decimal
+ * @param {boolean} haveFormules - have Formules.exe
+ * @returns {number} ratio
+ */
+function getRatio(ns, server, neededRam = 1.75, takePercent = .01, haveFormules = false) {
+  let ratio = 0;
+
+  if (haveFormules) {
+
+  } else {
+    //calc batch time in sec
+    let totalTime = (ns.getWeakenTime(server.hostname) + 500)/1000;
+
+    //calc target amount of money
+    let targetHackMoney = server.moneyMax*takePercent;
+
+    //calculate GB needed to hack/weak/grow targetHackMoney
+  	let moneyPerSingleHack = ns.hackAnalyze(server.name)/ns.hackAnalyzeChance(server.name)*server.maxMoney;
+  	let numHackThreads = Math.ceil(targetHackMoney/moneyPerSingleHack);
+  	let growMultipler = 1/(1-takePercent);
+  	let numGrowThreads = Math.ceil(ns.growthAnalyze(server.name, growMultipler));
+  	let numWeakenThreads = Math.ceil(numGrowThreads*.004/.05);
+  	numWeakenThreads += Math.ceil(numHackThreads*.002/.05);
+  	let totalThreads = numHackThreads+numGrowThreads+numWeakenThreads;
+  	let neededGB = totalThreads*neededRam;
+
+    //calc ratio
+  	ratio = Math.floor(targetHackMoney/neededGB/totalTime*100)/100;
+    if (isNaN(ratio)){
+      ratio = null;
+      ns.print("Ratio for "+ server.name+ " is NaN " + targetHackMoney + " " + neededGB + " " + totalTime);
+    }
+  }
+
+  return ratio
+}
