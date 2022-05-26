@@ -61,7 +61,7 @@ export function getRatio(ns, server, neededRam = 1.75, takePercent = .01, haveFo
     let targetHackMoney = server.moneyMax*takePercent;
 
     //calculate GB needed to hack/weak/grow targetHackMoney
-  	let moneyPerSingleHack = ns.hackAnalyze(server.hostname)/ns.hackAnalyzeChance(server.name)*server.maxMoney;
+  	let moneyPerSingleHack = ns.hackAnalyze(server.hostname)/ns.hackAnalyzeChance(server.hostname)*server.maxMoney;
   	let numHackThreads = Math.ceil(targetHackMoney/moneyPerSingleHack);
   	let growMultipler = 1/(1-takePercent);
   	let numGrowThreads = Math.ceil(ns.growthAnalyze(server.hostname, growMultipler));
