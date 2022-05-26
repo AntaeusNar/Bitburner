@@ -69,7 +69,7 @@ function getRatio(ns, server, neededRam = 1.75, takePercent = .01, haveFormules 
   	numWeakenThreads += Math.ceil(numHackThreads*.002/.05);
   	let totalThreads = numHackThreads+numGrowThreads+numWeakenThreads;
   	let neededGB = totalThreads*neededRam;
-  	cycleThreads = Math.ceil((totalTime*1000)/100*totalThreads);
+  	cycleThreads = Math.ceil((totalTime*1000)/200*totalThreads);
 
     //calc ratio
   	ratio = Math.floor(targetHackMoney/neededGB/totalTime*100)/100;
