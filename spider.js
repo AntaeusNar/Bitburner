@@ -104,15 +104,15 @@ function getServerInventory(ns, servers) {
  * the new ratio is equal or greater then the next highest priority server objects
  * given prioirty
  * @param {ns} ns
- * @param {Object[]} servers - array of server objects
+ * @param {Object} inventory - the current inventory
  * @param {number} totalReservedThreads - cumulative number of threads reservered
  * @param {number} indexOfAlpha - index of servers to start compairson
  */
-async function adjustTake(ns, servers, totalReservedThreads, indexOfAlpha) {
+async function adjustTake(ns, inventory, totalReservedThreads, indexOfAlpha) {
 
   /** Setup */
-  let targetAlpha = servers[indexOfAlpha];
-  let targetBeta = servers[indexOfAlpha + 1];
+  let targetAlpha = inventory.servers[indexOfAlpha];
+  let targetBeta = inventory.servers[indexOfAlpha + 1];
   if (totalReservedThreads == 0) {
     totalReservedThreads = targetAlpha.cycleThreads + targetBeta.cycleThreads;
   } else {
@@ -127,10 +127,26 @@ async function adjustTake(ns, servers, totalReservedThreads, indexOfAlpha) {
       ns.print("Adjusting the take perectange of " + targetAlpha.hostname + ", current take is " + targetAlpha.adjustedTake + " adjusted perectange is " + adjustedTake);
 
       if (adjustedTake <= .99) {
-        
+        let returns = getRatio(ns, targetAlpha, inventory.neededRam, adjustedTake);
+        totalReservedThreads = totalReservedThreads + (returns.cycleThreads - targetAlpha.cycleThreads);
+        targetAlpha.adjustedTake = adjustedTake;
+        targetAlpha.adjustedRatio = returns.ratio;
+        targetAlpha.cycleThreads = returns.cycleThreads;
+        inventory.servers[indexOfAlpha] = targetAlpha;
+        await ns.sleep(1);
+      } else {
+        ns.print("Adjustment completed: " + inventory.servers[indexOfAlpha].hostname + " updated to " + inventory.servers[indexOfAlpha].adjustedTake*100 + "%.");
+        break;
+      }
+
+      if (totalReservedThreads < inventory.maxThreads) {
+        indexOfAlpha++;
+        await adjustTake(ns, inventory, totalReservedThreads, indexOfAlpha);
       }
     }
 }
+
+
 
 /** @param {NS} ns */
 export async function main(ns) {
@@ -182,5 +198,5 @@ export async function main(ns) {
 
   //launch c_c
   ns.tprint("Launching C&C; please standby.");
-  ns.spawn('c_c.js');
+  //ns.spawn('c_c.js');
 }
