@@ -111,8 +111,14 @@ function getServerInventory(ns, servers) {
 async function adjustTake(ns, totalReservedThreads, indexOfAlpha) {
 
   /** Setup */
+  //select targets alpha and beta
   let targetAlpha = inventory.servers[indexOfAlpha];
   let targetBeta = inventory.servers[indexOfAlpha + 1];
+  //if indexOfAlpha is out of index.....
+  if (targetBeta == undefined) {
+    targetBeta = targetAlpha;
+  }
+
   if (totalReservedThreads == 0) {
     totalReservedThreads = targetAlpha.cycleThreads + targetBeta.cycleThreads;
   } else {
@@ -135,15 +141,16 @@ async function adjustTake(ns, totalReservedThreads, indexOfAlpha) {
         inventory.servers[indexOfAlpha] = targetAlpha;
         await ns.sleep(1);
       } else {
-        ns.print("Adjustment completed: " + inventory.servers[indexOfAlpha].hostname + " updated to " + inventory.servers[indexOfAlpha].adjustedTake*100 + "%.");
         break;
       }
-
-      if (totalReservedThreads < inventory.maxThreads) {
-        indexOfAlpha++;
-        await adjustTake(ns, inventory, totalReservedThreads, indexOfAlpha);
-      }
     }
+    ns.print("Adjustment completed: " + inventory.servers[indexOfAlpha].hostname + " updated to " + inventory.servers[indexOfAlpha].adjustedTake*100 + "%.");
+
+    if (totalReservedThreads < inventory.maxThreads) {
+      indexOfAlpha++;
+      await adjustTake(ns, totalReservedThreads, indexOfAlpha);
+    }
+
 }
 
 
@@ -157,6 +164,8 @@ var inventory = {
 
 /** @param {NS} ns */
 export async function main(ns) {
+
+  ns.disableLog("sleep");
 
   //initalization
   ns.tprint("Welcome to Spider: Scanning Network and Building Inventory");
