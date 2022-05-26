@@ -73,7 +73,7 @@ export function getRatio(ns, server, neededRam = 1.75, takePercent = .01, haveFo
 
     //calc ratio
   	ratio = Math.floor(targetHackMoney/neededGB/totalTime*100)/100;
-    if (isNaN(ratio)){
+    if (isNaN(ratio) || ratio == 0){
       ratio = null;
       ns.print("Ratio for "+ server.hostname+ " is NaN " + targetHackMoney + " " + neededGB + " " + totalTime);
     }
