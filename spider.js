@@ -114,9 +114,12 @@ async function adjustTake(ns, totalReservedThreads, indexOfAlpha) {
   //select targets alpha and beta
   let targetAlpha = inventory.servers[indexOfAlpha];
   let targetBeta = inventory.servers[indexOfAlpha + 1];
+
   //if indexOfAlpha is out of index.....
+  // TODO: Fix this dirty dirty hack....
   if (targetBeta == undefined) {
     targetBeta = targetAlpha;
+    targetBeta.cycleThreads = 0;
   }
 
   if (totalReservedThreads == 0) {
@@ -126,12 +129,11 @@ async function adjustTake(ns, totalReservedThreads, indexOfAlpha) {
   }
 
   /** adjusting take perectange */
+  ns.print("Adjusting the take percentage of " + targetAlpha.hostname + " " + (indexOfAlpha + 1) + " of " + inventory.servers.length);
   while(targetAlpha.adjustedRatio != null
     && targetAlpha.adjustedRatio > targetBeta.adjustedRatio
     && totalReservedThreads < inventory.maxThreads) {
       let adjustedTake = Math.ceil((targetAlpha.adjustedTake + .01)*100)/100;
-      ns.print("Adjusting the take perectange of " + targetAlpha.hostname + ", current take is " + targetAlpha.adjustedTake + " adjusted perectange is " + adjustedTake);
-
       if (adjustedTake <= .99) {
         let returns = getRatio(ns, targetAlpha, inventory.neededRam, adjustedTake);
         totalReservedThreads = totalReservedThreads + (returns.cycleThreads - targetAlpha.cycleThreads);
@@ -144,9 +146,10 @@ async function adjustTake(ns, totalReservedThreads, indexOfAlpha) {
         break;
       }
     }
+
     ns.print("Adjustment completed: " + inventory.servers[indexOfAlpha].hostname + " updated to " + inventory.servers[indexOfAlpha].adjustedTake*100 + "%.");
 
-    if (totalReservedThreads < inventory.maxThreads) {
+    if (totalReservedThreads < inventory.maxThreads && indexOfAlpha < inventory.servers.length) {
       indexOfAlpha++;
       await adjustTake(ns, totalReservedThreads, indexOfAlpha);
     }
@@ -166,6 +169,7 @@ var inventory = {
 export async function main(ns) {
 
   ns.disableLog("sleep");
+  ns.disableLog("scan");
 
   //initalization
   ns.tprint("Welcome to Spider: Scanning Network and Building Inventory");
@@ -190,7 +194,7 @@ export async function main(ns) {
   });
 
   //adjust the take %
-  ns.tprint("Adjusting the hack perectange to optimal conditions.")
+  ns.tprint("Adjusting the hack percentage to optimal conditions.")
   let totalReservedThreads = 0;
   let indexOfAlpha = 0;
   await adjustTake(ns, totalReservedThreads, indexOfAlpha);
