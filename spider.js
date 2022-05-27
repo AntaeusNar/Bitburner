@@ -1,4 +1,4 @@
-/** Spider
+/** Spider v3.0
  * This program will do an initial map of the servers and generate some basic
  * info that will be passed as inventory.txt
  */
