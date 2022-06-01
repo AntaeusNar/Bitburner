@@ -100,30 +100,29 @@ export function getRatio(ns, server, neededRam, takePercent, haveFormules = fals
  * @returns {number} vectors.growThreads
  * @returns {number} vectors.hackThreads
  */
- export function evalVectors(ns, server, maxThreads, takePercent) {
-   const weakenRate = 0.05;
-   const growRate = 0.004;
-   const hackRate = 0.002;
-   var weakenThreads = {
-     primary: 0,
-     growT: 0,
-     hackT: 0,
-   }
+ function evalVectors(ns, target, maxThreads, takePercent) {
+ 	const weakenRate = 0.05;
+ 	const growRate = 0.004;
+ 	const hackRate = 0.002;
+ 	var weakenThreads = {
+ 		primary: 0,
+ 		growT: 0,
+ 		hackT: 0,
+ 	}
 
-   var vectors = {
-     weakenThreads: weakenThreads,
-     growThreads: 0,
-     hackThreads: 0,
-     totalVectors: 0,
-   }
-   let availableThreads = maxThreads;
+ 	var vectors = {
+ 		weakenThreads: weakenThreads,
+ 		growThreads: 0,
+ 		hackThreads: 0,
+ 		totalVectors: 0,
+ 	}
+ 	let availableThreads = maxThreads;
 
-   //Primary Weakens
-   if (!server.isPrimedStr) {
+ 	if (!target.isPrimedStr) {
  		//current Security Level
- 		let currentSecurityLevel = ns.getServerSecurityLevel(server.hostname);
+ 		let currentSecurityLevel = ns.getServerSecurityLevel(target.hostname);
  		//number of intial weaken threads needed
- 		let targetWeakenThreads = Math.ceil((currentSecurityLevel - server.minSecurity) / weakenRate);
+ 		let targetWeakenThreads = Math.ceil((currentSecurityLevel - target.minDifficulty) / weakenRate);
  		//make sure not to go over maxThreads
  		vectors.weakenThreads.primary = Math.min(targetWeakenThreads, maxThreads);
  		//adjust number of available threads
@@ -131,7 +130,90 @@ export function getRatio(ns, server, neededRam, takePercent, haveFormules = fals
  		//running total
  		vectors.totalVectors = vectors.weakenThreads.primary;
  		if (vectors.weakenThreads.primary == targetWeakenThreads) {
- 			server.isPrimedStr = true; //sets isPrimed when the number of asked threads = number of needed
+ 			target.isPrimedStr = true; //sets isPrimed when the number of asked threads = number of needed
  		}
  	}
+
+ 	//try to add in grows and their weakens
+ 	if (availableThreads > 0) {
+ 		//calculate the number of needed grow threads
+ 		let growMultiplier = 0;
+ 		let targetedGrowthThreads = 0;
+ 		let strengthenAmount = 0;
+ 		let additionalWeakens = 0;
+ 		//adjustment for when there is 0 on the target --> game docs add 1 to grow so
+ 		let availableMoney = Math.max(ns.getServerMoneyAvailable(target.hostname), 1);
+
+ 		if (!target.isPrimedMoney) {
+ 			//if the target has not been primed for money
+ 			growMultiplier = target.moneyMax/availableMoney;
+ 			targetedGrowthThreads = Math.ceil(ns.growthAnalyze(target.hostname, growMultiplier));
+ 			strengthenAmount = targetedGrowthThreads * growRate;
+ 			additionalWeakens = Math.ceil(strengthenAmount/weakenRate);
+ 			if ((availableThreads-additionalWeakens-targetedGrowthThreads) > 0) {
+ 				target.isPrimedMoney = true;
+ 			}
+ 		} else {
+ 			//if the target has been primed for money
+ 			growMultiplier = target.moneyMax / (target.moneyMax * (1 - takePercent));
+ 			targetedGrowthThreads = Math.ceil(ns.growthAnalyze(target.hostname, growMultiplier));
+ 			strengthenAmount = targetedGrowthThreads * growRate;
+ 			additionalWeakens = Math.ceil(strengthenAmount/weakenRate);
+ 		}
+
+ 		//make sure not to go over available threads
+ 		additionalWeakens = Math.min(additionalWeakens, availableThreads);
+ 		//add in the additionalWeakens
+ 		vectors.weakenThreads.growT = additionalWeakens;
+ 		//adjust availableThreads
+ 		availableThreads -= additionalWeakens;
+ 		//running total
+ 		vectors.totalVectors += vectors.weakenThreads.growT;
+ 		//make sure to not go over the available threads
+ 		let actuallGrowthThreads = Math.min(targetedGrowthThreads, availableThreads);
+ 		//adjust number of available threads
+ 		availableThreads -= actuallGrowthThreads;
+ 		//set the number of vector.growthThreads
+ 		vectors.growThreads = actuallGrowthThreads;
+ 		//running total
+ 		vectors.totalVectors += vectors.growThreads;
+
+ 		//reset strengthen and weaken
+ 		strengthenAmount = 0;
+ 		additionalWeakens = 0;
+
+ 		//try to add in hacks and their weakens
+ 		if (availableThreads > 0 && (actuallGrowthThreads == targetedGrowthThreads)) {
+ 			//precent stolen per hack thread
+ 			let singlethreadpercent = ns.hackAnalyze(target.hostname);
+ 			//number of threads needed to take %
+ 			let targetedHackThreads = takePercent / singlethreadpercent;
+ 			//increase the number of hacking threads by the lossed due to chance
+ 			targetedHackThreads = Math.ceil(targetedHackThreads / (ns.hackAnalyzeChance(target.hostname)));
+ 			//calcualte needed weaken threads
+ 			strengthenAmount = targetedHackThreads * hackRate;
+ 			additionalWeakens = Math.ceil(strengthenAmount / weakenRate);
+ 			//make sure to not go ove the available threads
+ 			additionalWeakens = Math.min(additionalWeakens, availableThreads);
+ 			//check to make sure we can do both the needed hacks and their covers
+ 			//there might be an issue with the take 1% math bit.....idk...
+ 			//this should help cover it....
+ 			if (additionalWeakens + targetedHackThreads <= availableThreads) {
+ 				//add in the weakens
+ 				vectors.weakenThreads.hackT = additionalWeakens;
+ 				//running total
+ 				vectors.totalVectors += vectors.weakenThreads.hackT;
+ 				//adjust the number of aviable threads
+ 				availableThreads -= additionalWeakens;
+ 				//make sure not to go over the available threads
+ 				targetedHackThreads = Math.min(targetedHackThreads, availableThreads);
+ 				//add into vector
+ 				vectors.hackThreads = targetedHackThreads;
+ 				//running total
+ 				vectors.totalVectors += vectors.hackThreads;
+ 			}
+
+ 		}
+ 	}
+ 	return {vectors: vectors, target: target,};
  }
