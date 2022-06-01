@@ -33,7 +33,6 @@
   	return result;
  }
 
-
 /** Given a server object and a takePercent, will calculate the ratio
  * in $/GB/Sec
  * @param {ns} ns

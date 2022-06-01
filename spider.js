@@ -157,7 +157,6 @@ async function adjustTake(ns, totalReservedThreads, indexOfAlpha) {
 
 }
 
-
 /** global scoping */
 var inventory = {
   maxThreads: 0,
