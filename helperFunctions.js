@@ -82,3 +82,56 @@ export function getRatio(ns, server, neededRam, takePercent, haveFormules = fals
 	}
 	return returns;
 }
+
+/** Given a server object, max usable threads, and a take percentage will calculate the needed threads for a single batch
+ * @param {ns} ns
+ * @param {object} server - full server object
+ * @param {number} maxThreads - maximum usable threads
+ * @param {number} takePercent - targeted take percentage
+ * @returns {object} returns
+ * @returns {object} returns.target
+ * @returns {boolean} returns.target.isPrimedMoney
+ * @returns {boolean} retruns.target.isPrimedStr
+ * @returns {Object} returns.vectors
+ * @returns {Object} returns.vectors.weakenThreads
+ * @returns {number} vectors.weakenThreads.primary
+ * @returns {number} vectors.weakenThreads.growT
+ * @returns {number} vectors.weakenThreads.hackT
+ * @returns {number} vectors.growThreads
+ * @returns {number} vectors.hackThreads
+ */
+ export function evalVectors(ns, server, maxThreads, takePercent) {
+   const weakenRate = 0.05;
+   const growRate = 0.004;
+   const hackRate = 0.002;
+   var weakenThreads = {
+     primary: 0,
+     growT: 0,
+     hackT: 0,
+   }
+
+   var vectors = {
+     weakenThreads: weakenThreads,
+     growThreads: 0,
+     hackThreads: 0,
+     totalVectors: 0,
+   }
+   let availableThreads = maxThreads;
+
+   //Primary Weakens
+   if (!server.isPrimedStr) {
+ 		//current Security Level
+ 		let currentSecurityLevel = ns.getServerSecurityLevel(server.hostname);
+ 		//number of intial weaken threads needed
+ 		let targetWeakenThreads = Math.ceil((currentSecurityLevel - server.minSecurity) / weakenRate);
+ 		//make sure not to go over maxThreads
+ 		vectors.weakenThreads.primary = Math.min(targetWeakenThreads, maxThreads);
+ 		//adjust number of available threads
+ 		availableThreads -= vectors.weakenThreads.primary;
+ 		//running total
+ 		vectors.totalVectors = vectors.weakenThreads.primary;
+ 		if (vectors.weakenThreads.primary == targetWeakenThreads) {
+ 			server.isPrimedStr = true; //sets isPrimed when the number of asked threads = number of needed
+ 		}
+ 	}
+ }
