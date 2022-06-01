@@ -19,7 +19,6 @@
  export function getRoot(ns, target) {
   	let result = false;
   	let ports = 0;
-  	if (target.requiredHackingSkill <= ns.getHackingLevel()) {
   		if (can(ns, "brutessh.exe")) { ns.brutessh(target.hostname); ++ports; }
   		if (can(ns, "ftpcrack.exe")) { ns.ftpcrack(target.hostname); ++ports; }
   		if (can(ns, "relaysmtp.exe")) { ns.relaysmtp(target.hostname); ++ports; }
@@ -27,11 +26,10 @@
   		if (can(ns, "sqlinject.exe")) { ns.sqlinject(target.hostname); ++ports; }
   		if (ports >= target.numOpenPortsRequired) {
   			ns.nuke(target.hostname);
-  			if (target.hasAdminRights){
+  			if (ns.hasRootAccess(target.hostname)){
   				result = true;
   			}
   		}
-  	}
   	return result;
  }
 

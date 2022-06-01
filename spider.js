@@ -58,9 +58,10 @@ function getModServerInfo(ns, server) {
 
   //Checks/gets root access
   if (objServer.hasAdminRights || objServer.hostname == 'home' || getRoot(objServer)) {
+    objServer.hasAdminRights = true;
 
     //checks and sets if server is a viable target
-    if (objServer.moneyMax > 0) {
+    if (objServer.moneyMax > 0 && objServer.requiredHackingSkill <= ns.getHackingLevel()) {
       objServer.isTarget = true;
       let returns = getRatio(ns, objServer, inventory.neededRam, .01);
       objServer.priority = returns.ratio;
