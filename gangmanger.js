@@ -5,25 +5,43 @@ export async function main(ns) {
 	ns.disableLog('sleep');
 
 	while (true) {
-		await ns.sleep(1);
+
 		//get basic gang info
 		let gangCrew = ns.gang.getMemberNames();
 		let gangInfo = ns.gang.getGangInformation();
 
-		//cycle between strong arming civilians and vigilate justice
-		if (gangInfo.wantedPenalty < .75 ) {
-			ns.print("Wanted Penalty is high, reducing.");
-			for (let member of gangCrew) {
+    //Cycle through each member, and set tasks
+    for (let member of gangCrew) {
+      let memberInfo = ns.gang.getMemberInformation(member);
 
-				ns.gang.setMemberTask(member, 'Vigilante Justice');
-			}
-		} else if (gangInfo.wantedPenalty > .95 || gangInfo.wantedLevel < 2) {
-			ns.print("Back to crime!!!");
-			for (let member of gangCrew) {
 
-				ns.gang.setMemberTask(member, 'Traffick Illegal Arms');
-			}
-		}
+      //check for wantedPenalty
+      if (gangInfo.wantedPenalty < .75) {
+        ns.gang.setMemberTask(member, 'Vigilante Justice');
+      } else if (gangInfo.wantedPenalty > .95 || gangInfo.wantedLevel < 2) {
+        let roll = 1+ Math.floor(Math.random() * 3);
+        switch(roll) {
+          case 1:
+		        ns.gang.setMemberTask(member, "Terrorism");
+            break;
+          case 2:
+            ns.gang.setMemberTask(member, "Territory Warfare");
+            break;
+          case 3:
+          default:
+            if (memberInfo.str < 150) {
+              ns.gang.setMemberTask(member, "Mug People")
+            }
+            else if (memberInfo.str < 500) {
+              ns.gang.setMemberTask(member, "Strongarm Civilians")
+            }
+            else {
+              ns.gang.setMemberTask(member, "Traffick Illegal Arms")
+            }
+        }
+      }
+      await ns.sleep(1);
+    }
+    await ns.sleep(10*1000);
 	}
-
 }
