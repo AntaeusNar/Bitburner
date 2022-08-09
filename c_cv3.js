@@ -140,7 +140,7 @@ function deployVectors(ns, target, vectors, droneNetwork, files, baseDelay, cycl
 	} //end of hT, h
 
 	if (!results.every((value) => value === true)) {
-		ns.print("Error deploying all threads for " + target + " Vectors: " + vectors + " Completed: " + results);
+		ns.print("ERROR: Error deploying all threads for " + target + " Vectors: " + JSON.stringify(vectors) + " Completed: " + results);
 	}
 
 	let cycletime = stageFiveDelay + weakentime;
@@ -156,6 +156,7 @@ function deployVectors(ns, target, vectors, droneNetwork, files, baseDelay, cycl
  * @param {number} target.maxMoney
  * @param {number} max usable threads
  * @param {number} takePercent
+ * @param {number} usableScipts
  * @returns {object} returns
  * @returns {object} returns.target
  * @returns {boolean} returns.target.isPrimedMoney
@@ -168,7 +169,7 @@ function deployVectors(ns, target, vectors, droneNetwork, files, baseDelay, cycl
  * @returns {number} vectors.growThreads
  * @returns {number} vectors.hackThreads
  */
-function evalVectors(ns, target, maxThreads, takePercent) {
+function evalVectors(ns, target, maxThreads, takePercent, usableScripts) {
 	const weakenRate = 0.05;
 	const growRate = 0.004;
 	const hackRate = 0.002;
@@ -185,6 +186,8 @@ function evalVectors(ns, target, maxThreads, takePercent) {
 		totalVectors: 0,
 	}
 	let availableThreads = maxThreads;
+	let availableScripts = usableScripts
+	let growBypass = false;
 
 	if (!target.isPrimedStr) {
 		//current Security Level
@@ -193,8 +196,9 @@ function evalVectors(ns, target, maxThreads, takePercent) {
 		let targetWeakenThreads = Math.ceil((currentSecurityLevel - target.minSecurity) / weakenRate);
 		//make sure not to go over maxThreads
 		vectors.weakenThreads.primary = Math.min(targetWeakenThreads, maxThreads);
-		//adjust number of available threads
+		//adjust number of available threads & scripts
 		availableThreads -= vectors.weakenThreads.primary;
+		availableScripts -= 1;
 		//running total
 		vectors.totalVectors = vectors.weakenThreads.primary;
 		if (vectors.weakenThreads.primary == targetWeakenThreads) {
@@ -203,7 +207,7 @@ function evalVectors(ns, target, maxThreads, takePercent) {
 	}
 
 	//try to add in grows and their weakens
-	if (availableThreads > 0) {
+	if (availableThreads > 0 && availableScripts > 0) {
 		//calculate the number of needed grow threads
 		let growMultiplier = 0;
 		let targetedGrowthThreads = 0;
@@ -229,18 +233,34 @@ function evalVectors(ns, target, maxThreads, takePercent) {
 			additionalWeakens = Math.ceil(strengthenAmount/weakenRate);
 		}
 
+		/** As it happens, there are times when the needed additional grows use all aviable threads, which means that
+		 * no actual grows get added to the vector list, and if there are no grows, then deploy doesn't deploy.....
+		 * So we need to scale down the number of grows, so we can deploy both weakens and grows.  Might also need to do for hacks
+		 */
+
+		if (additionalWeakens + targetedGrowthThreads > availableThreads) {
+			ns.print("INFO: Scaling down growth for " + target.name);
+			//given that a weaken reduces the strength by .05 and a grow increases the strength by .004, for every 25 grows
+			//you need 2 weakens - hence 27 threads in a group
+			let numberOfGroups = Math.floor(availableThreads/(27))
+			targetedGrowthThreads = numberOfGroups*25;
+			additionalWeakens = numberOfGroups*2;
+			growBypass = true;
+		}
 		//make sure not to go over available threads
 		additionalWeakens = Math.min(additionalWeakens, availableThreads);
 		//add in the additionalWeakens
 		vectors.weakenThreads.growT = additionalWeakens;
 		//adjust availableThreads
 		availableThreads -= additionalWeakens;
+		availableScripts -= 1;
 		//running total
 		vectors.totalVectors += vectors.weakenThreads.growT;
 		//make sure to not go over the available threads
 		let actuallGrowthThreads = Math.min(targetedGrowthThreads, availableThreads);
 		//adjust number of available threads
 		availableThreads -= actuallGrowthThreads;
+		availableScripts -= 1;
 		//set the number of vector.growthThreads
 		vectors.growThreads = actuallGrowthThreads;
 		//running total
@@ -251,7 +271,7 @@ function evalVectors(ns, target, maxThreads, takePercent) {
 		additionalWeakens = 0;
 
 		//try to add in hacks and their weakens
-		if (availableThreads > 0 && (actuallGrowthThreads == targetedGrowthThreads)) {
+		if (availableThreads > 0 && availableScripts > 0 && (actuallGrowthThreads == targetedGrowthThreads && !growBypass)) {
 			//precent stolen per hack thread
 			let singlethreadpercent = ns.hackAnalyze(target.name);
 			//number of threads needed to take %
@@ -266,7 +286,7 @@ function evalVectors(ns, target, maxThreads, takePercent) {
 			//check to make sure we can do both the needed hacks and their covers
 			//there might be an issue with the take 1% math bit.....idk...
 			//this should help cover it....
-			if (additionalWeakens + targetedHackThreads <= availableThreads) {
+			if (additionalWeakens + targetedHackThreads <= availableThreads && availableScripts > 2) {
 				//add in the weakens
 				vectors.weakenThreads.hackT = additionalWeakens;
 				//running total
@@ -290,11 +310,11 @@ function evalVectors(ns, target, maxThreads, takePercent) {
 export async function main(ns) {
 	//initalization test for the exsitance of the inventory.txt file
 	if (!ns.fileExists('inventoryv2.txt')) {
-		ns.tprint('inventoryv2.txt does not exist, calling spider.js to restart inventory cycle');
+		ns.tprint('ERROR: inventoryv2.txt does not exist, calling spider.js to restart inventory cycle');
 		ns.spawn('spiderv2.js');
 	} else {
 		//quite some logs
-		//ns.disableLog('sleep');
+		ns.disableLog('sleep');
 		ns.disableLog('exec');
 		ns.disableLog('getServerUsedRam');
 		ns.disableLog('getServerMoneyAvailable');
@@ -317,76 +337,96 @@ export async function main(ns) {
 		//while true loop
 		//cycle info
 		let cycle = 1;
+		let batch = 1;
 		let baseDelay = 200;
 		let sleepTime = baseDelay;
+		let actualNumOfBatches = 0;
 
 		while (true) {
 			//Log Outut
-			ns.print("Cycle #" + cycle);
+			ns.print("Cycle #: " + cycle + " Batch #: " + batch);
 
 			/** Iterive Target Handling */
 			//set index
 			let i = 0;
 			//set usable threads
 			let usableThreads = inventory.maxThreads;
-			//loop while there are tragets and usable Threads
-			while (i < numberOfTargets && usableThreads > 0) {
+			//set max scripts -> true max is in the 10k range (depending on complexety)
+			let usableScripts = 9000;
+			let scriptsPerBatch = 4;
+			//loop while there are targets, usable threads and usable simultanious scripts running
+			// -> The 9k simultanious scripts seems to be a realworld limit on the steam client using 4GB of actual ram
+			//TODO: work out another way to deploy scripts using settimeout so we can limit the number of 'active' scripts to 9k while keeping ram for cycles
+			// I.E. a hack() only needs to be active for a few mins/sec while a weaken() needs to be active for 10+ mins.
+			// Use settimeout(exec(), timeoutvar) to try to que up inactive hack()s and still keep the ram reserved.
+
+			while (i < numberOfTargets && usableThreads > 0 && usableScripts > 0) {
 				//select working target
 				let currentTarget = targets[i];
 				//get vector info
-				let returns = evalVectors(ns, currentTarget, usableThreads, currentTarget.takePercent);
+				let returns = evalVectors(ns, currentTarget, usableThreads, currentTarget.takePercent, usableScripts);
 				let vectors = returns.vectors;
 				//update target info
 				targets[i].isPrimedMoney = returns.target.isPrimedMoney;
 				targets[i].isPrimedStr = returns.target.isPrimedStr;
 				//deploy vectors
-				let batchTime = deployVectors(ns, currentTarget.name, vectors, droneNetwork, inventory.files, baseDelay, cycle);
-				//max number of parralel cycles
-				let maxNumCycles = usableThreads / vectors.totalVectors;
-				//set theoretical delay
-				let theoryTime = batchTime/maxNumCycles;
-				//get actual delay
-				let actTime = Math.max(theoryTime, baseDelay);
-				//modify the wait if on the first index item
+				let cycleBatch = cycle + '/' + batch;
+				let batchTime = deployVectors(ns, currentTarget.name, vectors, droneNetwork, inventory.files, baseDelay, cycleBatch);
+				//calc max number of parralel batches
+				//NB: with a standard deployment of a (W)GWHW batch there will be 4 scripts generated due to timing, G/W/H/W
+				//we want to limit the max number of batches for our vectors to either total usable threads / number of threads per batch OR total usable simultanious scripts / number of scripts per batch, whichever is less
+				//for the moment we are using a fixed number of max scripts of 9000 and a fixed estimate of the number of scripts per batch of 4 (the actual average should be higher)
+				let maxNumBatches = Math.min(usableThreads / vectors.totalVectors, usableScripts/scriptsPerBatch);
+				//set theoretical delay between each batch
+				let theoryDelay = batchTime/maxNumBatches;
+				//get actual delay as larger of theoretical or base delay
+				let actTime = Math.max(theoryDelay, baseDelay);
+				//modify the real wait time between batches if we are on the first target as well as the actual number of batches that are going to be run.
 				if (i == 0 ) {
 					sleepTime = actTime;
+					actualNumOfBatches = Math.ceil(batchTime/sleepTime);
 				}
 
-				//calc reserve threads
-				let reserveThreads = Math.ceil(batchTime/actTime*vectors.totalVectors);
-				if (reserveThreads > currentTarget.cycleThreads) {
-					ns.print("Reserve Threads per c_cv3 not as expected. Expected: " + currentTarget.cycleThreads + " Got: " + reserveThreads);
-					ns.print("isMoneyPrimed: " + currentTarget.isPrimedMoney + " isPrimedStr: " + currentTarget.isPrimedStr);
-					ns.print(JSON.stringify(vectors));
-				}
-				//log output
-				ns.print("Target: " + currentTarget.name + " Hacks/Vectors/Reserve/Usable: " + vectors.hackThreads + '/' + vectors.totalVectors + '/' + reserveThreads + '/' + usableThreads);
-				//adjust usable threads
+				//calc reserveThreads & reserveScripts
+				let reserveThreads = actualNumOfBatches*vectors.totalVectors;
+				let reserveScripts = actualNumOfBatches*scriptsPerBatch;
+
+				ns.print('Target: ' + currentTarget.name + ' @ ' + currentTarget.takePercent*100 + '%' +
+					' Hacks/Vectors/Reserve/Usable Threads: ' + vectors.hackThreads + '/' + vectors.totalVectors + '/' + reserveThreads + '/' + usableThreads +
+					' Reserve/Usable Scripts: ' + reserveScripts + '/' + usableScripts);
+
+				//adjust usable threads & scripts
 				usableThreads -= reserveThreads;
+				usableScripts -= reserveScripts;
 				i++;
+				await ns.sleep(1);
 			}
 
-			//Check if more servers are hackable
-      		if (inventory.otherservers.length > 0 ){
-  				if (ns.getHackingLevel() > inventory.otherservers[0].requiredHack) {
-					let ports = 0;
-					if (can(ns, "brutessh.exe")) { ++ports; }
-					if (can(ns, "ftpcrack.exe")) { ++ports; }
-					if (can(ns, "relaysmtp.exe")) { ++ports; }
-					if (can(ns, "httpworm.exe")) { ++ports; }
-					if (can(ns, "sqlinject.exe")) { ++ports; }
-					if (ports >= ns.getServerNumPortsRequired(inventory.otherServers[0].name)) {
-						ns.tprint('Can gain root on new server: ' + inventory.otherServers[0].name + ' Terminating C&C and Re-running spider.js');
-						ns.print('Can gain root on new server: ' + inventory.otherServers[0].name + ' Terminating C&C and Re-running spider.js');
-						ns.spawn('spiderv2.js');
-					}
-        		}
+			//checks for new drones or new targets
+			if (inventory.otherservers.length > 0) {
+				let ports = 0;
+				if (can(ns, "brutessh.exe")) { ++ports; }
+				if (can(ns, "ftpcrack.exe")) { ++ports; }
+				if (can(ns, "relaysmtp.exe")) { ++ports; }
+				if (can(ns, "httpworm.exe")) { ++ports; }
+				if (can(ns, "sqlinject.exe")) { ++ports; }
+
+				if (ports >= ns.getServerNumPortsRequired(inventory.otherservers[0].name) || inventory.otherservers.requiredHack <= ns.getHackingLevel()) {
+					ns.tprint('INFO: New drone or target available: ' + inventory.otherservers[0].name + '. Terminating C&C and Re-running spider.js.');
+					ns.print('INFO: New drone or target available: ' + inventory.otherservers[0].name + '. Terminating C&C and Re-running spider.js.');
+					ns.spawn('spiderv2.js');
+				}
 			}
+
 			//Log output
-
-			ns.print("Waiting: " + sleepTime/1000 + " Secs");
+			let waitTime = new Date(sleepTime).toISOString().substr(11, 12);
+			ns.print("INFO: Waiting: " + waitTime + " # of Batches in cycle: " + actualNumOfBatches);
 			await ns.sleep(sleepTime);
-			cycle++;
+			batch++;
+			if (batch == actualNumOfBatches) {
+				cycle++;
+				batch = 1;
+			}
 		}
 	}
 }
