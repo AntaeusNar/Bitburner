@@ -64,26 +64,21 @@ export function getRoot(ns, target) {
 function getServerRatio_v2(ns, server, neededRam, takePercent) {
 
 	let ratio = null;
+	let totalThreads = null;
 	let cycleThreads = null;
 
 	if (server.requiredHack > ns.getHackingLevel() || server.name == 'home' || server.maxMoney == 0) {
 		//fails out straight to returns
 	} else {
 		//calculate time needed per 'batch' in sec
-		let totalTime = (ns.getWeakenTime(server.name) + 500)/1000;
+		let totalTime = (ns.getWeakenTime(server.name) + 800)/1000;
 
 		//calculate a target amount of x%
 		let targetHackMoney = server.maxMoney*takePercent;
 
 		//calculate GB needed to hack/weak/grow targetHackMoney
-		let moneyPerSingleHack = ns.hackAnalyze(server.name)/ns.hackAnalyzeChance(server.name)*server.maxMoney;
-		if(isNaN(moneyPerSingleHack)) {
-			moneyPerSingleHack = 0;
-		}
+		let moneyPerSingleHack = ns.hackAnalyze(server.name)*ns.hackAnalyzeChance(server.name)*server.maxMoney;
 		let numHackThreads = Math.ceil(targetHackMoney/moneyPerSingleHack);
-		if(isNaN(numHackThreads)) {
-			numHackThreads = 0;
-		}
 		let growMultipler = 1/(1-takePercent);
 		let numGrowThreads = Math.ceil(ns.growthAnalyze(server.name, growMultipler));
 		let numWeakenThreads = Math.ceil(numGrowThreads*.004/.05);
@@ -101,9 +96,9 @@ function getServerRatio_v2(ns, server, neededRam, takePercent) {
 			ns.print(message);
 			throw new Error(message);
 		}
-		let totalThreads = numHackThreads+numGrowThreads+numWeakenThreads;
+		totalThreads = numHackThreads+numGrowThreads+numWeakenThreads;
 		let neededGB = totalThreads*neededRam;
-		cycleThreads = Math.ceil((totalTime*1000)/100*totalThreads);
+		cycleThreads = Math.ceil((totalTime*1000)/200*totalThreads);
 
 		ratio = Math.floor(targetHackMoney/neededGB/totalTime*100)/100;
 
@@ -117,6 +112,7 @@ function getServerRatio_v2(ns, server, neededRam, takePercent) {
 
 	let returns = {
 		ratio: ratio,
+		estVectors: totalThreads,
 		cycleThreads: cycleThreads,
 	}
 
@@ -177,6 +173,7 @@ async function adjustTake(ns, inventory, totalReservedThreads, allMaxed, indexOf
 				let returns = getServerRatio_v2(ns, targetAlpha, inventory.neededRam, adjustedTake);
 				targetAlpha.takePercent = adjustedTake;
 				targetAlpha.adjustedRatio = returns.ratio;
+				targetAlpha.estVectors = returns.estVectors;
 				totalReservedThreads = totalReservedThreads + (returns.cycleThreads - targetAlpha.cycleThreads);
 				targetAlpha.cycleThreads = returns.cycleThreads;
 				inventory.targets[indexOfAlpha] = targetAlpha;
@@ -215,6 +212,7 @@ async function adjustTake(ns, inventory, totalReservedThreads, allMaxed, indexOf
 				let returns = getServerRatio_v2(ns, targetAlpha, inventory.neededRam, adjustedTake);
 				targetAlpha.takePercent = adjustedTake;
 				targetAlpha.adjustedRatio = returns.ratio;
+				targetAlpha.estVectors = returns.estVectors;
 				targetAlpha.cycleThreads = returns.cycleThreads;
 				totalReservedThreads = totalReservedThreads + (returns.cycleThreads - targetAlpha.cycleThreads);
 				inventory.targets[indexOfAlpha] = targetAlpha;
@@ -253,6 +251,7 @@ async function updateServerInventory(ns, serverList, inventory, subset) {
 		let requiredHack = ns.getServerRequiredHackingLevel(server);
 		let takePercent = .01;
 		let cycleThreads = 0;
+		let estVectors = 0;
 
 		if (subset == 'targets') {
 			//checking/setting flags
@@ -272,6 +271,7 @@ async function updateServerInventory(ns, serverList, inventory, subset) {
 
 			let returns = getServerRatio_v2(ns, target, inventory.neededRam, takePercent);
 			ratio = returns.ratio;
+			estVectors = returns.estVectors;
 			cycleThreads = returns.cycleThreads;
 
 			//special handling for home
@@ -317,6 +317,7 @@ async function updateServerInventory(ns, serverList, inventory, subset) {
 			minSecurity: minSecurity,
 			takePercent: takePercent,
 			adjustedRatio: ratio,
+			estVectors: estVectors,
 			cycleThreads: cycleThreads,
 		}
 

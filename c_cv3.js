@@ -277,7 +277,7 @@ function evalVectors(ns, target, maxThreads, takePercent, usableScripts) {
 			//number of threads needed to take %
 			let targetedHackThreads = takePercent / singlethreadpercent;
 			//increase the number of hacking threads by the lossed due to chance
-			targetedHackThreads = Math.ceil(targetedHackThreads / (ns.hackAnalyzeChance(target.name)));
+			targetedHackThreads = Math.ceil(targetedHackThreads * (ns.hackAnalyzeChance(target.name)));
 			//calcualte needed weaken threads
 			strengthenAmount = targetedHackThreads * hackRate;
 			additionalWeakens = Math.ceil(strengthenAmount / weakenRate);
@@ -423,7 +423,7 @@ export async function main(ns) {
 			ns.print("INFO: Waiting: " + waitTime + " # of Batches in cycle: " + actualNumOfBatches);
 			await ns.sleep(sleepTime);
 			batch++;
-			if (batch == actualNumOfBatches) {
+			if (batch >= actualNumOfBatches) {
 				cycle++;
 				batch = 1;
 			}
