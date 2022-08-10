@@ -17,12 +17,19 @@ export function can(ns, file, serverName='home') {
 	return ns.fileExists(file, serverName);
 }
 
+/** number of milliseconds to ISO date string 00:00:00.000
+  * @param {number} milliseconds
+  * @return {string} ISO format 00:00:00.000
+  */
+export function milString(milliseconds) {
+  return new Date(milliseconds).toISOString().substr(11,12);
+}
+
 /** Given an array of files, will return the max ram requirements
   * @param {NS} ns
   * @param {array} files - list of file names
   * @return {number} maxium needed ram
   */
-
 export function getNeededRam(ns, files) {
 	let needRam = 0;
 	for (let file of files) {
