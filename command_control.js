@@ -86,3 +86,193 @@ export function getRoot(ns, serverName) {
 	}
 	return result;
 }
+
+/**
+  * @typedef {Object} Vectors
+  * @property {number} totalVectors - Total number of vectors
+  * @property {number} primeWeaken - Number of primary weaken()s (optional)
+  * @property {number} growThreads - Number of grow()s
+  * @property {number} growWeakens - Number of weaken()s to counter the grow()s
+  * @property {number} hackThreads - Number of hack()s
+  * @property {number} hackWeakens - Number of weaken()s to counter the hack()s
+  */
+
+/** evalVectors: calculates the number of (W)GWHW threads
+  * @param {NS} ns
+  * @param {Object} server - server class object
+  * @param {number} [takePercent=.01] - % of Server Max money targeted
+  * @param {number} [maxThreads=Infinity] - max number of available threads
+  * @returns {Vectors} calculated attack vectors
+  */
+function evalVectors(ns, server, takePercent = .01, maxThreads = Infinity) {
+  /**This function will be used 3 seperate times:
+    *once for inital ratio at defaults (1% Take and Infinity threads)
+    *once for adjusting the take to optimal (increasing Take and Infinity threads)
+    *once for actual deployment (optimal take and real threads)
+    */
+
+  //some setup
+  const weakenRate = .05;
+  const growRate = .004;
+  const hackRate = .002;
+  var vectors = {
+    totalVectors: 0,
+    primeWeaken: 0,
+    growThreads: 0,
+    growWeakens: 0,
+    hackThreads: 0,
+    hackWeakens: 0
+  }
+
+  //Calc primary Weakens: Only done if for actual deployment && server is not weaken()ed to min
+  if(!server.isPrimedStr && isFinite(maxThreads)) {
+    server.hackDifficulty = ns.getServerSecurityLevel(server.hostname); //get current security level
+    let targetPrimeWeakens = Math.ceil((server.hackDifficulty - server.minDifficulty)/weakenRate); //calc totale needed weaken threads
+    vectors.primeWeaken = Math.min(targetPrimeWeakens, maxThreads); //stay inside available threads
+    vectors.totalVectors = vectors.primeWeaken; //update total vectors
+    maxThreads -= vectors.totalVectors; //reduce maxThreads
+    if (vectors.primeWeaken == targetPrimeWeakens) {server.isPrimedStr = true;} //setting the isPrimedStr flag to true
+  }
+
+  //Calc grow() and matching weaken()s
+  if (maxThreads > 0) {
+    //setup
+    let growthMultiplier = 0;
+    let targetGrowThreads = 0;
+    let targetgrowWeakens = 0;
+    let growBypass = false;
+
+    //calc growthMultiplier
+    if (!server.isPrimedMoney && isFinite(maxThreads)) { //Only for actual deployment && server is not grow()n to max
+      growthMultiplier = server.moneyMax/server.moneyAvailable;
+    } else { //for initial ratio, optimal take, & actual deployment when server is grow()n to max
+      growthMultiplier = server.maxMoney/(server.maxMoney * (1 - takePercent));
+    }
+
+    //calc number of threads
+    targetGrowThreads = Math.ceil(ns.growthAnalyze(server.hostname, growthMultiplier));
+    targetgrowWeakens = Math.ceil(vectors.growThreads*growRate/weakenRate);
+
+    //adjusting the grow() + weaken() count to inside the maxThreads limit if needed
+    if (targetGrowThreads + targetgrowWeakens > maxThreads) {
+      ns.print("INFO: Scaling down the growth threads for " + server.hostname);
+      //Math says that for every 25 grow()s you need 2 weaken()s => groups of 27
+      let numGroups = Math.floor(maxThreads/27);
+      targetGrowThreads = numGroups*25;
+      targetgrowWeakens = numGroups*2;
+      growBypass = true;
+    }
+
+    vectors.growThreads = Math.min(targetGrowThreads, maxThreads);//stay inside maxThreads
+    vectors.totalVectors += vectors.growThreads;//update total vectors
+    maxthreads -= vectors.growThreads; //reduce maxThreads
+    vectors.growWeakens = Math.min(targetgrowWeakens, maxThreads);//stay inside maxThreads
+    vectors.totalVectors += vectors.growWeakens;//update total vectors
+    maxThreads -= vectors.growWeakens;//reduce maxThreads
+
+    if (!server.isPrimedMoney && !growBypass &&
+      vectors.growThreads == targetGrowThreads && vectors.growWeakens == targetgrowWeakens) {
+        server.isPrimedMoney = true; //set the isPrimedMoney flag if was false, not bypassed & needed threads are allocated
+    }
+
+    //calc hack()s and matching weaken()s
+    if (maxThreads > 0 && server.isPrimedMoney && server.isPrimedStr) { //if there are available Threads and the server is fully primed
+      //calc number of hack() threads needed to steal takePercent of server money
+      let targetHackThreads = Math.ceil(takePercent/server.percentPerSingleHack);
+      let targethackWeakens = Math.ceil(targetHackThreads*hackRate/weakenRate);
+
+      //adjust the hack()s + weaken()s count to inside the maxThreads limit if needed
+      if (targetHackThreads + targethackWeakens > maxThreads) {
+        ns.print('INFO: Scaling down the hack threads for ' + server.hostname);
+        //Math says that for every 25 hack()s you need 1 weaken() => groups of 26
+        numGroups = Math.floor(maxThreads/26);
+        targetHackThreads = numGroups*25;
+        targethackWeakens = numGroups;
+      }
+
+      vectors.hackThreads = Math.min(targetHackThreads, maxThreads);//stay inside maxThreads
+      vectors.totalVectors += vectors.hackThreads; //update total vectors
+      maxThreads -= vectors.hackthreads; //reduce maxThreads
+      vectors.hackWeakens = Math.min(targethackWeakens, maxThreads); //stay inside maxThreads
+      vectors.totalVectors += vectors.hackWeakens; //update total vectors
+      maxThreads -= vectors.hackWeakens; //reduce maxThreads
+    }
+
+  }
+  return vectors;
+}
+
+/** Server Class */
+class Server {
+
+  /** Creates Server object duplicating the structure of ns.getServer(hostname)
+    * @param {NS} ns
+    * @param {string} hostname
+    */
+  constructor(ns, hostname){
+    if typeof(hostname) !== 'string') {throw new Error('Hostname for server class must be a string.')};
+    this.hostname = hostname;
+    this.ns = ns;
+    this.maxRam = this.ns.getServerMaxRam(this.hostname);
+    this.minDifficulty = this.ns.getServerMinSecurityLevel(this.hostname);
+    this.moneyMax = this.ns.getServerMaxMoney(this.hostname);
+    this.numOpenPortsRequired = this.ns.getServerNumPortsRequired(this.hostname);
+    this.requiredHackingSkill = this.ns.getServerRequiredHackingLevel(this.hostname);
+    this.isTarget = false;
+    if (this.maxMoney > 0 && this.hostname != 'home') {this.isTarget = true}
+    this.isPrimedStr = false;
+    this.isPrimedMoney = false;
+    this.isDrone = false;
+    if (this.maxRam > 0 ) {this.isDrone = true}
+    this.update();
+  }
+
+  /** Updates changing serve API information */
+  update() {
+    this.hackDifficulty = this.ns.getServerSecurityLevel(this.hostname);
+    this.hasAdminRights = this.ns.hasRootAccess(this.hostname);
+    this.moneyAvailable = Math.max(this.ns.getServerMoneyAvailable(this.hostname),1); //set to actual money or 1 whichever is greater
+    this.ramUsed = this.ns.getServerUsedRam(this.hostname);
+    this.weakenTime = this.ns.getWeakenTime(this.hostname);
+    this.hackAnalyze = this.ns.hackAnalyze(this.hostname);
+    this.hackAnalyzeChance = this.ns.hackAnalyzeChance(this.hostname);
+    this.calc();
+  }
+
+  /** Updates changing calculated information */
+  calc() {
+    this.ramAvailable = this.maxRam - this.ramUsed;
+    this.percentPerSingleHack = this.hackAnalyze*this.hackAnalyzeChance
+    this.ratioUp()
+  }
+
+  /** Ratio
+    * @param {number} [takePercent=.01]
+    */
+  ratioUp(takePercent=.01) {
+    this.ratio = null;
+    this.estVectorsPerBatch = null;
+    this.batchesPerCycle = null;
+
+    if (!this.isTarget || this.requiredHackingSkill > this.ns.getHackingLevel()) {
+      //If this server is not a target or not currenttly hackable then we dont worry about it at all
+    } else {
+
+      //calc the current batch length in secs (weakentime)
+      let batchTime = (this.weakenTime + 800)/1000;
+      this.batchesPerCycle = Math.floor(batchTime*1000/200);
+
+      //calc how much money the takePercent should take
+      let targetTake = this.maxMoney*takePercent;
+
+      this.estVectorsPerBatch = evalVectors(ns, this).totalVectors;
+
+      this.ratio = Math.floor(targetTake/this.estVectorsPerBatch/batchTime*100)/100;
+      if (isNaN(this.ratio)) {
+        let message = `Ratio for ${this.hostname} is NaN! targetTake: ${targetTake}, threads: ${this.estVectorsPerBatch}, and batchTime: ${batchTime}`;
+        throw new Errror(message);
+      }
+
+    }
+  }
+}
