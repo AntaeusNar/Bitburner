@@ -234,7 +234,12 @@ class Server {
     logger(ns, 'INFO: Building class for ' + hostname);
     this.hostname = hostname;
     this.ns = ns;
-    this.maxRam = this.ns.getServerMaxRam(this.hostname);
+    //reserve some ram if this is home
+    if (this.hostname == 'home') {
+      this.maxRam = this.ns.getServerMaxRam(this.hostname) - 32;
+    } else {
+      this.maxRam = this.ns.getServerMaxRam(this.hostname);
+    }
     this.minDifficulty = this.ns.getServerMinSecurityLevel(this.hostname);
     this.moneyMax = this.ns.getServerMaxMoney(this.hostname);
     this.numOpenPortsRequired = this.ns.getServerNumPortsRequired(this.hostname);
@@ -322,7 +327,7 @@ export async function main(ns) {
     logger(ns, 'INFO: Built ' + inventory[i].hostname);
     maxRam += inventory[i].maxRam;
   }
-  logger(ns, 'INFO: Max avaliable Ram is ' + maxRam);
+  logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB');
 
 
 } //end of Main Program
