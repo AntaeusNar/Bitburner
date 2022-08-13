@@ -331,7 +331,6 @@ class Server {
     //run loop while there are threads available, next target available,
     //ratio is greater then next, and takePercent is less the 99%
     while (reserveThreads < maxThreads &&
-      i < targets.length &&
       targets[i].ratio >= targets[i+1].ratio &&
       targets[i].takePercent < .99) {
         targets[i].takePercent = Math.round((targets[i].takePercent + .001)*1000)/1000;
@@ -352,7 +351,7 @@ class Server {
 
     if (reserveThreads >= maxThreads) {
       logger(ns, 'INFO: max threads hit, stopping take increase calc.')
-    } else if (i >= targets.length) {
+    } else if (indexOfTarget >= targets.length) {
       logger(ns, 'INFO: hit last avaliable target, stopping take increase calc.')
     } else {
       logger(ns, 'INFO: Calculating take for next target.');
