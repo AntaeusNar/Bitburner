@@ -7,6 +7,26 @@
 
  /** Helper Type Functions */
 
+/** Logger print function
+  * @param {NS} ns
+  * @param {string} message
+  * @param {number} [options=0] - 0 program log, 1 terminal log, 2 both
+  */
+export function logger(ns, message, options=0) {
+  switch (options) {
+    case 0:
+      ns.print(message);
+      break;
+    case 1:
+      ns.tprint(message);
+      break;
+    case 2:
+    default:
+      ns.print(message);
+      ns.tprint(message);
+  }
+}
+
 /** Checks for existance of file on the spesified or home server
   * @param {NS} ns
   * @param {string} file - File Name
@@ -284,6 +304,10 @@ class Server {
 export async function main(ns) {
 
   ns.disableLog('ALL');
+
+  //Recursivly Scan the network
+  ns.print('INFO: Scanning Network for Servers')
+  let serverList = multiscan(ns, 'home');
 
 
 
