@@ -276,3 +276,15 @@ class Server {
     }
   }
 }
+
+/** Main Program
+  * Recursivly scans the network, evals targets and drones, deploys (W)GWHW batchs on drone agianst targets
+  * @param {NS} ns
+  */
+export async function main(ns) {
+
+  ns.disableLog('ALL');
+
+
+
+} //end of Main Program
