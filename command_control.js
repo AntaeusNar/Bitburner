@@ -185,7 +185,7 @@ function evalVectors(ns, server, takePercent = .01, maxThreads = Infinity) {
 
     vectors.growThreads = Math.min(targetGrowThreads, maxThreads);//stay inside maxThreads
     vectors.totalVectors += vectors.growThreads;//update total vectors
-    maxthreads -= vectors.growThreads; //reduce maxThreads
+    maxThreads -= vectors.growThreads; //reduce maxThreads
     vectors.growWeakens = Math.min(targetgrowWeakens, maxThreads);//stay inside maxThreads
     vectors.totalVectors += vectors.growWeakens;//update total vectors
     maxThreads -= vectors.growWeakens;//reduce maxThreads
