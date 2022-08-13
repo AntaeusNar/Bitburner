@@ -314,7 +314,7 @@ export async function main(ns) {
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
   let inventory = [];
-  for (i = 0, i > serverList.length, i++) {
+  for (let i = 0; i > serverList.length; i++) {
     inventory.push(new Server(serverList[i]));
   }
 
