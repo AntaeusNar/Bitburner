@@ -319,31 +319,19 @@ export async function main(ns) {
 
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
-  let inventory = [];
-  let maxRam =0
+  let invetory =[];
+  let targets =[];
+  let drones = [];
+  let maxRam = 0;
   for (let i = 0; i < serverList.length; i++) {
     logger(ns, 'INFO: Building ' + serverList[i], 0);
     inventory.push(new Server(ns, serverList[i]));
     logger(ns, 'INFO: Built ' + inventory[i].hostname, 0);
+    if (inventory[i].isTarget) {targets.push(inventory[i])}
+    if (inventory[i].isDrone) {drones.push(inventory[i])}
     maxRam += inventory[i].maxRam;
   }
+  logger(ns, 'INFO: Have ' + targets.length + ' Targets and ' + drones.length + ' Drones.');
   logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB');
-
-  //Build array of targets
-  logger(ns, 'INFO: Build array of Targets.')
-  let targets =[];
-  for (let i = 0; i < inventory.length; i++) {
-    if (inventory[i].isTarget) {targets.push(inventory[i])}
-  }
-  logger(ns, 'INFO: Have ' + targets.length + ' Targets.');
-
-  //Build array of drones
-  logger(ns, 'INFO: Build array of Drones.')
-  let drones = [];
-  for (let i = 0; i < inventory.length; i++) {
-    if (inventory[i].isDrone) {drones.push(inventory[i])}
-  }
-  logger(ns, 'INFO: Have ' + drones.length + ' Drones.');
-
 
 } //end of Main Program
