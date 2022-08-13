@@ -338,7 +338,7 @@ class Server {
         let oldThreads = numBatchesPerCycle*targets[i].estVectorsPerBatch;
         targets[i].ratioCalc();
         let newThreads = numBatchesPerCycle*targets[i].estVectorsPerBatch;
-        reserveThreads = newThreads - oldThreads;
+        reserveThreads = reserveThreads + (newThreads - oldThreads);
         await ns.sleep(1);
     }
 
