@@ -339,4 +339,7 @@ export async function main(ns) {
   let maxThreads = Math.floor(maxRam/neededRam);
   logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB yeilding a max of ' + maxThreads + ' Threads.');
 
+  // TODO: adjust take precent up
+  // TODO: deploy drone scripts on drones agiast targets
+
 } //end of Main Program
