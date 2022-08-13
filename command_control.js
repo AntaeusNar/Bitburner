@@ -12,7 +12,7 @@
   * @param {string} message
   * @param {number} [options=0] - 0 program log, 1 terminal log, 2 both
   */
-export function logger(ns, message, options=0) {
+export function logger(ns, message, options=2) {
   switch (options) {
     case 0:
       ns.print(message);
