@@ -330,7 +330,6 @@ class Server {
 
     //run loop while there are threads available, next target available,
     //ratio is greater then next, and takePercent is less the 99%
-    logger(ns, 'INFO: Calculating increase in take perectange for ' + targets[i].hostname);
     while (reserveThreads < maxThreads &&
       i < targets.length &&
       targets[i].ratio >= targets[i+1].ratio &&
