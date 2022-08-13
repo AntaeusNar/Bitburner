@@ -309,7 +309,7 @@ export async function main(ns) {
   //Recursivly Scan the network
   logger(ns, 'INFO: Scanning Network for Servers.');
   let serverList = multiscan(ns, 'home');
-  logger(ns, ns.vsprintf('INFO: Found % Servers on network.', serverList.length));
+  logger(ns, ns.vsprintf('INFO: Found %d Servers on network.', serverList.length));
 
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
