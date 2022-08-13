@@ -37,21 +37,6 @@ export function can(ns, file, serverName='home') {
 	return ns.fileExists(file, serverName);
 }
 
-/**Collects max needed Ram
-  * @param {NS} ns
-  * @parma {array} files - array of files to check
-  * @returns {number} needed Ram
-  */
-export function getNeededRam(ns, files) {
-	let needRam = 0;
-	for (let file of files) {
-		if (can(ns, file) && ns.getScriptRam(file) > needRam) {
-			needRam = ns.getScriptRam(file);
-		}
-	}
-	return needRam;
-}
-
 /** number of milliseconds to ISO date string 00:00:00.000
   * @param {number} milliseconds
   * @return {string} ISO format 00:00:00.000
