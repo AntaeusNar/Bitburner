@@ -335,7 +335,7 @@ class Server {
       i < targets.length &&
       targets[i].ratio >= targets[i+1].ratio &&
       targets[i].takePercent < .99) {
-        targets[i].takePercent = Math.round((targets[i].ratio + .001)*1e12)/1e12;
+        targets[i].takePercent = Math.round((targets[i].ratio + .001)*1000)/1000;
         targets[i].ratioCalc();
         tempVectorsPerCycle = numBatchesPerCycle*targets[i].estVectorsPerBatch;
         reserveThreads += tempVectorsPerCycle;
