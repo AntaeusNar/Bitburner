@@ -53,7 +53,7 @@ export function milString(milliseconds) {
 export function getNeededRam(ns, files) {
 	let needRam = 0;
 	for (let file of files) {
-    if (can(file)) {
+    if (can(ns, file)) {
       if (ns.getScriptRam(file) > needRam) {
   			needRam = ns.getScriptRam(file);
   		}
