@@ -231,7 +231,7 @@ class Server {
     */
   constructor(ns, hostname){
     if (typeof(hostname) !== 'string') {throw new Error('Hostname for server class must be a string.')};
-    logger(ns, 'INFO: Building class for ' + hostname);
+    logger(ns, 'INFO: Building class for ' + hostname, 0);
     this.hostname = hostname;
     this.ns = ns;
     //reserve some ram if this is home
@@ -322,9 +322,9 @@ export async function main(ns) {
   let inventory = [];
   let maxRam =0
   for (let i = 0; i < serverList.length; i++) {
-    logger(ns, 'INFO: Building ' + serverList[i]);
+    logger(ns, 'INFO: Building ' + serverList[i], 0);
     inventory.push(new Server(ns, serverList[i]));
-    logger(ns, 'INFO: Built ' + inventory[i].hostname);
+    logger(ns, 'INFO: Built ' + inventory[i].hostname, 0);
     maxRam += inventory[i].maxRam;
   }
   logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB');
