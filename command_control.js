@@ -318,7 +318,7 @@ class Server {
     * @param {number} [reserveThreads=0] - number of reserved threads
     * @param {number} [indexOfTarget=0] - the current target
     */
-  static adjustTake(targets, maxThreads, numBatchesPerCycle, reserveThreads, indexOfTarget){
+  static adjustTake(targets, maxThreads, numBatchesPerCycle = 0, reserveThreads = 0, indexOfTarget = 0){
     //Basic function setup
     let ns = targets[0].ns;
     let i = indexOfTarget;
