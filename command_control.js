@@ -269,13 +269,13 @@ class Server {
   calc() {
     this.ramAvailable = this.maxRam - this.ramUsed;
     this.percentPerSingleHack = this.hackAnalyze*this.hackAnalyzeChance
-    this.ratioUp()
+    this.ratioCalc()
   }
 
-  /** Ratio
+  /** Calculates the ratio
     * @param {number} [takePercent=.01]
     */
-  ratioUp(takePercent=.01) {
+  ratioCalc(takePercent=.01) {
     this.ratio = null;
     this.estVectorsPerBatch = null;
     this.batchesPerCycle = null;
