@@ -245,7 +245,7 @@ class Server {
     this.numOpenPortsRequired = this.ns.getServerNumPortsRequired(this.hostname);
     this.requiredHackingSkill = this.ns.getServerRequiredHackingLevel(this.hostname);
     this.isTarget = false;
-    if (this.moneyMax > 0 && this.hostname != 'home') {this.isTarget = true}
+    if (this.moneyMax > 0 && this.hostname != 'home') {this.isTarget = true; this.takePercent=.01}
     this.isPrimedStr = false;
     this.isPrimedMoney = false;
     this.isDrone = false;
@@ -272,10 +272,8 @@ class Server {
     this.ratioCalc()
   }
 
-  /** Calculates the ratio
-    * @param {number} [takePercent=.01]
-    */
-  ratioCalc(takePercent=.01) {
+  /** Calculates the ratio */
+  ratioCalc() {
     this.ratio = null;
     this.estVectorsPerBatch = null;
     this.batchesPerCycle = null;
@@ -289,7 +287,7 @@ class Server {
       this.batchesPerCycle = Math.floor(batchTime*1000/200);
 
       //calc how much money the takePercent should take
-      let targetTake = this.moneyMax*takePercent;
+      let targetTake = this.moneyMax*this.takePercent;
 
       this.estVectorsPerBatch = evalVectors(this.ns, this).totalVectors;
 
@@ -300,6 +298,11 @@ class Server {
       }
 
     }
+  }
+
+  /** This static function will adjust the takePercent of a up until a.ratio = b.ratio */
+  static adjustTake(a,b){
+
   }
 } //End of server class
 
