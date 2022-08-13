@@ -300,8 +300,34 @@ class Server {
     }
   }
 
-  /** This static function will adjust the takePercent of a up until a.ratio = b.ratio */
-  static adjustTake(a,b){
+  /** This static function will adjust the takePercent of a up until a.ratio ~= b.ratio
+    * Because increasing the takePercent is a non-linar increase in the number of needed Threads
+    * this function will loop the increase
+    * In order to prevent a.ratio < b.ratio this will need to stepdown the take after increasing
+    * this should prevent overshooting and messingup prioritization.
+    * This function will also keep the adjustments under the maxThread limit
+    * This will prevent over commitment vs a single target
+    * Additionally, the number of vectors per cycle will be caclulated per
+    * the number of batches per cycle of the primary target.
+    * This ensures that if b can be hit faster then a (lower weakentime)
+    * there are not unusable threads reserved as used.
+    * @param {Server} a
+    * @param {Server} b
+    * @param {number} maxThreads
+    * @param {number} numCyclesPerBatch - the control speed
+    * @param {number} [reserveThreads=0] - number of reserved threads
+    */
+  static adjustTake(a,b, maxThreads, numCyclesPerBatch. reserveThreads){
+    //Basic function setup
+    let ns = a.ns;
+    a.vectorsPerCycle = numCyclesPerBatch*a.estVectorsPerBatch;
+    b.vectorsPerCycle = numCyclesPerBatch*b.estVectorsPerBatch;
+    if (reserveThreads == 0) {
+      reserveThreads = a.vectorsPerCycle + b.vectorsPerCycle;
+    } else {
+      reserveThreads = b.vectorsPerCycle;
+    }
+
 
   }
 } //End of server class
