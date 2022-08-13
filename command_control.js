@@ -291,7 +291,7 @@ class Server {
       //calc how much money the takePercent should take
       let targetTake = this.maxMoney*takePercent;
 
-      this.estVectorsPerBatch = evalVectors(ns, this).totalVectors;
+      this.estVectorsPerBatch = evalVectors(this.ns, this).totalVectors;
 
       this.ratio = Math.floor(targetTake/this.estVectorsPerBatch/batchTime*100)/100;
       if (isNaN(this.ratio)) {
