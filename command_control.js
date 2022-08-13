@@ -301,7 +301,7 @@ class Server {
 
     }
   }
-}
+} //End of server class
 
 /** Main Program
   * Recursivly scans the network, evals targets and drones, deploys (W)GWHW batchs on drone agianst targets
