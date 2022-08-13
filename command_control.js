@@ -318,7 +318,7 @@ export async function main(ns) {
   for (let i = 0; i < serverList.length; i++) {
     logger(ns, 'INFO: Building ' + serverList[i]);
     inventory.push(new Server(ns, serverList[i]));
-    logger(ns, 'INFO: Built ' + inventory[i]);
+    logger(ns, 'INFO: Built ' + inventory[i].hostname);
   }
 
 
