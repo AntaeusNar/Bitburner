@@ -320,11 +320,11 @@ class Server {
     */
   static adjustTake(targets, maxThreads, numBatchesPerCycle, reserveThreads, indexOfTarget){
     //Basic function setup
-    let ns = target[0].ns;
+    let ns = targets[0].ns;
     let i = indexOfTarget;
     let tempVectorsPerCycle = 0;
     if (i == 0) {
-      numBatchesPerCycle = target[i].batchesPerCycle;
+      numBatchesPerCycle = targets[i].batchesPerCycle;
     }
 
 
