@@ -386,6 +386,7 @@ export async function main(ns) {
   let serverList = multiscan(ns, 'home');
   logger(ns, ns.vsprintf('INFO: Found %d Servers on network.', serverList.length));
 
+  // TODO: add in the ability to autopurcase access to the darkweb and port openers
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
   let inventory =[];
@@ -404,11 +405,22 @@ export async function main(ns) {
   let maxThreads = Math.floor(maxRam/neededRam);
   logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB yeilding a max of ' + maxThreads + ' Threads.');
 
+  //Targets ratio adjustments
+  // OPTIMIZE: Add in the use of Formulas.exe
   targets.sort(function(a,b) {
     return (b.ratio != null) - (a.ratio != null) || b.ratio - a.ratio;
   });
   logger(ns, 'INFO: Starting adjustments, standby....');
   await Server.adjustTake(targets, maxThreads);
-  // TODO: deploy drone scripts on drones agiast targets
+
+  // TODO: deploy drone scripts on drones agianst targets
+  // OPTIMIZE: check the deployments on home server and see if that reduces needed threads due to core upgrades
+  // TODO: checks to reeval if new skill level or tools can access more targets/drones
+  // TODO: add in the eval and purchase of persnal servers
+  // TODO: add in the purchase of additional home ram
+
+  // IDEA: look incorporating gang management and sleeve management
+  // IDEA: faction server backdooring
+  // IDEA: faction work management
 
 } //end of Main Program
