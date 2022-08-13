@@ -352,7 +352,7 @@ class Server {
     }
     targets[i].takePercent = Math.round(targets[i].takePercent*1000)/1000;
 
-    logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + targets[i].takePercent*100 + '%. Threads at ' + reserveThreads + ' of ' + maxThreads);
+    logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + Math.round(targets[i].takePercent*1000)/100 + '%. Threads at ' + reserveThreads + ' of ' + maxThreads);
 
     if (reserveThreads >= maxThreads) {
       logger(ns, 'INFO: max threads hit, stopping take increase calc.')
