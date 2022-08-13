@@ -334,8 +334,8 @@ class Server {
     while (reserveThreads < maxThreads &&
       targets[i].ratio >= targets[i+1].ratio &&
       targets[i].takePercent < .999) {
-        targets[i].takePercent = Math.round((targets[i].takePercent + .001)*1000)/1000;
         let oldThreads = numBatchesPerCycle*targets[i].estVectorsPerBatch;
+        targets[i].takePercent = Math.round((targets[i].takePercent + .001)*1000)/1000;
         targets[i].ratioCalc();
         let newThreads = numBatchesPerCycle*targets[i].estVectorsPerBatch;
         reserveThreads = reserveThreads + (newThreads - oldThreads);
@@ -344,9 +344,11 @@ class Server {
 
     //back ratio down if ratio has gone over
     if (targets[i].ratio > targets[i+1].ratio) {
+      let oldThreads = numBatchesPerCycle*targets[i].estVectorsPerBatch
       targets[i].takePercent = Math.round((targets[i].takePercent - .001)*1000)/1000;
       targets[i].ratioCalc();
-      reserveThreads = reserveThreads - (tempVectorsPerCycle - numBatchesPerCycle*targets[i].estVectorsPerBatch);
+      let newThreads = numBatchesPerCycle*targets[i].estVectorsPerBatch;
+      reserveThreads = reserveThreads - (newThreads - oldThreads);
     }
 
     logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + targets[i].takePercent*100 + '%.');
