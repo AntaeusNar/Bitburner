@@ -337,5 +337,13 @@ export async function main(ns) {
   }
   logger(ns, 'INFO: Have ' + targets.length + ' Targets.');
 
+  //Build array of drones
+  logger(ns, 'INFO: Build array of Drones.')
+  let drones = [];
+  for (let i = 0; i < inventory.length; i++) {
+    if (inventory[i].isDrone) {drones.push(inventory[i])}
+  }
+  logger(ns, 'INFO: Have ' + drones.length + ' Drones.');
+
 
 } //end of Main Program
