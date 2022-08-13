@@ -325,6 +325,7 @@ class Server {
     let tempVectorsPerCycle = 0;
     if (i == 0) {
       numBatchesPerCycle = targets[i].batchesPerCycle;
+      reserveThreads = numBatchesPerCycle*targets[i].estVectorsPerBatch;
     }
 
 
@@ -334,9 +335,10 @@ class Server {
       targets[i].ratio >= targets[i+1].ratio &&
       targets[i].takePercent < .99) {
         targets[i].takePercent = Math.round((targets[i].takePercent + .001)*1000)/1000;
+        let oldThreads = numBatchesPerCycle*targets[i].estVectorsPerBatch;
         targets[i].ratioCalc();
-        tempVectorsPerCycle = numBatchesPerCycle*targets[i].estVectorsPerBatch;
-        reserveThreads += tempVectorsPerCycle;
+        let newThreads = numBatchesPerCycle*targets[i].estVectorsPerBatch;
+        reserveThreads = newThreads - oldThreads;
         await ns.sleep(1);
     }
 
