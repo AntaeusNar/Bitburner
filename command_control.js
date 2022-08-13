@@ -349,7 +349,7 @@ class Server {
       reserveThreads = reserveThreads - (tempVectorsPerCycle - numBatchesPerCycle*targets[i].estVectorsPerBatch);
     }
 
-    logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + targets[i].takePercent);
+    logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + targets[i].takePercent*100 + '%.');
 
     if (reserveThreads >= maxThreads) {
       logger(ns, 'INFO: max threads hit, stopping take increase calc.')
