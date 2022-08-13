@@ -230,7 +230,7 @@ class Server {
     * @param {string} hostname
     */
   constructor(ns, hostname){
-    if typeof(hostname) !== 'string') {throw new Error('Hostname for server class must be a string.')};
+    if (typeof(hostname) !== 'string') {throw new Error('Hostname for server class must be a string.')};
     this.hostname = hostname;
     this.ns = ns;
     this.maxRam = this.ns.getServerMaxRam(this.hostname);
