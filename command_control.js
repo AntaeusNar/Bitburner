@@ -351,7 +351,7 @@ class Server {
       reserveThreads = reserveThreads - (newThreads - oldThreads);
     }
 
-    logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + targets[i].takePercent*100 + '%.');
+    logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + targets[i].takePercent*100 + '%. Threads at ' + reserveThreads + ' of ' + maxThreads);
 
     if (reserveThreads >= maxThreads) {
       logger(ns, 'INFO: max threads hit, stopping take increase calc.')
