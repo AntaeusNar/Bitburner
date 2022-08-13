@@ -175,7 +175,7 @@ function evalVectors(ns, server, takePercent = .01, maxThreads = Infinity) {
 
     //adjusting the grow() + weaken() count to inside the maxThreads limit if needed
     if (targetGrowThreads + targetgrowWeakens > maxThreads) {
-      ns.print("INFO: Scaling down the growth threads for " + server.hostname);
+      logger(ns, 'WARNING: Scaling down the growth threads for '+ server.hostname);
       //Math says that for every 25 grow()s you need 2 weaken()s => groups of 27
       let numGroups = Math.floor(maxThreads/27);
       targetGrowThreads = numGroups*25;
@@ -203,7 +203,7 @@ function evalVectors(ns, server, takePercent = .01, maxThreads = Infinity) {
 
       //adjust the hack()s + weaken()s count to inside the maxThreads limit if needed
       if (targetHackThreads + targethackWeakens > maxThreads) {
-        ns.print('INFO: Scaling down the hack threads for ' + server.hostname);
+        logger(ns, 'WARNING: Scaling down the hack threads for ' + server.hostname);
         //Math says that for every 25 hack()s you need 1 weaken() => groups of 26
         numGroups = Math.floor(maxThreads/26);
         targetHackThreads = numGroups*25;
@@ -303,11 +303,20 @@ class Server {
   */
 export async function main(ns) {
 
+  logger(ns, 'Launching Command and Control.')
   ns.disableLog('ALL');
 
   //Recursivly Scan the network
-  ns.print('INFO: Scanning Network for Servers')
+  logger(ns, 'INFO: Scanning Network for Servers.');
   let serverList = multiscan(ns, 'home');
+  logger(ns, ns.vsprintf('INFO: Found % Servers on network.', serverList.length));
+
+  //Build working inventory of servers
+  logger(ns, 'INFO: Building inventory of Servers');
+  let inventory = [];
+  for (i = 0, i > serverList.length, i++) {
+    inventory.push(new Server(serverList[i]));
+  }
 
 
 
