@@ -222,7 +222,7 @@ function evalVectors(ns, server, takePercent = .01, maxThreads = Infinity) {
   return vectors;
 }
 
-/** Server Class */
+/** Class repesenting a server */
 class Server {
 
   /** Creates Server object duplicating the structure of ns.getServer(hostname)
@@ -315,12 +315,14 @@ export async function main(ns) {
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
   let inventory = [];
+  let maxRam =0
   for (let i = 0; i < serverList.length; i++) {
     logger(ns, 'INFO: Building ' + serverList[i]);
     inventory.push(new Server(ns, serverList[i]));
     logger(ns, 'INFO: Built ' + inventory[i].hostname);
+    maxRam += inventory[i].maxRam;
   }
-
+  logger(ns, 'INFO: Max avaliable Ram is ' + maxRam);
 
 
 } //end of Main Program
