@@ -245,7 +245,7 @@ class Server {
     this.numOpenPortsRequired = this.ns.getServerNumPortsRequired(this.hostname);
     this.requiredHackingSkill = this.ns.getServerRequiredHackingLevel(this.hostname);
     this.isTarget = false;
-    if (this.moneyMax > 0 && this.hostname != 'home') {this.isTarget = true; this.takePercent=.01}
+    if (this.moneyMax > 0 && this.hostname != 'home') {this.isTarget = true; this.takePercent=.001}
     this.isPrimedStr = false;
     this.isPrimedMoney = false;
     this.isDrone = false;
@@ -300,7 +300,8 @@ class Server {
     }
   }
 
-  /** This static function will adjust the takePercent of a up until a.ratio ~= b.ratio
+  /** This static function will adjust the takePercent of an array of Server class objects
+    * until array[0].ratio ~= array[1].ratio recusivly.
     * Because increasing the takePercent is a non-linar increase in the number of needed Threads
     * this function will loop the increase
     * In order to prevent a.ratio < b.ratio this will need to stepdown the take after increasing
@@ -311,21 +312,49 @@ class Server {
     * the number of batches per cycle of the primary target.
     * This ensures that if b can be hit faster then a (lower weakentime)
     * there are not unusable threads reserved as used.
-    * @param {Server} a
-    * @param {Server} b
+    * @param {array} targets - array of Server class objects
     * @param {number} maxThreads
     * @param {number} numCyclesPerBatch - the control speed
     * @param {number} [reserveThreads=0] - number of reserved threads
+    * @param {number} [indexOfTarget=0] - the current target
     */
-  static adjustTake(a,b, maxThreads, numCyclesPerBatch. reserveThreads){
+  static adjustTake(targets, maxThreads, numCyclesPerBatch, reserveThreads, indexOfTarget){
     //Basic function setup
-    let ns = a.ns;
-    a.vectorsPerCycle = numCyclesPerBatch*a.estVectorsPerBatch;
-    b.vectorsPerCycle = numCyclesPerBatch*b.estVectorsPerBatch;
-    if (reserveThreads == 0) {
-      reserveThreads = a.vectorsPerCycle + b.vectorsPerCycle;
+    let ns = target[0].ns;
+    let i = indexOfTarget;
+    let tempVectorsPerCycle = 0;
+
+
+    //run loop while there are threads available, next target available,
+    //ratio is greater then next, and takePercent is less the 99%
+    logger(ns, 'INFO: Calculating increase in take perectange for ' + targets[i].hostname);
+    while (reserveThreads < maxThreads &&
+      i < targets.length &&
+      targets[i].ratio >= targets[i+1].ratio &&
+      targets[i].takePercent < .99) {
+        targets[i].takePercent = Math.round((targets[i].ratio + .001)*1e12)/1e12;
+        targets[i].ratioCalc();
+        tempVectorsPerCycle = numCyclesPerBatch*targets[i].estVectorsPerBatch;
+        reserveThreads += tempVectorsPerCycle;
+    }
+
+    //back ratio down if ratio has gone over
+    if (targets[i].ratio > targets[i+1].ratio) {
+      targets[i].takePercent = Math.round((targets[i].ratio - .001)*1e12)/1e12;
+      targets[i].ratioCalc();
+      reserveThreads = reserveThreads - (tempVectorsPerCycle - numCyclesPerBatch*targets[i].estVectorsPerBatch);
+    }
+
+    logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + targets[i].takePercent);
+
+    if (reserveThreads >= maxThreads) {
+      logger(ns, 'INFO: max threads hit, stopping take increase calc.')
+    } else if (i >= targets.length) {
+      logger(ns, 'INFO: hit last avaliable target, stopping take increase calc.')
     } else {
-      reserveThreads = b.vectorsPerCycle;
+      logger(ns, 'INFO: Calculating take for next target.');
+      indexOfTarget++;
+      this.adjustTake(targets, maxThreads, numCyclesPerBatch, reserveThreads, indexOfTarget);
     }
 
 
