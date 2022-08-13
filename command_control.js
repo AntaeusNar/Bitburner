@@ -37,6 +37,21 @@ export function can(ns, file, serverName='home') {
 	return ns.fileExists(file, serverName);
 }
 
+/**Collects max needed Ram
+  * @param {NS} ns
+  * @parma {array} files - array of files to check
+  * @returns {number} needed Ram
+  */
+export function getNeededRam(ns, files) {
+	let needRam = 0;
+	for (let file of files) {
+		if (can(ns, file) && ns.getScriptRam(file) > needRam) {
+			needRam = ns.getScriptRam(file);
+		}
+	}
+	return needRam;
+}
+
 /** number of milliseconds to ISO date string 00:00:00.000
   * @param {number} milliseconds
   * @return {string} ISO format 00:00:00.000
@@ -309,8 +324,12 @@ class Server {
   */
 export async function main(ns) {
 
+  //Initial Launch
   logger(ns, 'Launching Command and Control.')
   ns.disableLog('ALL');
+  let files = ['lt-weaken.js', 'lt-grow.js', 'lt-hack.js'];
+  let neededRam = getNeededRam(ns, files);
+
 
   //Recursivly Scan the network
   logger(ns, 'INFO: Scanning Network for Servers.');
@@ -319,7 +338,7 @@ export async function main(ns) {
 
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
-  let invetory =[];
+  let inventory =[];
   let targets =[];
   let drones = [];
   let maxRam = 0;
@@ -332,6 +351,7 @@ export async function main(ns) {
     maxRam += inventory[i].maxRam;
   }
   logger(ns, 'INFO: Have ' + targets.length + ' Targets and ' + drones.length + ' Drones.');
-  logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB');
+  let maxThreads = Math.Floor(maxRam/neededRam);
+  logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB yeilding a max of ' + maxThreads + ' Threads.');
 
 } //end of Main Program
