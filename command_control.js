@@ -344,7 +344,7 @@ class Server {
 
     //back ratio down if ratio has gone over
     if (targets[i].ratio > targets[i+1].ratio) {
-      targets[i].takePercent = Math.round((targets[i].takePercent - .001)*1e12)/1e12;
+      targets[i].takePercent = Math.round((targets[i].takePercent - .001)*1000)/1000;
       targets[i].ratioCalc();
       reserveThreads = reserveThreads - (tempVectorsPerCycle - numBatchesPerCycle*targets[i].estVectorsPerBatch);
     }
