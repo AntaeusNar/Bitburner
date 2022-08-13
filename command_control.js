@@ -166,7 +166,7 @@ function evalVectors(ns, server, takePercent = .01, maxThreads = Infinity) {
     if (!server.isPrimedMoney && isFinite(maxThreads)) { //Only for actual deployment && server is not grow()n to max
       growthMultiplier = server.moneyMax/server.moneyAvailable;
     } else { //for initial ratio, optimal take, & actual deployment when server is grow()n to max
-      growthMultiplier = server.maxMoney/(server.maxMoney * (1 - takePercent));
+      growthMultiplier = server.moneyMax/(server.moneyMax * (1 - takePercent));
     }
 
     //calc number of threads
@@ -289,7 +289,7 @@ class Server {
       this.batchesPerCycle = Math.floor(batchTime*1000/200);
 
       //calc how much money the takePercent should take
-      let targetTake = this.maxMoney*takePercent;
+      let targetTake = this.moneyMax*takePercent;
 
       this.estVectorsPerBatch = evalVectors(this.ns, this).totalVectors;
 
