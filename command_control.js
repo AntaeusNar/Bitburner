@@ -336,7 +336,7 @@ export async function main(ns) {
     maxRam += inventory[i].maxRam;
   }
   logger(ns, 'INFO: Have ' + targets.length + ' Targets and ' + drones.length + ' Drones.');
-  let maxThreads = Math.Floor(maxRam/neededRam);
+  let maxThreads = Math.floor(maxRam/neededRam);
   logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB yeilding a max of ' + maxThreads + ' Threads.');
 
 } //end of Main Program
