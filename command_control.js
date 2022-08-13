@@ -362,7 +362,7 @@ class Server {
     }
 
 
-  }
+  }// end of static adjustTake
 } //End of server class
 
 /** Main Program
