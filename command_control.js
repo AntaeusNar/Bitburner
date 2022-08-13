@@ -358,7 +358,7 @@ class Server {
     } else {
       logger(ns, 'INFO: Calculating take for next target.');
       indexOfTarget++;
-      this.adjustTake(targets, maxThreads, numBatchesPerCycle, reserveThreads, indexOfTarget);
+      await Server.adjustTake(targets, maxThreads, numBatchesPerCycle, reserveThreads, indexOfTarget);
     }
 
 
@@ -404,7 +404,7 @@ export async function main(ns) {
   targets.sort(function(a,b) {
     return (b.ratio != null) - (a.ratio != null) || b.ratio - a.ratio;
   });
-  Server.adjustTake(targets, maxThreads);
+  await Server.adjustTake(targets, maxThreads);
   // TODO: deploy drone scripts on drones agiast targets
 
 } //end of Main Program
