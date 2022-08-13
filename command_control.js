@@ -166,7 +166,7 @@ function evalVectors(ns, server, maxThreads = Infinity) {
     if (!server.isPrimedMoney && isFinite(maxThreads)) { //Only for actual deployment && server is not grow()n to max
       growthMultiplier = server.moneyMax/server.moneyAvailable;
     } else { //for initial ratio, optimal take, & actual deployment when server is grow()n to max
-      growthMultiplier = server.moneyMax/(server.moneyMax * (1 - this.takePercent));
+      growthMultiplier = server.moneyMax/(server.moneyMax * (1 - server.takePercent));
     }
 
     //calc number of threads
@@ -198,7 +198,7 @@ function evalVectors(ns, server, maxThreads = Infinity) {
     //calc hack()s and matching weaken()s
     if (maxThreads > 0 && server.isPrimedMoney && server.isPrimedStr) { //if there are available Threads and the server is fully primed
       //calc number of hack() threads needed to steal takePercent of server money
-      let targetHackThreads = Math.ceil(this.takePercent/server.percentPerSingleHack);
+      let targetHackThreads = Math.ceil(server.takePercent/server.percentPerSingleHack);
       let targethackWeakens = Math.ceil(targetHackThreads*hackRate/weakenRate);
 
       //adjust the hack()s + weaken()s count to inside the maxThreads limit if needed
