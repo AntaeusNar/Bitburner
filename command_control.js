@@ -329,5 +329,13 @@ export async function main(ns) {
   }
   logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB');
 
+  //Build array of targets
+  logger(ns, 'INFO: Build array of Targets.')
+  let targets =[];
+  for (let i = 0; i < inventory.length; i++) {
+    if (inventory[i].isTarget) {targets.push(inventory[i])}
+  }
+  logger(ns, 'INFO: Have ' + targets.length + ' Targets.');
+
 
 } //end of Main Program
