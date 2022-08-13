@@ -314,15 +314,18 @@ class Server {
     * there are not unusable threads reserved as used.
     * @param {array} targets - array of Server class objects
     * @param {number} maxThreads
-    * @param {number} numCyclesPerBatch - the control speed
+    * @param {number} [numBatchesPerCycle=0] - the control speed
     * @param {number} [reserveThreads=0] - number of reserved threads
     * @param {number} [indexOfTarget=0] - the current target
     */
-  static adjustTake(targets, maxThreads, numCyclesPerBatch, reserveThreads, indexOfTarget){
+  static adjustTake(targets, maxThreads, numBatchesPerCycle, reserveThreads, indexOfTarget){
     //Basic function setup
     let ns = target[0].ns;
     let i = indexOfTarget;
     let tempVectorsPerCycle = 0;
+    if (i == 0) {
+      numBatchesPerCycle = target[i].batchesPerCycle;
+    }
 
 
     //run loop while there are threads available, next target available,
@@ -334,7 +337,7 @@ class Server {
       targets[i].takePercent < .99) {
         targets[i].takePercent = Math.round((targets[i].ratio + .001)*1e12)/1e12;
         targets[i].ratioCalc();
-        tempVectorsPerCycle = numCyclesPerBatch*targets[i].estVectorsPerBatch;
+        tempVectorsPerCycle = numBatchesPerCycle*targets[i].estVectorsPerBatch;
         reserveThreads += tempVectorsPerCycle;
     }
 
@@ -342,7 +345,7 @@ class Server {
     if (targets[i].ratio > targets[i+1].ratio) {
       targets[i].takePercent = Math.round((targets[i].ratio - .001)*1e12)/1e12;
       targets[i].ratioCalc();
-      reserveThreads = reserveThreads - (tempVectorsPerCycle - numCyclesPerBatch*targets[i].estVectorsPerBatch);
+      reserveThreads = reserveThreads - (tempVectorsPerCycle - numBatchesPerCycle*targets[i].estVectorsPerBatch);
     }
 
     logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + targets[i].takePercent);
@@ -354,7 +357,7 @@ class Server {
     } else {
       logger(ns, 'INFO: Calculating take for next target.');
       indexOfTarget++;
-      this.adjustTake(targets, maxThreads, numCyclesPerBatch, reserveThreads, indexOfTarget);
+      this.adjustTake(targets, maxThreads, numBatchesPerCycle, reserveThreads, indexOfTarget);
     }
 
 
@@ -397,7 +400,10 @@ export async function main(ns) {
   let maxThreads = Math.floor(maxRam/neededRam);
   logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB yeilding a max of ' + maxThreads + ' Threads.');
 
-  // TODO: adjust take precent up
+  targets.sort(function(a,b) {
+    return (b.ratio != null) - (a.ratio != null) || b.ratio - a.ratio;
+  });
+  Server.adjustTake(targets, maxThreads);
   // TODO: deploy drone scripts on drones agiast targets
 
 } //end of Main Program
