@@ -352,7 +352,7 @@ class Server {
     }
     targets[i].takePercent = Math.round(targets[i].takePercent*1000)/1000;
 
-    logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + Math.round(targets[i].takePercent*1000)/100 + '%. Threads at ' + reserveThreads + ' of ' + maxThreads);
+    logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + Math.round(targets[i].takePercent*1000)/10 + '%. Threads at ' + reserveThreads + ' of ' + maxThreads);
 
     if (reserveThreads >= maxThreads) {
       logger(ns, 'INFO: max threads hit, stopping take increase calc.')
@@ -407,6 +407,7 @@ export async function main(ns) {
   targets.sort(function(a,b) {
     return (b.ratio != null) - (a.ratio != null) || b.ratio - a.ratio;
   });
+  logger(ns, 'INFO: Starting adjustments, standby....');
   await Server.adjustTake(targets, maxThreads);
   // TODO: deploy drone scripts on drones agiast targets
 
