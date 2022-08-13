@@ -333,7 +333,7 @@ class Server {
     //ratio is greater then next, and takePercent is less the 99%
     while (reserveThreads < maxThreads &&
       targets[i].ratio >= targets[i+1].ratio &&
-      targets[i].takePercent < .99) {
+      targets[i].takePercent < .999) {
         targets[i].takePercent = Math.round((targets[i].takePercent + .001)*1000)/1000;
         let oldThreads = numBatchesPerCycle*targets[i].estVectorsPerBatch;
         targets[i].ratioCalc();
