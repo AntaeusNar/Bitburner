@@ -245,7 +245,7 @@ class Server {
     this.numOpenPortsRequired = this.ns.getServerNumPortsRequired(this.hostname);
     this.requiredHackingSkill = this.ns.getServerRequiredHackingLevel(this.hostname);
     this.isTarget = false;
-    if (this.maxMoney > 0 && this.hostname != 'home') {this.isTarget = true}
+    if (this.moneyMax > 0 && this.hostname != 'home') {this.isTarget = true}
     this.isPrimedStr = false;
     this.isPrimedMoney = false;
     this.isDrone = false;
