@@ -269,6 +269,17 @@ class Server {
   calc() {
     this.ramAvailable = this.maxRam - this.ramUsed;
     this.percentPerSingleHack = this.hackAnalyze*this.hackAnalyzeChance
+    this.formPercentPerSingleHack = null;
+    if (haveFormulas) {
+      let dummyServer = {
+        hackDifficulty: this.minDifficulty,
+        requiredHackingSkill: this.requiredHackingSkill
+      }
+
+      this.f.percentPerSingleHack =
+        ns.formulas.hacking.hackPercent(dummyServer, this.ns.getPlayer()) *
+        ns.formulas.hacking.hackChance(dummyServer, this.ns.getPlayer());
+    }
     this.ratioCalc()
   }
 
