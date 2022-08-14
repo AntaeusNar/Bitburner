@@ -388,7 +388,17 @@ class Server {
     }
     targets[i].takePercent = Math.round(targets[i].takePercent*1000)/1000;
 
-    logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' + Math.round(targets[i].takePercent*1000)/10 + '%. Threads at ' + reserveThreads + ' of ' + maxThreads);
+    let batchTime = 0;
+    if (this.formWeakenTime) {
+      batchTime = (this.formWeakenTime + baseDelay)/1000;
+    } else {
+      batchTime = (this.weakenTime + baseDelay*5)/1000;
+    }
+
+    let estTake = targets[i].moneyMax*targets[i].takePercent*numBatchesPerCycle/batchTime
+    logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' +
+      Math.round(targets[i].takePercent*1000)/10 + '%. Threads at ' +
+      reserveThreads + ' of ' + maxThreads + 'Est Take of $' + estTake +'/sec.');
 
     if (reserveThreads >= maxThreads) {
       logger(ns, 'INFO: max threads hit, stopping take increase calc.')
