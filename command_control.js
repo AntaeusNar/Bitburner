@@ -390,13 +390,13 @@ class Server {
 
     let batchTime = 0;
     let baseDelay = 100;
-    if (this.formWeakenTime) {
-      batchTime = (this.formWeakenTime + baseDelay)/1000;
+    if (targets[i].formWeakenTime) {
+      batchTime = (targets[i].formWeakenTime + baseDelay)/1000;
     } else {
-      batchTime = (this.weakenTime + baseDelay*5)/1000;
+      batchTime = (targets[i].weakenTime + baseDelay*5)/1000;
     }
 
-    let estTake = targets[i].moneyMax*targets[i].takePercent*numBatchesPerCycle/batchTime
+    let estTake = (targets[i].moneyMax*targets[i].takePercent*numBatchesPerCycle)/batchTime;
     logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' +
       Math.round(targets[i].takePercent*1000)/10 + '%. Threads at ' +
       reserveThreads + ' of ' + maxThreads + 'Est Take of $' + estTake +'/sec.');
