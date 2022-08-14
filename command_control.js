@@ -397,9 +397,14 @@ class Server {
     }
 
     let estTake = (targets[i].moneyMax*targets[i].takePercent*numBatchesPerCycle)/batchTime;
+    let formatter = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    });
+    let estTakeStr = formatter.format(estTake);
     logger(ns, 'INFO: Calculated new take for ' + targets[i].hostname + ' at ' +
       Math.round(targets[i].takePercent*1000)/10 + '%. Threads at ' +
-      reserveThreads + ' of ' + maxThreads + 'Est Take of $' + estTake +'/sec.');
+      reserveThreads + ' of ' + maxThreads + ' Est Take of ' + estTakeStr +'/sec.');
 
     if (reserveThreads >= maxThreads) {
       logger(ns, 'INFO: max threads hit, stopping take increase calc.')
