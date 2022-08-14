@@ -292,8 +292,10 @@ class Server {
     this.ratioCalc()
   }
 
-  /** Calculates the ratio */
-  ratioCalc() {
+  /** Calculates the ratio
+    * @param {number} [baseDelay = 100] - delay between batches & cycles
+    */
+  ratioCalc(baseDelay = 100) {
     this.ratio = null;
     this.estVectorsPerBatch = null;
     this.batchesPerCycle = null;
@@ -303,8 +305,8 @@ class Server {
     } else {
 
       //calc the current batch length in secs (weakentime)
-      let batchTime = (this.weakenTime + 800)/1000;
-      this.batchesPerCycle = Math.floor(batchTime*1000/200);
+      let batchTime = (this.weakenTime + baseDelay*5)/1000;
+      this.batchesPerCycle = Math.floor(batchTime*1000/baseDelay);
 
       //calc how much money the takePercent should take
       let targetTake = this.moneyMax*this.takePercent;
