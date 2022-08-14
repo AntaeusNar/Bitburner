@@ -270,7 +270,7 @@ class Server {
     this.ramAvailable = this.maxRam - this.ramUsed;
     this.percentPerSingleHack = this.hackAnalyze*this.hackAnalyzeChance
     this.formPercentPerSingleHack = null;
-    if (haveFormulas) {
+    if (can(this.ns, 'Formulas.exe')) {
       let dummyServer = {
         hackDifficulty: this.minDifficulty,
         requiredHackingSkill: this.requiredHackingSkill
@@ -398,9 +398,6 @@ export async function main(ns) {
   logger(ns, ns.vsprintf('INFO: Found %d Servers on network.', serverList.length));
 
   // TODO: add in the ability to autopurcase access to the darkweb and port openers
-  //check for formulas.exe
-  var haveFormulas = false; //should be a globally scoped var, and accessable from anywhere
-  if (can(ns, 'Formulas.exe')) {haveFomulas = true;}
 
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
