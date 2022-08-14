@@ -465,6 +465,13 @@ export async function main(ns) {
   logger(ns, 'INFO: Starting adjustments, standby....');
   await Server.adjustTake(targets, maxThreads);
 
+
+  /** BUG: Currently the estmated take from the-hub at 48% without formulas (best target) = 19B/sec
+    * where the estimated take from alpha-ent at 5.6% with formulas (best target) = 10B/sec
+    * this is doesn't make sense as first the formules should help get a better target
+    * and second the current rate from c_cv3.js vs the hub is about 1B/sec
+    */
+  
   // TODO: deploy drone scripts on drones agianst targets
   // OPTIMIZE: check the deployments on home server and see if that reduces needed threads due to core upgrades (weakens and grows)
   // TODO: checks to reeval if new skill level or tools can access more targets/drones
