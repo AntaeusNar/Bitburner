@@ -389,6 +389,7 @@ class Server {
     targets[i].takePercent = Math.round(targets[i].takePercent*1000)/1000;
 
     let batchTime = 0;
+    let baseDely = 100;
     if (this.formWeakenTime) {
       batchTime = (this.formWeakenTime + baseDelay)/1000;
     } else {
