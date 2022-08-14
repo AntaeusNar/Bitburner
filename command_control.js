@@ -197,6 +197,7 @@ function evalVectors(ns, server, maxThreads = Infinity) {
 
     //calc hack()s and matching weaken()s
     if (maxThreads > 0 && server.isPrimedMoney && server.isPrimedStr) { //if there are available Threads and the server is fully primed
+
       //calc number of hack() threads needed to steal takePercent of server money
       let percentPerSingleHack = null;
       if (server.formPercentPerSingleHack != null) {
@@ -274,7 +275,7 @@ class Server {
   /** Updates changing calculated information */
   calc() {
     this.ramAvailable = this.maxRam - this.ramUsed;
-    this.percentPerSingleHack = this.hackAnalyze*this.hackAnalyzeChance
+    this.percentPerSingleHack = Math.round(this.hackAnalyze*this.hackAnalyzeChance*10000000)/10000000;
     this.formPercentPerSingleHack = null;
     if (can(this.ns, 'Formulas.exe')) {
       let dummyServer = {
@@ -282,10 +283,12 @@ class Server {
         requiredHackingSkill: this.requiredHackingSkill
       }
 
-      this.f.percentPerSingleHack =
-        ns.formulas.hacking.hackPercent(dummyServer, this.ns.getPlayer()) *
-        ns.formulas.hacking.hackChance(dummyServer, this.ns.getPlayer());
+      this.formPercentPerSingleHack =
+        Math.round(this.ns.formulas.hacking.hackPercent(dummyServer, this.ns.getPlayer()) *
+        this.ns.formulas.hacking.hackChance(dummyServer, this.ns.getPlayer())*10000000)/10000000;
+    //logger(this.ns, "Have Formulas calculated % per hack at " + this.percentPerSingleHack + ' vs ' + this.formPercentPerSingleHack);
     }
+
     this.ratioCalc()
   }
 
@@ -424,7 +427,6 @@ export async function main(ns) {
   logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB yeilding a max of ' + maxThreads + ' Threads.');
 
   //Targets ratio adjustments
-  // OPTIMIZE: Add in the use of Formulas.exe
   targets.sort(function(a,b) {
     return (b.ratio != null) - (a.ratio != null) || b.ratio - a.ratio;
   });
