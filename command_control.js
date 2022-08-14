@@ -198,7 +198,13 @@ function evalVectors(ns, server, maxThreads = Infinity) {
     //calc hack()s and matching weaken()s
     if (maxThreads > 0 && server.isPrimedMoney && server.isPrimedStr) { //if there are available Threads and the server is fully primed
       //calc number of hack() threads needed to steal takePercent of server money
-      let targetHackThreads = Math.ceil(server.takePercent/server.percentPerSingleHack);
+      let percentPerSingleHack = null;
+      if (server.formPercentPerSingleHack != null) {
+        percentPerSingleHack = server.formPercentPerSingleHack;
+      } else {
+        percentPerSingleHack = server.percentPerSingleHack;
+      }
+      let targetHackThreads = Math.ceil(server.takePercent/percentPerSingleHack);
       let targethackWeakens = Math.ceil(targetHackThreads*hackRate/weakenRate);
 
       //adjust the hack()s + weaken()s count to inside the maxThreads limit if needed
