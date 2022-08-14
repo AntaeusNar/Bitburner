@@ -273,7 +273,7 @@ class Server {
         hackDifficulty: this.minDifficulty,
         requiredHackingSkill: this.requiredHackingSkill
       }
-      this.formWeakenTime = this.ns.formulas.weakenTime(dummyServer, this.ns.getPlayer());
+      this.formWeakenTime = this.ns.formulas.hacking.weakenTime(dummyServer, this.ns.getPlayer());
     }
     this.hackAnalyze = this.ns.hackAnalyze(this.hostname);
     this.hackAnalyzeChance = this.ns.hackAnalyzeChance(this.hostname);
@@ -319,7 +319,7 @@ class Server {
       } else {
         batchTime = (this.weakenTime + baseDelay*5)/1000;
       }
-      
+
       this.batchesPerCycle = Math.floor(batchTime*1000/baseDelay);
 
       //calc how much money the takePercent should take
