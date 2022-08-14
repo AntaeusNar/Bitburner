@@ -267,6 +267,14 @@ class Server {
     this.moneyAvailable = Math.max(this.ns.getServerMoneyAvailable(this.hostname),1); //set to actual money or 1 whichever is greater
     this.ramUsed = this.ns.getServerUsedRam(this.hostname);
     this.weakenTime = this.ns.getWeakenTime(this.hostname);
+    this.formWeakenTime = null;
+    if (can(this.ns, 'Formulas.exe')) {
+      let dummyServer = {
+        hackDifficulty: this.minDifficulty,
+        requiredHackingSkill: this.requiredHackingSkill
+      }
+      this.formWeakenTime = this.ns.formulas.weakenTime(dummyServer, this.ns.getPlayer());
+    }
     this.hackAnalyze = this.ns.hackAnalyze(this.hostname);
     this.hackAnalyzeChance = this.ns.hackAnalyzeChance(this.hostname);
     this.calc();
@@ -305,7 +313,13 @@ class Server {
     } else {
 
       //calc the current batch length in secs (weakentime)
-      let batchTime = (this.weakenTime + baseDelay*5)/1000;
+      let batchTime = 0;
+      if (this.formWeakenTime) {
+        batchTime = (this.formWeakenTime + baseDelay)/1000;
+      } else {
+        batchTime = (this.weakenTime + baseDelay*5)/1000;
+      }
+      
       this.batchesPerCycle = Math.floor(batchTime*1000/baseDelay);
 
       //calc how much money the takePercent should take
