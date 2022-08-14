@@ -120,15 +120,15 @@ export function getRoot(ns, serverName) {
 /** evalVectors: calculates the number of (W)GWHW threads
   * @param {NS} ns
   * @param {Object} server - server class object
-  * @param {number} [takePercent=.01] - % of Server Max money targeted
   * @param {number} [maxThreads=Infinity] - max number of available threads
   * @returns {Vectors} calculated attack vectors
   */
 function evalVectors(ns, server, maxThreads = Infinity) {
-  /**This function will be used 3 seperate times:
+  /**This function will be used several times:
     *once for inital ratio at defaults (1% Take and Infinity threads)
     *once for adjusting the take to optimal (increasing Take and Infinity threads)
     *once for actual deployment (optimal take and real threads)
+    *When doing inital and adjusting take to optimal, the option to use formulas.exe should also exsits
     */
 
   //some setup
