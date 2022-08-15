@@ -1,5 +1,5 @@
 /** Basic Server Class */
-class BasicServer {
+export class BasicServer {
 
   /** Creates the most basic server object
     * @param {NS} ns
@@ -53,7 +53,7 @@ class DroneServer extends BasicServer {
 }// end of DroneServer class
 
 /** Target Server Class */
-class TargetServer extends BasicServer {
+export class TargetServer extends BasicServer {
   //some private class Properties
   #_takePercent
 
@@ -150,7 +150,7 @@ class TargetServer extends BasicServer {
 }//end of Target Server class
 
 /** Server Factory when given a hostname, will make a server object that is either basic, drone, or target */
-class ServerFactory {
+export class ServerFactory {
 
   /** creates the object
     * @param {NS} ns
