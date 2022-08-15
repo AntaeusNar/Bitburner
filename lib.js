@@ -144,7 +144,7 @@ class TargetServer extends BasicServer {
   ratio(batchTime = this.batchTime) {
     if (this.requiredHackingSkill > this.ns.getHackingLevel()) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let targetTake = this.moneyMax*this.takePercent;
-    let vectorsPerBatch = evalVectors(this.ns, this);
+    let vectorsPerBatch = evalVectors(this.ns, this).totalVectors;
     return Math.floor(targetTake/vectorsPerBatch/batchTime/1000); // $/thread/Sec
   }
 }//end of Target Server class
