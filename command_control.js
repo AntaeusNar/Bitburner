@@ -183,6 +183,10 @@ function evalVectors(ns, server, maxThreads = Infinity) {
       growBypass = true;
     }
 
+    //adjust the Grow and weakens to atleast one
+    targetGrowThreads = Math.max(1, targetGrowThreads);
+    targetgrowWeakens = Math.max(1, targetgrowWeakens);
+
     vectors.growThreads = Math.min(targetGrowThreads, maxThreads);//stay inside maxThreads
     vectors.totalVectors += vectors.growThreads;//update total vectors
     maxThreads -= vectors.growThreads; //reduce maxThreads
@@ -216,6 +220,10 @@ function evalVectors(ns, server, maxThreads = Infinity) {
         targetHackThreads = numGroups*25;
         targethackWeakens = numGroups;
       }
+
+      //make sure we have atleast one each
+      targetHackThreads = Math.max(1, targetHackThreads);
+      targethackWeakens = Math.max(1, targethackWeakens);
 
       vectors.hackThreads = Math.min(targetHackThreads, maxThreads);//stay inside maxThreads
       vectors.totalVectors += vectors.hackThreads; //update total vectors
