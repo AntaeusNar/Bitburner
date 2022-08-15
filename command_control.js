@@ -241,6 +241,7 @@ function evalVectors(ns, server, maxThreads = Infinity) {
   * Recursivly scans the network, evals targets and drones, deploys (W)GWHW batchs on drone agianst targets
   * @param {NS} ns
   */
+import * from './Classes.js'
 export async function main(ns) {
 
   //Initial Launch
