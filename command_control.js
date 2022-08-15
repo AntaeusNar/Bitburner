@@ -325,7 +325,9 @@ class Server {
       //calc how much money the takePercent should take
       let targetTake = this.moneyMax*this.takePercent;
 
-      this.estVectorsPerBatch = evalVectors(this.ns, this).totalVectors;
+      this.vectors = evalVectors(this.ns, this);
+      this.estVectorsPerBatch = this.vectors.totalVectors;
+
 
       this.ratio = Math.floor(targetTake/this.estVectorsPerBatch/batchTime*100)/100;
       if (isNaN(this.ratio)) {
@@ -464,6 +466,10 @@ export async function main(ns) {
   });
   logger(ns, 'INFO: Starting adjustments, standby....');
   await Server.adjustTake(targets, maxThreads);
+  for (let target of targets) {
+    target.ns = null;
+  }
+  await ns.write('Full_Class.txt', JSON.stringify(targets, null, '\t'), 'w');
 
 
   /** BUG: Currently the estmated take from the-hub at 48% without formulas (best target) = 19B/sec
@@ -471,7 +477,7 @@ export async function main(ns) {
     * this is doesn't make sense as first the formules should help get a better target
     * and second the current rate from c_cv3.js vs the hub is about 1B/sec
     */
-  
+
   // TODO: deploy drone scripts on drones agianst targets
   // OPTIMIZE: check the deployments on home server and see if that reduces needed threads due to core upgrades (weakens and grows)
   // TODO: checks to reeval if new skill level or tools can access more targets/drones
