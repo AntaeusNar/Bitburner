@@ -137,7 +137,11 @@ class TargetServer extends BasicServer {
   //Ratio calculation -> thoughts
   //The ratio should always be best possible
   //The ratio should be in $ per Thread per Sec
-  get ratio() {
+  //Additionally this calculation should use this.batchTime when doing inital ratioing,
+  //but should use the first(best/primary) target's batchTime when doing a comparision
+  //This is because the first target will dictate the speed of other targets deployments
+  //So the return will be agjusted to match.
+  ratio(batchTime = this.batchTime) {
     if (this.requiredHackingSkill > this.ns.getHackingLevel()) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let targetTake = this.moneyMax*this.takePercent;
     let vectorsPerBatch = evalVectors(this.ns, this);
