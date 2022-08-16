@@ -241,7 +241,7 @@ function evalVectors(ns, server, maxThreads = Infinity) {
   * Recursivly scans the network, evals targets and drones, deploys (W)GWHW batchs on drone agianst targets
   * @param {NS} ns
   */
-import * from './Classes.js'
+import {ServerFactory, BasicServer, DroneServer, TargetServer} from 'Classes.js'
 export async function main(ns) {
 
   //Initial Launch
@@ -260,20 +260,19 @@ export async function main(ns) {
 
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
-  let targets =[];
-  let drones = [];
-  let maxRam = 0;
+  let inventory = [];
   for (let i = 0; i < serverList.length; i++) {
     logger(ns, 'INFO: Building ' + serverList[i], 0);
-    if (ns.getServerMaxMoney(serverList[i]) > 0 && serverList[i] != 'home') {
-      targets.push(new TargetServer(ns, serverList[i]));
-      logger(ns, 'INFO: ' + serverList[i] + ' added as a target.');
-    }
-    if (ns.getServerMaxRam(serverList[i]) > 0) {
-      drones.push(new DroneServer(ns, serverList[i]));
-      logger(ns, 'INFO: ' + serverList[i] + ' added as a drone.');
-    }
+    inventory.push(new ServerFactory(ns, serverList[i]));
   }
+
+  //Filter inventory
+  const targets = inventory.filter(obj => {
+    return obj.isTarget;
+  });
+  const drones = inventory.filter(obj => {
+    return obj.isDrone;
+  });
   for (let drone of drones) {
     maxRam += drone.maxRam
   }
