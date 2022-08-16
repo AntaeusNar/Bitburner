@@ -24,7 +24,7 @@ export class BasicServer {
 }// end of BasicServer class
 
 /** Drone Server Class */
-class DroneServer extends BasicServer {
+export class DroneServer extends BasicServer {
   /** Creates a Drone Server
     * @param {NS} ns
     * @param {string} hostname
