@@ -261,9 +261,10 @@ export async function main(ns) {
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
   let inventory = [];
+  const serverFactory = new ServerFactory();
   for (let i = 0; i < serverList.length; i++) {
     logger(ns, 'INFO: Building ' + serverList[i], 0);
-    inventory.push(new ServerFactory(ns, serverList[i]));
+    inventory.push(serverFactory.create(ns, serverList[i]));
   }
 
   //Filter inventory
