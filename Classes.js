@@ -1,3 +1,5 @@
+import {can} from 'lib.js';
+
 /** Basic Server Class */
 export class BasicServer {
 

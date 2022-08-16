@@ -27,16 +27,6 @@ export function logger(ns, message, options=2) {
   }
 }
 
-/** Checks for existance of file on the spesified or home server
-  * @param {NS} ns
-  * @param {string} file - File Name
-  * @param {string} [serverName=home] - hostname of server
-  * @return {boolean} true if file exists on the server
-  */
-export function can(ns, file, serverName='home') {
-	return ns.fileExists(file, serverName);
-}
-
 /** number of milliseconds to ISO date string 00:00:00.000
   * @param {number} milliseconds
   * @return {string} ISO format 00:00:00.000
@@ -241,7 +231,8 @@ function evalVectors(ns, server, maxThreads = Infinity) {
   * Recursivly scans the network, evals targets and drones, deploys (W)GWHW batchs on drone agianst targets
   * @param {NS} ns
   */
-import {ServerFactory, BasicServer, DroneServer, TargetServer} from 'Classes.js'
+import {can} from 'lib.js';
+import {ServerFactory, BasicServer, DroneServer, TargetServer} from 'Classes.js';
 export async function main(ns) {
 
   //Initial Launch
