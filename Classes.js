@@ -55,7 +55,7 @@ export class DroneServer extends BasicServer {
 }// end of DroneServer class
 
 /** Target Server Class */
-export class TargetServer extends BasicServer {
+export class TargetServer extends DroneServer {
   //some private class Properties
   #_takePercent
 
