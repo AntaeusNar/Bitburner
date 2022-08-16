@@ -260,17 +260,22 @@ export async function main(ns) {
 
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
-  let inventory =[];
   let targets =[];
   let drones = [];
   let maxRam = 0;
   for (let i = 0; i < serverList.length; i++) {
     logger(ns, 'INFO: Building ' + serverList[i], 0);
-    inventory.push(new Server(ns, serverList[i]));
-    logger(ns, 'INFO: Built ' + inventory[i].hostname, 0);
-    if (inventory[i].isTarget) {targets.push(inventory[i])}
-    if (inventory[i].isDrone) {drones.push(inventory[i])}
-    maxRam += inventory[i].maxRam;
+    if (ns.getServerMaxMoney(serverList[i]) > 0 && serverList[i] != 'home') {
+      targets.push(new TargetServer(ns, serverList[i]));
+      logger(ns, 'INFO: ' + serverList[i] + ' added as a target.');
+    }
+    if (ns.getServerMaxRam(serverList[i]) > 0) {
+      drones.push(new DroneServer(ns, serverList[i]));
+      logger(ns, 'INFO: ' + serverList[i] + ' added as a drone.');
+    }
+  }
+  for (let drone of drones) {
+    maxRam += drone.maxRam
   }
   logger(ns, 'INFO: Have ' + targets.length + ' Targets and ' + drones.length + ' Drones.');
   let maxThreads = Math.floor(maxRam/neededRam);
@@ -278,7 +283,7 @@ export async function main(ns) {
 
   //Targets ratio adjustments
   targets.sort(function(a,b) {
-    return (b.ratio != null) - (a.ratio != null) || b.ratio - a.ratio;
+    return (b.ratio() != null) - (a.ratio() != null) || b.ratio() - a.ratio();
   });
   logger(ns, 'INFO: Starting adjustments, standby....');
   await Server.adjustTake(targets, maxThreads);
