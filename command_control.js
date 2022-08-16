@@ -286,7 +286,7 @@ export async function main(ns) {
     return (b.ratio() != null) - (a.ratio() != null) || b.ratio() - a.ratio();
   });
   logger(ns, 'INFO: Starting adjustments, standby....');
-  await Server.adjustTake(targets, maxThreads);
+  await TargetServer.adjustTake(targets, maxThreads);
   for (let target of targets) {
     target.ns = null;
   }
