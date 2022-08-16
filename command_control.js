@@ -273,6 +273,7 @@ export async function main(ns) {
   const drones = inventory.filter(obj => {
     return obj.isDrone;
   });
+  let maxRam = 0;
   for (let drone of drones) {
     maxRam += drone.maxRam
   }
