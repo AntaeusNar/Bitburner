@@ -1,4 +1,5 @@
 import {can, getRoot, milString, evalVectors} from 'lib.js';
+import {baseDelay} from 'options.js';
 
 /** Basic Server Class */
 export class BasicServer {
@@ -10,7 +11,6 @@ export class BasicServer {
   constructor(ns, hostname) {
     this.ns = ns;
     this.hostname = hostname;
-    this.ratio = null;
     this.isDrone = false;
     this.isTarget = false;
     this._hasAdminRights = false;

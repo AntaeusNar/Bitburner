@@ -54,7 +54,8 @@ export async function main(ns) {
 
   //Targets ratio adjustments
   targets.sort(function(a,b) {
-    logger(ns, 'INFO: ' + a.hostname + ' has ' + a.ratio() + " " + b.hostname + ' has ' + b.ratio);
+    //logger(ns, JSON.stringify(a));
+    //logger(ns, 'INFO: ' + a.hostname + ' has ' + a.ratio() + " " + b.hostname + ' has ' + b.ratio);
     return (b.ratio() != null) - (a.ratio() != null) || b.ratio() - a.ratio();
   });
   logger(ns, 'INFO: Starting adjustments, standby....');
