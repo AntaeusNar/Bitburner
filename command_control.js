@@ -59,6 +59,7 @@ export async function main(ns) {
     return (b.ratio() != null) - (a.ratio() != null) || b.ratio() - a.ratio();
   });
   logger(ns, 'INFO: Starting adjustments, standby....');
+  logger(ns, 'INFO: Best target is ' + targets[0].hostname + ' with a current ratio of ' + targets[0].ratio());
   await TargetServer.adjustTake(targets, maxThreads);
   for (let target of targets) {
     target.ns = null;
