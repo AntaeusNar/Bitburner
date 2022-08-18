@@ -10,7 +10,7 @@
   * Recursivly scans the network, evals targets and drones, deploys (W)GWHW batchs on drone agianst targets
   * @param {NS} ns
   */
-import {can, getRoot, logger, milstring, getNeededRam, multiscan, evalVectors} from 'lib.js';
+import {logger, getNeededRam, multiscan} from 'lib.js';
 import {ServerFactory, BasicServer, DroneServer, TargetServer} from 'Classes.js';
 export async function main(ns) {
 

@@ -113,7 +113,7 @@ export function multiscan(ns, serverName='home') {
   * @param {number} [maxThreads=Infinity] - max number of available threads
   * @returns {Vectors} calculated attack vectors
   */
-function evalVectors(ns, server, maxThreads = Infinity) {
+export function evalVectors(ns, server, maxThreads = Infinity) {
   /**This function will be used several times:
     *once for inital ratio at defaults (1% Take and Infinity threads)
     *once for adjusting the take to optimal (increasing Take and Infinity threads)

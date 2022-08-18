@@ -1,4 +1,4 @@
-import {can} from 'lib.js';
+import {can, getRoot, milString, evalVectors} from 'lib.js';
 
 /** Basic Server Class */
 export class BasicServer {
