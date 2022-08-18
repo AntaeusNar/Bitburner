@@ -48,7 +48,7 @@ export class DroneServer extends BasicServer {
     }
     //second check with attempt to hack
     if (!this._hasAdminRights) {
-      this._hasAdminRights = getRoot(ns, this.hostname);
+      this._hasAdminRights = getRoot(this.ns, this.hostname);
     }
     return this._hasAdminRights;
   }
