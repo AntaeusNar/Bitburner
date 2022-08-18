@@ -8,6 +8,18 @@ export function can(ns, file, serverName='home') {
 	return ns.fileExists(file, serverName);
 }
 
+/**Outputs stuff to file as a troublshooting step using JSON.strinify and write
+	* @param {NS} ns
+	* @param {data} data
+	* @param {sting} [filename='dumpfile.txt']
+	*/
+export async function fileDump(ns, data, filename='dumpfile.txt') {
+	if (ns.fileExists(filename)) {
+		ns.rm(filename);
+	}
+	await ns.write(filename, JSON.stringify(data, null, '\t'), 'w');
+}
+
 /** Given a server object, will attempt to gain root
 * @param {ns} ns
 * @param {object} server

@@ -10,7 +10,7 @@
   * Recursivly scans the network, evals targets and drones, deploys (W)GWHW batchs on drone agianst targets
   * @param {NS} ns
   */
-import {logger, getNeededRam, multiscan} from 'lib.js';
+import {logger, getNeededRam, multiscan, fileDump} from 'lib.js';
 import {ServerFactory, BasicServer, DroneServer, TargetServer} from 'Classes.js';
 export async function main(ns) {
 
@@ -60,6 +60,7 @@ export async function main(ns) {
   });
   logger(ns, 'INFO: Starting adjustments, standby....');
   logger(ns, 'INFO: Best target is ' + targets[0].hostname + ' with a current ratio of ' + targets[0].ratio());
+  fileDump(ns, targets);
   await TargetServer.adjustTake(targets, maxThreads);
   for (let target of targets) {
     target.ns = null;
