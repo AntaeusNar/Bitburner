@@ -60,7 +60,7 @@ export async function main(ns) {
   });
   logger(ns, 'INFO: Starting adjustments, standby....');
   logger(ns, 'INFO: Best target is ' + targets[0].hostname + ' with a current ratio of ' + targets[0].ratio());
-  fileDump(ns, targets);
+  await fileDump(ns, targets);
   await TargetServer.adjustTake(targets, maxThreads);
   for (let target of targets) {
     target.ns = null;
