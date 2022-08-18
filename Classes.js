@@ -38,6 +38,7 @@ export class DroneServer extends BasicServer {
     if (this.maxRam > 0) {
       this.isDrone = true;
     }
+    this.hasAdminRights();
   }
 
   //Getter for hasAdminRights (will store value, and check using can)
