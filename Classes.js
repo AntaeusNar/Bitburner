@@ -225,6 +225,7 @@ export class TargetServer extends DroneServer {
     let tempVectorsPerCycle = 0
     if (i == 0) {
       numBatchesPerCycle = targets[0].batchesPerCycle;
+      // BUG: THere is something here that couses this to be undefined...
       reserveThreads = numBatchesPerCycle*targets[0].vectorsPerBatch;
     }
 
