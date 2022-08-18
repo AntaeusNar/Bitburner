@@ -46,7 +46,7 @@ export async function main(ns) {
   });
   let maxRam = 0;
   for (let drone of drones) {
-    maxRam += drone.maxRam
+    if (drone.hasAdminRights) {maxRam += drone.maxRam;}
   }
   logger(ns, 'INFO: Have ' + targets.length + ' Targets and ' + drones.length + ' Drones.');
   let maxThreads = Math.floor(maxRam/neededRam);
