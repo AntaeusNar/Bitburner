@@ -79,13 +79,13 @@ export class TargetServer extends DroneServer {
 
   //current weakenTime in milliseconds
   get weakenTime() {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel()) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     return this.ns.getWeakenTime(this.hostname);
   }
 
   //Best case weakenTime in milliseconds
   get formWeakenTime() {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel()) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let result = null;
     if (can(this.ns, 'Formulas.exe')) {
       result = this.ns.formulas.hacking.weakenTime(this.idealServerState, this.ns.getPlayer());
@@ -95,7 +95,7 @@ export class TargetServer extends DroneServer {
 
   //Best case % of server a single hack() thread can take as a decimal to 6 digits
   get percentPerSingleHack() {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel()) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let result = null;
     if (can(this.ns, 'Formulas.exe')) {
       result =
@@ -110,7 +110,7 @@ export class TargetServer extends DroneServer {
 
   //batchTime in milliseconds
   get batchTime() {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel()) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let result = null;
     if (this.formWeakenTime) {
       result = (this.formWeakenTime + baseDelay*5);
@@ -122,7 +122,7 @@ export class TargetServer extends DroneServer {
 
   //Number of batches in a cycle
   get batchesPerCycle() {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel()) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     return Math.floor(this.batchTime/baseDelay);
   }
 
