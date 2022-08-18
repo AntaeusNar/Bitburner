@@ -148,7 +148,7 @@ export class TargetServer extends DroneServer {
   //This is because the first target will dictate the speed of other targets deployments
   //So the return will be agjusted to match.
   ratio(batchTime = this.batchTime) {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel()) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let targetTake = this.moneyMax*this.takePercent;
     return Math.floor(targetTake/this.vectorsPerBatch/batchTime/1000); // $/thread/Sec
   }
