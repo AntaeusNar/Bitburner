@@ -14,6 +14,7 @@ export class BasicServer {
     this.isDrone = false;
     this.isTarget = false;
     this._hasAdminRights = false;
+    this.numberOfPortsRequired = this.ns.getServerNumPortsRequired(this.hostname);
     //maxRam and moneyMax with handling for home
     if (this.hostname == 'home') {
       this.maxRam = this.ns.getServerMaxRam(this.hostname) - 32;
@@ -21,6 +22,26 @@ export class BasicServer {
     } else {
       this.maxRam = this.ns.getServerMaxRam(this.hostname);
       this.moneyMax = this.ns.getServerMaxMoney(this.hostname);
+    }
+    this.hasAdminRights; //This is....bad, but i need to check this getter
+  }
+
+  //Getter for hasAdminRights (will store value, and check using can)
+  get hasAdminRights() {
+    //first check
+    if (!this._hasAdminRights) {
+      this._hasAdminRights = this.ns.hasRootAccess(this.hostname)
+    }
+    //second check with attempt to hack
+    if (!this._hasAdminRights) {
+      this._hasAdminRights = getRoot(this.ns, this);
+    }
+    return this._hasAdminRights;
+  }
+
+  toJSON() {
+    return {
+      hostname: this.hostname,
     }
   }
 }// end of BasicServer class
@@ -38,21 +59,18 @@ export class DroneServer extends BasicServer {
     if (this.maxRam > 0) {
       this.isDrone = true;
     }
-    this.hasAdminRights();
   }
 
-  //Getter for hasAdminRights (will store value, and check using can)
-  get hasAdminRights() {
-    //first check
-    if (!this._hasAdminRights) {
-      this._hasAdminRights = this.ns.hasRootAccess(this.hostname)
+  toJSON() {
+    return {
+      hostname: this.hostname,
+      hasAdminRights: this.hasAdminRights,
+      isDrone: this.isDrone,
+      numberOfPortsRequired: this.numberOfPortsRequired,
+      maxRam: this.maxRam,
     }
-    //second check with attempt to hack
-    if (!this._hasAdminRights) {
-      this._hasAdminRights = getRoot(this.ns, this.hostname);
-    }
-    return this._hasAdminRights;
   }
+
 }// end of DroneServer class
 
 /** Target Server Class */
@@ -141,6 +159,14 @@ export class TargetServer extends DroneServer {
   get vectorsPerBatch() {
     return evalVectors(this.ns, this).totalVectors;
   }
+
+  //should give estmated $/Sec
+  get estReturn() {
+    let moneyPerCycle = this.maxMoney*this.takePercent*this.batchesPerCycle;
+    let time = Math.round((this.batchTime + (this.batchesPerCycle*baseDelay))/1000);
+    return moneyPerCycle/time
+  }
+
   //Ratio calculation -> thoughts
   //The ratio should always be best possible
   //The ratio should be in $ per Thread per Sec
@@ -154,7 +180,24 @@ export class TargetServer extends DroneServer {
     return Math.floor(targetTake/this.vectorsPerBatch/batchTime/1000); // $/thread/Sec
   }
 
-
+  toJSON() {
+    return {
+      hostname: this.hostname,
+      hasAdminRights: this.hasAdminRights,
+      isDrone: this.isDrone,
+      numberOfPortsRequired: this.numberOfPortsRequired,
+      maxRam: this.maxRam,
+      isTarget: this.isTarget,
+      requiredHackingSkill: this.requiredHackingSkill,
+      minDifficulty: this.minDifficulty,
+      ratio: this.ratio(),
+      estReturn: this.estReturn,
+      takePercent: this.takePercent,
+      batchTime: this.batchTime,
+      vectorsPerBatch: this.vectorsPerBatch,
+      batchesPerCycle: this.batchesPerCycle,
+    }
+  }
 
   /** This static function will adjust the takePercent of an array of Server class objects
     * until array[0].ratio ~= array[1].ratio recusivly.
@@ -231,6 +274,7 @@ export class ServerFactory {
     } else {
       server = new BasicServer(ns, hostname);
     }
+
     return server;
   }
 
