@@ -62,10 +62,7 @@ export async function main(ns) {
   logger(ns, 'INFO: Best target is ' + targets[0].hostname + ' with a current ratio of ' + targets[0].ratio());
   await fileDump(ns, targets);
   await TargetServer.adjustTake(targets, maxThreads);
-  for (let target of targets) {
-    target.ns = null;
-  }
-  await ns.write('Full_Class.txt', JSON.stringify(targets, null, '\t'), 'w');
+
 
 
   /** BUG: Currently the estmated take from the-hub at 48% without formulas (best target) = 19B/sec

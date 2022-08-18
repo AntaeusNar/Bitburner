@@ -85,7 +85,7 @@ export class TargetServer extends DroneServer {
   constructor(ns, hostname) {
     super(ns, hostname);
     this.isTarget = true;
-    this.#_takePercent = Math.max(.001, this.percentPerSingleHack, this.formPercentPerSingleHack);
+    this.#_takePercent = .001;
     this.isPrimedStr = false;
     this.isPrimedMoney = false;
     this.requiredHackingSkill = this.ns.getServerRequiredHackingLevel(this.hostname);
@@ -98,13 +98,13 @@ export class TargetServer extends DroneServer {
 
   //current weakenTime in milliseconds
   get weakenTime() {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     return this.ns.getWeakenTime(this.hostname);
   }
 
   //Best case weakenTime in milliseconds
   get formWeakenTime() {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let result = null;
     if (can(this.ns, 'Formulas.exe')) {
       result = this.ns.formulas.hacking.weakenTime(this.idealServerState, this.ns.getPlayer());
@@ -114,7 +114,7 @@ export class TargetServer extends DroneServer {
 
   //Best case % of server a single hack() thread can take as a decimal to 6 digits
   get percentPerSingleHack() {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let result = null;
     if (can(this.ns, 'Formulas.exe')) {
       result =
@@ -129,7 +129,7 @@ export class TargetServer extends DroneServer {
 
   //batchTime in milliseconds
   get batchTime() {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let result = null;
     if (this.formWeakenTime) {
       result = (this.formWeakenTime + baseDelay*5);
@@ -141,7 +141,7 @@ export class TargetServer extends DroneServer {
 
   //Number of batches in a cycle
   get batchesPerCycle() {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     return Math.floor(this.batchTime/baseDelay);
   }
 
@@ -157,12 +157,14 @@ export class TargetServer extends DroneServer {
 
   //Generates the number of vectors in a single batch
   get vectorsPerBatch() {
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     return evalVectors(this.ns, this).totalVectors;
   }
 
   //should give estmated $/Sec
   get estReturn() {
-    let moneyPerCycle = this.maxMoney*this.takePercent*this.batchesPerCycle;
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    let moneyPerCycle = this.moneyMax*this.takePercent*this.batchesPerCycle;
     let time = Math.round((this.batchTime + (this.batchesPerCycle*baseDelay))/1000);
     return moneyPerCycle/time
   }
@@ -175,9 +177,9 @@ export class TargetServer extends DroneServer {
   //This is because the first target will dictate the speed of other targets deployments
   //So the return will be agjusted to match.
   ratio(batchTime = this.batchTime) {
-    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasRootAccess) {return null;} //if you call this, and your hack isn't high enough, you get nothing
+    if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let targetTake = this.moneyMax*this.takePercent;
-    return Math.floor(targetTake/this.vectorsPerBatch/batchTime/1000); // $/thread/Sec
+    return Math.floor(targetTake/this.vectorsPerBatch/(batchTime/1000)); // $/thread/Sec
   }
 
   toJSON() {
