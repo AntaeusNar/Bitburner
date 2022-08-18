@@ -11,27 +11,6 @@
   	return ns.fileExists(file, "home");
   }
 
- /** Given a server object, will attempt to gain root
-  * @param {ns} ns
-  * @param {object} server
-  * @returns {boolean} result
-  */
- export function getRoot(ns, target) {
-  	let result = false;
-  	let ports = 0;
-  		if (can(ns, "brutessh.exe")) { ns.brutessh(target.hostname); ++ports; }
-  		if (can(ns, "ftpcrack.exe")) { ns.ftpcrack(target.hostname); ++ports; }
-  		if (can(ns, "relaysmtp.exe")) { ns.relaysmtp(target.hostname); ++ports; }
-  		if (can(ns, "httpworm.exe")) { ns.httpworm(target.hostname); ++ports; }
-  		if (can(ns, "sqlinject.exe")) { ns.sqlinject(target.hostname); ++ports; }
-  		if (ports >= target.numOpenPortsRequired) {
-  			ns.nuke(target.hostname);
-  			if (ns.hasRootAccess(target.hostname)){
-  				result = true;
-  			}
-  		}
-  	return result;
- }
 
 /** Given a server object and a takePercent, will calculate the ratio
  * in $/GB/Sec
