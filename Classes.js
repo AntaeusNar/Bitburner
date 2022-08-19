@@ -218,6 +218,7 @@ export class TargetServer extends DroneServer {
     if (isNaN(ratio) || ratio == null || ratio == 0) {
       throw new Error('Error: ' + this.hostname + ' has an invalid ratio!')
     }
+    return ratio;
   }
 
   toJSON() {
