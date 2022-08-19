@@ -272,7 +272,7 @@ export class TargetServer extends DroneServer {
     }
     let oldTake = targets[i].takePercent;
 
-    if (indexOfTarget+1 = targets.length) { //handling for last server in target list
+    if (indexOfTarget+1 == targets.length) { //handling for last server in target list
       logger(ns, "INFO: on last server " + targets[i].hostname);
 
       while (reserveThreads < maxThreads &&
