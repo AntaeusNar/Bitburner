@@ -134,12 +134,12 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
   const growRate = .004;
   const hackRate = .002;
   var vectors = {
-    totalVectors: 0,
     primeWeaken: 0,
     growThreads: 0,
     growWeakens: 0,
     hackThreads: 0,
-    hackWeakens: 0
+    hackWeakens: 0,
+		totalVectors: 0,
   }
 
   //Primary Weaken: only done on !dryrun and if !isPrimedStr
@@ -237,9 +237,10 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
     }
 
   }
+	let names = Object.keys
 	for (let i in vectors) {
 		if (isNaN(vectors[i]) || vectors[i] == null) {
-			throw new Error(server.hostname + ' has an invalid vector result in ' + Object.keys(vectors)[i]);
+			throw new Error(server.hostname + ' has an invalid vector result in ' + i);
 		}
 	}
   return vectors;
