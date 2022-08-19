@@ -215,7 +215,7 @@ export class TargetServer extends DroneServer {
     if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let targetTake = this.moneyMax*this.takePercent;
     let ratio = Math.floor(targetTake/this.vectorsPerBatch/(batchTime/1000)); // $/thread/Sec
-    if (isNan(ratio) || ratio == null || ratio == 0) {
+    if (isNaN(ratio) || ratio == null || ratio == 0) {
       throw new Error('Error: ' + this.hostname + ' has an invalid ratio!')
     }
   }
