@@ -187,7 +187,8 @@ export class TargetServer extends DroneServer {
 
   //sets the takePercent
   set takePercent(take) {
-    this.#_takePercent = Math.max(take, this.percentPerSingleHack);
+    //sets takePercent to a decimal between max 1 and min this.percentPerSingleHack
+    this.#_takePercent = Math.max(Math.min(1, take), this.percentPerSingleHack);
   }
 
   //Generates the number of vectors in a single batch
@@ -281,7 +282,7 @@ export class TargetServer extends DroneServer {
     targets[i].ratio() > targets[i+1].ratio() &&
     targets[i].takePercent < .999) {
       let oldThreads = numBatchesPerCycle*targets[i].vectorsPerBatch;
-      let takeIncrease = Math.max(this.percentPerSingleHack, .001);
+      let takeIncrease = Math.max(targets[i].percentPerSingleHack, .001);
       targets[i].takePercent = Math.round((targets[i].takePercent + takeIncrease)*1000)/1000;
       let newThreads = numBatchesPerCycle*targets[i].vectorsPerBatch;
       reserveThreads = reserveThreads + (newThreads - oldThreads);
