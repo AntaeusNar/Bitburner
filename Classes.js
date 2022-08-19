@@ -182,7 +182,7 @@ export class TargetServer extends DroneServer {
 
   //the current takePercent
   get takePercent() {
-    return precisionRound(Math.maxMath.max(this.#_takePercent, this.percentPerSingleHack), 3);
+    return precisionRound(Math.max(this.#_takePercent, this.percentPerSingleHack), 3);
   }
 
   //sets the takePercent
