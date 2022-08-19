@@ -77,6 +77,8 @@ export class DroneServer extends BasicServer {
 export class TargetServer extends DroneServer {
   //some private class Properties
   #_takePercent
+  #_isPrimedStr
+  #_isPrimedMoney
 
   /** Create a Target Server
     * @param {NS} ns
