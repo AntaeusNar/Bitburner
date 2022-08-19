@@ -74,7 +74,7 @@ export function milString(milliseconds) {
 	* @param {number} number
 	* @param {number} precision
 	*/
-export function precisionRound(number. precision) {
+export function precisionRound(number, precision) {
 	let factor = Math.pow(10, precision);
 	let n = precision < 0 ? number : 0.01 / factor + number;
 	return Math.round( n * factor ) / factor;
