@@ -238,7 +238,7 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
 
   }
 	for (let i in vectors) {
-		if (isNan(vectors[i]) || vectors[i] == null) {
+		if (isNaN(vectors[i]) || vectors[i] == null) {
 			throw new Error(this.hostname + ' has an invalid vector result in ' + Object.keys(vectors)[i]);
 		}
 	}
