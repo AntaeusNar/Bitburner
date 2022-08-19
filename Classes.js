@@ -270,24 +270,40 @@ export class TargetServer extends DroneServer {
       numBatchesPerCycle = targets[0].batchesPerCycle;
       reserveThreads = numBatchesPerCycle*targets[0].vectorsPerBatch;
     }
-
-    //// TEMP: Error for testing
-    if (targets[i].ratio() < targets[i+1].ratio()) {
-      throw new Error(targets[i].hostname + ' has a worse ratio then ' + targets[i+1].hostname);
-    }
     let oldTake = targets[i].takePercent;
-    //Run a loop to increase the take, and the ratio while
-    //there are threads available, a next target, ratio is greater the the Next
-    //and the take is less then 99%
-    while (reserveThreads < maxThreads &&
-      targets[i].ratio() > targets[i+1].ratio() &&
-      targets[i].takePercent < .999) {
-        let oldThreads = numBatchesPerCycle*targets[i].vectorsPerBatch;
-        let takeIncrease = Math.max(targets[i].percentPerSingleHack, .001);
-        targets[i].takePercent = Math.round((targets[i].takePercent + takeIncrease)*1000)/1000;
-        let newThreads = numBatchesPerCycle*targets[i].vectorsPerBatch;
-        reserveThreads = reserveThreads + (newThreads - oldThreads);
-        await ns.sleep(1);
+
+    if (indexOfTarget+1 = targets.length) { //handling for last server in target list
+      logger(ns, "INFO: on last server " + targets[i].hostname);
+
+      while (reserveThreads < maxThreads &&
+        targets[i].takePercent < .999) {
+          let oldThreads = numBatchesPerCycle*targets[i].vectorsPerBatch;
+          let takeIncrease = Math.max(targets[i].percentPerSingleHack, .001);
+          targets[i].takePercent = Math.round((targets[i].takePercent + takeIncrease)*1000)/1000;
+          let newThreads = numBatchesPerCycle*targets[i].vectorsPerBatch;
+          reserveThreads = reserveThreads + (newThreads - oldThreads);
+          await ns.sleep(1);
+      }
+
+    } else { //handling for everything else
+      //// TEMP: Error for testing
+      if (targets[i].ratio() < targets[i+1].ratio()) {
+        throw new Error(targets[i].hostname + ' has a worse ratio then ' + targets[i+1].hostname);
+      }
+
+      //Run a loop to increase the take, and the ratio while
+      //there are threads available, a next target, ratio is greater the the Next
+      //and the take is less then 99%
+      while (reserveThreads < maxThreads &&
+        targets[i].ratio() > targets[i+1].ratio() &&
+        targets[i].takePercent < .999) {
+          let oldThreads = numBatchesPerCycle*targets[i].vectorsPerBatch;
+          let takeIncrease = Math.max(targets[i].percentPerSingleHack, .001);
+          targets[i].takePercent = Math.round((targets[i].takePercent + takeIncrease)*1000)/1000;
+          let newThreads = numBatchesPerCycle*targets[i].vectorsPerBatch;
+          reserveThreads = reserveThreads + (newThreads - oldThreads);
+          await ns.sleep(1);
+      }
     }
 
     if (oldTake != targets[i].takePercent) {
@@ -299,7 +315,9 @@ export class TargetServer extends DroneServer {
     if (reserveThreads >= maxThreads) {
       logger(ns, 'INFO: max threads hit, stopping take increase calc.');
     } else if (indexOfTarget >= targets.length || !targets[i+1].hasAdminRights) {
-      logger(ns, 'INFO: hit last available target, stopping take increase clac.');
+      logger(ns, 'INFO: hit last available target, but with available threads. Looping.');
+      indexOfTarget = 0;
+      await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reserveThreads, indexOfTarget)
     } else {
       logger(ns, 'INFO: Calcuclating take for next target.');
       indexOfTarget++;
