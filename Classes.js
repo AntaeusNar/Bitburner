@@ -275,7 +275,7 @@ export class TargetServer extends DroneServer {
     if (targets[i].ratio() < targets[i+1].ratio()) {
       throw new Error(targets[i].hostname + ' has a worse ratio then ' + targets[i+1].hostname);
     }
-    let oldRatio = targets[i].ratio();
+    let oldTake = targets[i].takePercent;
     //Run a loop to increase the take, and the ratio while
     //there are threads available, a next target, ratio is greater the the Next
     //and the take is less then 99%
@@ -290,8 +290,8 @@ export class TargetServer extends DroneServer {
         await ns.sleep(1);
     }
 
-    if (oldRatio != targets[i].ratio()) {
-      logger(ns, 'Increased ' + targets[i].hostname + ' from  ' + oldRatio*100 + '% to ' + targets[i].takePercent*100 + '% threads at ' + reserveThreads + '/' + maxThreads);
+    if (oldTake != targets[i].takePercent) {
+      logger(ns, 'Increased ' + targets[i].hostname + ' from  ' + oldTake*100 + '% to ' + targets[i].takePercent*100 + '% threads at ' + reserveThreads + '/' + maxThreads);
     } else {
       logger(ns, 'No adjustment mad to ' + targets[i].hostname);
     }
