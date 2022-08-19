@@ -86,14 +86,47 @@ export class TargetServer extends DroneServer {
     super(ns, hostname);
     this.isTarget = true;
     this.#_takePercent = .001;
-    this.isPrimedStr = false;
-    this.isPrimedMoney = false;
+    this.#_isPrimedStr = false;
+    this.#_isPrimedMoney = false;
     this.requiredHackingSkill = this.ns.getServerRequiredHackingLevel(this.hostname);
     this.minDifficulty = this.ns.getServerMinSecurityLevel(this.hostname);
     this.idealServerState = {
       hackDifficulty: this.minDifficulty,
       requiredHackingSkill: this.requiredHackingSkill,
     }
+  }
+
+  //gets current available money
+  get moneyAvailable() {
+    return this.ns.getServerMoneyAvailable(this.hostname);
+  }
+
+  //gets/checks if target is/projected to be at min security
+  get isPrimedStr() {
+    if (this.ns.getServerSecurityLevel(this.hostname) == this.minDifficulty) {
+      this.#_isPrimedStr = true;
+    }
+    return this.#_isPrimedStr;
+  }
+
+  //sets isPrimedStr (should only come from evalVectors and only when used to realworld delpoyment)
+  // TODO: change this to be only used on completed deployment
+  set isPrimedStr(boolean) {
+    this.#_isPrimedStr = boolean;
+  }
+
+  //gets/checks if target is/projected to be at max money
+  get isPrimedMoney() {
+    if (this.moneyMax == this.moneyAvailable) {
+      this.#_isPrimedMoney = true;
+    }
+    return this.#_isPrimedMoney;
+  }
+
+  //sets isPrimedMoney (should only come from evalVectors and only when used to realworld deploment)
+  // TODO: change this to only be used on completed deplayment
+  set isPrimedMoney(boolean) {
+    this.#_isPrimedMoney = boolean;
   }
 
   //current weakenTime in milliseconds
@@ -190,6 +223,8 @@ export class TargetServer extends DroneServer {
       numberOfPortsRequired: this.numberOfPortsRequired,
       maxRam: this.maxRam,
       isTarget: this.isTarget,
+      isPrimedStr: this.isPrimedStr,
+      isPrimedMoney: this.isPrimedMoney,
       requiredHackingSkill: this.requiredHackingSkill,
       minDifficulty: this.minDifficulty,
       ratio: this.ratio(),

@@ -153,6 +153,7 @@ export function evalVectors(ns, server, maxThreads = Infinity) {
     vectors.primeWeaken = Math.min(targetPrimeWeakens, maxThreads); //stay inside available threads
     vectors.totalVectors = vectors.primeWeaken; //update total vectors
     maxThreads -= vectors.totalVectors; //reduce maxThreads
+		// TODO: move this isPrimedStr set to only when deployment works
     if (vectors.primeWeaken == targetPrimeWeakens) {server.isPrimedStr = true;} //setting the isPrimedStr flag to true
   }
 
@@ -165,7 +166,7 @@ export function evalVectors(ns, server, maxThreads = Infinity) {
     let growBypass = false;
 
     //calc growthMultiplier
-    if (!server.isPrimedMoney && isFinite(maxThreads)) { //Only for actual deployment && server is not grow()n to max
+    if (!server.isPrimedMoney && isFinite(maxThreads) && server.moneyMax > server.moneyAvailable) { //Only for actual deployment && server is not grow()n to max
       growthMultiplier = server.moneyMax/server.moneyAvailable;
     } else { //for initial ratio, optimal take, & actual deployment when server is grow()n to max
       growthMultiplier = server.moneyMax/(server.moneyMax * (1 - server.takePercent));
@@ -198,7 +199,8 @@ export function evalVectors(ns, server, maxThreads = Infinity) {
 
     if (!server.isPrimedMoney && !growBypass &&
       vectors.growThreads == targetGrowThreads && vectors.growWeakens == targetgrowWeakens) {
-        server.isPrimedMoney = true; //set the isPrimedMoney flag if was false, not bypassed & needed threads are allocated
+				// TODO: should be moved to completed deployments
+				server.isPrimedMoney = true; //set the isPrimedMoney flag if was false, not bypassed & needed threads are allocated
     }
 
     //calc hack()s and matching weaken()s
