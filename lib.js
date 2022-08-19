@@ -240,7 +240,7 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
 	let names = Object.keys
 	for (let i in vectors) {
 		if (isNaN(vectors[i]) || vectors[i] == null) {
-			throw new Error(server.hostname + ' has an invalid vector result in ' + i);
+			throw new Error(server.hostname + ' has an invalid vector result in ' + i + ': ' + JSON.strinify(vectors));
 		}
 	}
   return vectors;
