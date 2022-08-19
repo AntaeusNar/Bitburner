@@ -123,17 +123,13 @@ export function multiscan(ns, serverName='home') {
   * @param {NS} ns
   * @param {Object} server - server class object
   * @param {number} [maxThreads=Infinity] - max number of available threads
+  * @param {boolean} [dryrun=true]
   * @returns {Vectors} calculated attack vectors
   */
-export function evalVectors(ns, server, maxThreads = Infinity) {
-  /**This function will be used several times:
-    *once for inital ratio at defaults (1% Take and Infinity threads)
-    *once for adjusting the take to optimal (increasing Take and Infinity threads)
-    *once for actual deployment (optimal take and real threads)
-    *When doing inital and adjusting take to optimal, the option to use formulas.exe should also exsits
-    */
+/** used 3 times, first dry run to get initial ratio, second dry run to increase take, thrid for real world deployments */
+export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
 
-  //some setup
+  //setup
   const weakenRate = .05;
   const growRate = .004;
   const hackRate = .002;
@@ -146,10 +142,10 @@ export function evalVectors(ns, server, maxThreads = Infinity) {
     hackWeakens: 0
   }
 
-  //Calc primary Weakens: Only done if for actual deployment && server is not weaken()ed to min
-  if(!server.isPrimedStr && isFinite(maxThreads)) {
-    server.hackDifficulty = ns.getServerSecurityLevel(server.hostname); //get current security level
-    let targetPrimeWeakens = Math.ceil((server.hackDifficulty - server.minDifficulty)/weakenRate); //calc totale needed weaken threads
+  //Primary Weaken: only done on !dryrun and if !isPrimedStr
+  if(!server.isPrimedStr && !dryrun) {
+    let currentDifficulty = ns.getServerSecurityLevel(server.hostname); //get current security level
+    let targetPrimeWeakens = Math.ceil((currentDifficulty - server.minDifficulty)/weakenRate); //calc totale needed weaken threads
     vectors.primeWeaken = Math.min(targetPrimeWeakens, maxThreads); //stay inside available threads
     vectors.totalVectors = vectors.primeWeaken; //update total vectors
     maxThreads -= vectors.totalVectors; //reduce maxThreads
@@ -157,21 +153,22 @@ export function evalVectors(ns, server, maxThreads = Infinity) {
     if (vectors.primeWeaken == targetPrimeWeakens) {server.isPrimedStr = true;} //setting the isPrimedStr flag to true
   }
 
-  //Calc grow() and matching weaken()s
-  if (maxThreads > 0) {
+  //continue if there is a min of 4 threads (one each for GWHW)
+  if (maxThreads > 4 ) {
+
+    //Calc grow() and weaken() threads
     //setup
     let growthMultiplier = 0;
     let targetGrowThreads = 0;
     let targetgrowWeakens = 0;
     let growBypass = false;
 
-    //calc growthMultiplier
-    if (!server.isPrimedMoney && isFinite(maxThreads) && server.moneyMax > server.moneyAvailable) { //Only for actual deployment && server is not grow()n to max
-      growthMultiplier = server.moneyMax/server.moneyAvailable;
-    } else { //for initial ratio, optimal take, & actual deployment when server is grow()n to max
+    //Calc growthMultiplier
+    if (dryrun || server.isPrimedMoney) { //on dryrun or isPrimedMoney get min growth
       growthMultiplier = server.moneyMax/(server.moneyMax * (1 - server.takePercent));
+    } else { //get needed growth
+      growthMultiplier = server.moneyMax/server.moneyAvailable;
     }
-
     //calc number of threads
     targetGrowThreads = Math.ceil(ns.growthAnalyze(server.hostname, growthMultiplier));
     targetgrowWeakens = Math.ceil(vectors.growThreads*growRate/weakenRate);
@@ -203,8 +200,10 @@ export function evalVectors(ns, server, maxThreads = Infinity) {
 				server.isPrimedMoney = true; //set the isPrimedMoney flag if was false, not bypassed & needed threads are allocated
     }
 
-    //calc hack()s and matching weaken()s
-    if (maxThreads > 0 && server.isPrimedMoney && server.isPrimedStr) { //if there are available Threads and the server is fully primed
+    //Calc hack() and matching weaken()
+    //continue if there is a min of 2 threads (one each for HW) && target server is fully primed
+    //or if a dryrun
+    if (dryrun || (maxThreads > 2 && server.isPrimedMoney && server.isPrimedStr)) {
 
       //calc number of hack() threads needed to steal takePercent of server money
       let percentPerSingleHack = null;
