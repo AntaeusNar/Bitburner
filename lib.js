@@ -224,7 +224,7 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
 
       vectors.hackThreads = Math.min(targetHackThreads, maxThreads);//stay inside maxThreads
       vectors.totalVectors += vectors.hackThreads; //update total vectors
-      maxThreads -= vectors.hackthreads; //reduce maxThreads
+      maxThreads -= vectors.hackThreads; //reduce maxThreads
       vectors.hackWeakens = Math.min(targethackWeakens, maxThreads); //stay inside maxThreads
       vectors.totalVectors += vectors.hackWeakens; //update total vectors
       maxThreads -= vectors.hackWeakens; //reduce maxThreads
