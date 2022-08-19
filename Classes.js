@@ -195,6 +195,7 @@ export class TargetServer extends DroneServer {
       ratio: this.ratio(),
       estReturn: this.estReturn,
       takePercent: this.takePercent,
+      percentPerSingleHack: this.percentPerSingleHack,
       batchTime: this.batchTime,
       vectorsPerBatch: this.vectorsPerBatch,
       batchesPerCycle: this.batchesPerCycle,
@@ -240,7 +241,7 @@ export class TargetServer extends DroneServer {
       targets[i].takePercent = Math.round((targets[i].takePercent + takeIncrease)*1000)/1000;
       let newThreads = numBatchesPerCycle*targets[i].vectorsPerBatch;
       reserveThreads = reserveThreads + (newThreads - oldThreads);
-      logger(ns, 'increased ' + targets[i].home + ' to ' + targets[i].takePercent + ' threads at ' + reserveThreads + '/' + maxThreads);
+      logger(ns, 'increased ' + targets[i].hostname + ' to ' + targets[i].takePercent + ' threads at ' + reserveThreads + '/' + maxThreads);
       await ns.sleep(1);
     }
 
