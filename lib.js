@@ -70,6 +70,16 @@ export function milString(milliseconds) {
   return new Date(milliseconds).toISOString().substr(11,12);
 }
 
+/** Lets round a number...please....
+	* @param {number} number
+	* @param {number} precision
+	*/
+export function precisionRound(number. precision) {
+	let factor = Math.pow(10, precision);
+	let n = precision < 0 ? number : 0.01 / factor + number;
+	return Math.round( n * factor ) / factor;
+}
+
 /** Given an array of files, will return the max ram requirements
   * @param {NS} ns
   * @param {array} files - list of file names
