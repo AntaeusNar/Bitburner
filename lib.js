@@ -165,9 +165,10 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
 
     //Calc growthMultiplier
     if (dryrun || server.isPrimedMoney) { //on dryrun or isPrimedMoney get min growth
-      growthMultiplier = server.moneyMax/(server.moneyMax * (1 - server.takePercent));
+			//includes handleing for all money gone.
+      growthMultiplier = server.moneyMax/Math.max(1, (server.moneyMax * (1 - server.takePercent)));
     } else { //get needed growth
-      growthMultiplier = server.moneyMax/server.moneyAvailable;
+      growthMultiplier = server.moneyMax/Math.max(1, server.moneyAvailable);
     }
     //calc number of threads
     targetGrowThreads = Math.ceil(ns.growthAnalyze(server.hostname, growthMultiplier));
