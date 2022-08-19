@@ -211,10 +211,10 @@ export class TargetServer extends DroneServer {
   //but should use the first(best/primary) target's batchTime when doing a comparision
   //This is because the first target will dictate the speed of other targets deployments
   //So the return will be agjusted to match.
-  ratio(batchTime = this.batchTime) {
+  ratio() {
     if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
     let targetTake = this.moneyMax*this.takePercent;
-    let ratio = Math.floor(targetTake/this.vectorsPerBatch/(batchTime/1000)); // $/thread/Sec
+    let ratio = Math.floor(targetTake/this.vectorsPerBatch/(this.batchTime/1000)); // $/thread/Sec
     if (isNaN(ratio) || ratio == null || ratio == 0) {
       throw new Error('Error: ' + this.hostname + ' has an invalid ratio!')
     }
@@ -270,11 +270,15 @@ export class TargetServer extends DroneServer {
       reserveThreads = numBatchesPerCycle*targets[0].vectorsPerBatch;
     }
 
+    //// TEMP: Error for testing
+    if (targets[i].ratio() < targets[i+1].ratio()) {
+      throw new Error(targets[i].hostname + ' has a worse ratio then ' + targets[i+1].hostname);
+    }
     //Run a loop to increase the take, and the ratio while
     //there are threads available, a next target, ratio is greater the the Next
     //and the take is less then 99%
   while (reserveThreads < maxThreads &&
-    targets[i].ratio() > targets[i+1].ratio(targets[i].batchTime) &&
+    targets[i].ratio() > targets[i+1].ratio() &&
     targets[i].takePercent < .999) {
       let oldThreads = numBatchesPerCycle*targets[i].vectorsPerBatch;
       let takeIncrease = Math.max(this.percentPerSingleHack, .001);
