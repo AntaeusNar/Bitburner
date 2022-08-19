@@ -1,4 +1,4 @@
-import {can, getRoot, milString, evalVectors} from 'lib.js';
+import {can, getRoot, evalVectors, logger} from 'lib.js';
 import {baseDelay} from 'options.js';
 
 /** Basic Server Class */
@@ -240,6 +240,7 @@ export class TargetServer extends DroneServer {
       targets[i].takePercent = Math.round((targets[i].takePercent + takeIncrease)*1000)/1000;
       let newThreads = numBatchesPerCycle*targets[i].vectorsPerBatch;
       reserveThreads = reserveThreads + (newThreads - oldThreads);
+      logger(ns, 'increased ' + targets[i].home + ' to ' + targets[i].takePercent + ' threads at ' + reserveThreads + '/' + maxThreads);
       await ns.sleep(1);
     }
 

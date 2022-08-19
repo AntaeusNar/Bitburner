@@ -62,6 +62,7 @@ export async function main(ns) {
   logger(ns, 'INFO: Best target is ' + targets[0].hostname + ' with a current ratio of ' + targets[0].ratio());
   await fileDump(ns, targets);
   await TargetServer.adjustTake(ns, targets, maxThreads);
+  await fileDump(ns, targets, 'adjusteddump.txt');
 
 
 
