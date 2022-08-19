@@ -206,13 +206,7 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
     if (dryrun || (maxThreads > 2 && server.isPrimedMoney && server.isPrimedStr)) {
 
       //calc number of hack() threads needed to steal takePercent of server money
-      let percentPerSingleHack = null;
-      if (server.formPercentPerSingleHack != null) {
-        percentPerSingleHack = server.formPercentPerSingleHack;
-      } else {
-        percentPerSingleHack = server.percentPerSingleHack;
-      }
-      let targetHackThreads = Math.ceil(server.takePercent/percentPerSingleHack);
+      let targetHackThreads = Math.ceil(server.takePercent/server.percentPerSingleHack);
       let targethackWeakens = Math.ceil(targetHackThreads*hackRate/weakenRate);
 
       //adjust the hack()s + weaken()s count to inside the maxThreads limit if needed
@@ -240,7 +234,7 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
 	let names = Object.keys
 	for (let i in vectors) {
 		if (isNaN(vectors[i]) || vectors[i] == null) {
-			throw new Error(server.hostname + ' has an invalid vector result in ' + i + ': ' + JSON.strinify(vectors));
+			throw new Error(server.hostname + ' has an invalid vector result in ' + i + ': ' + JSON.stringify(vectors));
 		}
 	}
   return vectors;
