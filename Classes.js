@@ -291,7 +291,7 @@ export class TargetServer extends DroneServer {
     }
 
     if (oldRatio != targets[i].ratio()) {
-      logger(ns, 'Increased ' + targets[i].hostname + ' to ' + targets[i].takePercent + ' threads at ' + reserveThreads + '/' + maxThreads);
+      logger(ns, 'Increased ' + targets[i].hostname + ' from  ' + oldRatio*100 + '% to ' + targets[i].takePercent*100 + '% threads at ' + reserveThreads + '/' + maxThreads);
     } else {
       logger(ns, 'No adjustment mad to ' + targets[i].hostname);
     }
