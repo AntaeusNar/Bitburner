@@ -152,7 +152,7 @@ export class TargetServer extends DroneServer {
 
   //sets the takePercent
   set takePercent(take) {
-    this.#_takePercent = Math.max(this.#_takePercent, this.percentPerSingleHack);
+    this.#_takePercent = Math.max(take, this.percentPerSingleHack);
   }
 
   //Generates the number of vectors in a single batch
