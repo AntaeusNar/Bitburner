@@ -283,7 +283,7 @@ export class TargetServer extends DroneServer {
 
     if (reserveThreads >= maxThreads) {
       logger(ns, 'INFO: max threads hit, stopping take increase calc.');
-    } else if (!targets[i+1].hasAdminRights ||indexOfTarget >= targets.length) {
+    } else if (indexOfTarget >= targets.length || !targets[i+1].hasAdminRights) {
       logger(ns, 'INFO: hit last available target, stopping take increase clac.');
     } else {
       logger(ns, 'INFO: Calcuclating take for next target.');
