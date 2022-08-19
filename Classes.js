@@ -1,4 +1,4 @@
-import {can, getRoot, evalVectors, logger} from 'lib.js';
+import {can, getRoot, evalVectors, logger, precisionRound} from 'lib.js';
 import {baseDelay} from 'options.js';
 
 /** Basic Server Class */
@@ -182,7 +182,7 @@ export class TargetServer extends DroneServer {
 
   //the current takePercent
   get takePercent() {
-    return Math.floor(Math.max(this.#_takePercent, this.percentPerSingleHack)*1000)/1000;
+    return precisionRound(Math.maxMath.max(this.#_takePercent, this.percentPerSingleHack), 3);
   }
 
   //sets the takePercent
