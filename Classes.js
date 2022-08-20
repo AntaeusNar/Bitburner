@@ -288,7 +288,7 @@ export class TargetServer extends DroneServer {
 
     } else { //handling for everything else
       //// TEMP: Error for testing
-      if (targets[i].ratio() < targets[i+1].ratio()) {
+      if (targets[i].ratio() < targets[i+1].ratio() && firstRun) {
         throw new Error(targets[i].hostname + ' has a worse ratio then ' + targets[i+1].hostname);
       }
 
