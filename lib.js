@@ -1,3 +1,4 @@
+import {baseDelay} from 'options.js';
 /** Checks for existance of file on the spesified or home server
   * @param {NS} ns
   * @param {string} file - File Name
@@ -249,3 +250,41 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
 	}
   return vectors;
 }// end of evalVectors
+
+/** deployVectors: deploys attack vectors across the drone network
+	* @param {ns} ns
+	* @param {Server} target - target to be attacked
+	* @param {array} drones - drones to be used
+	* @param {number} maxThreads - max total threads
+	* @param {array} fileNames - files to be deployed
+	* @param {string} cycleBatch - cycle/batch # to pass as arg to deployed scripts
+	*/
+export function deployVectors(ns, target, drones, maxThreads, fileNames, cycleBatch) {
+	/** Setup */
+	//Files
+	let weakenFile = fileNames[0];
+	let growFile = fileNames[1];
+	let hackFile = fileNames[2];
+	//Timing
+	// TODO: adjust this section to account to hitting a primed target with Formulas.exe
+	let weakenTime = ns.getWeakenTime(target.hostname);
+	let growTime = ns.getGrowTime(target.hostname);
+	let hackTIme = ns.getHackTime(target.hostname);
+	let stageTwoDelay = weakenTime + baseDelay - growTime;
+	let stageThreeDelay = baseDelay * 2;
+	let stageFourDelay = baseDelay * 3 + weakenTime - hackTime;
+	let stageFiveDelay = baseDelay * 4;
+	//Vectors
+	let vectors = evalVectors(ns, target, maxThreads, false);
+	//Control Tacking
+	let successful = false;
+	/** Deployment Control
+		* Calculate delays, deploy (W)GWHW vectors in 5 stages
+		*/
+	// timing calcualations
+
+
+
+
+
+}//end of deployVectors
