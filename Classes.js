@@ -262,11 +262,12 @@ export class TargetServer extends DroneServer {
     * @param {number} [numBatchesPerCycle=0] - the control speed
     * @param {number} [reserveThreads=0] - number of reserved threads
     * @param {number} [indexOfTarget=0] - the current target
+    * @param {boolean} [firstRun=true]
     */
-  static async adjustTake(ns, targets, maxThreads, numBatchesPerCycle = 0, reserveThreads = 0, indexOfTarget = 0) {
+  static async adjustTake(ns, targets, maxThreads, numBatchesPerCycle = 0, reserveThreads = 0, indexOfTarget = 0, firstRun = true) {
     let i = indexOfTarget;
     let tempVectorsPerCycle = 0
-    if (i == 0) {
+    if (i == 0 && firstRun) {
       numBatchesPerCycle = targets[0].batchesPerCycle;
       reserveThreads = numBatchesPerCycle*targets[0].vectorsPerBatch;
     }
@@ -306,19 +307,24 @@ export class TargetServer extends DroneServer {
       }
     }
 
-    if (oldTake != targets[i].takePercent) {
+    if (oldTake < targets[i].takePercent) {
       logger(ns, 'Increased ' + targets[i].hostname + ' from  ' + oldTake*100 + '% to ' + targets[i].takePercent*100 + '% threads at ' + reserveThreads + '/' + maxThreads);
     } else {
       logger(ns, 'No adjustment mad to ' + targets[i].hostname);
     }
 
-    if (reserveThreads >= maxThreads) {
+    //What next section
+    if (reserveThreads >= maxThreads) { //if we have run out of threads, stop
       logger(ns, 'INFO: max threads hit, stopping take increase calc.');
-    } else if (indexOfTarget >= targets.length || !targets[i+1].hasAdminRights) {
+    } else if (indexOfTarget != 0 && oldTake < targets[i].takePercent) {//if we are not the first target, and we increased the take, go back one?
+      logger(ns, 'INFO: adjusted take, so checking previous target')
+      indexOfTarget--;
+      await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reserveThreads, indexOfTarget, false);
+    } else if (indexOfTarget >= targets.length || !targets[i+1].hasAdminRights) { //if we have run out of targets, loop
       logger(ns, 'INFO: hit last available target, but with available threads. Looping.');
       indexOfTarget = 0;
       await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reserveThreads, indexOfTarget)
-    } else {
+    } else { //if we still have threads and targets, move to the next one!
       logger(ns, 'INFO: Calcuclating take for next target.');
       indexOfTarget++;
       await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reserveThreads, indexOfTarget);
