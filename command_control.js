@@ -58,7 +58,7 @@ export async function main(ns) {
   //some general info for update
   let maxThreads = Math.floor(maxRam/neededRam);
   logger(ns, 'INFO: Have ' + targets.length + ' Targets and ' + drones.length +
-    ' Drones. Best target is ' + targets[0].hostname + ' with a current ratio of ' + targets[0],ratio() + '. Best drone server is ' +
+    ' Drones. Best target is ' + targets[0].hostname + ' with a current ratio of ' + targets[0].ratio() + '. Best drone server is ' +
     drones[0].hostname + " with " + drones[0].maxRam + "GB ram. Max Ram is " + maxRam + 'GB yeilding ' + maxThreads + ' Threads.');
 
   //Targets ratio adjustments
