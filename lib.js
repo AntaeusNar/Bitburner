@@ -248,4 +248,4 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
 		}
 	}
   return vectors;
-}
+}// end of evalVectors
