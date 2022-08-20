@@ -47,9 +47,9 @@ export async function main(ns) {
   const drones = inventory.filter(obj => {
     return obj.isDrone;
   });
-  drones.sort(function(a,b)) {
+  drones.sort(function(a,b) {
     return b.maxRam - a.maxRam;
-  }
+  });
   let maxRam = 0;
   for (let drone of drones) {
     maxRam += drone.maxRam;
