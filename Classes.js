@@ -34,7 +34,7 @@ export class BasicServer {
     }
     //second check with attempt to hack
     if (!this._hasAdminRights) {
-      this._hasAdminRights = getRoot(this.ns, this);
+      this._hasAdminRights = getRoot(this.ns, this.hostname);
     }
     return this._hasAdminRights;
   }
@@ -306,7 +306,7 @@ export class TargetServer extends DroneServer {
     if (oldTake < targets[i].takePercent) {
       logger(ns, 'Increased ' + targets[i].hostname + ' from  ' + oldTake*100 + '% to ' + targets[i].takePercent*100 + '% threads at ' + reserveThreads + '/' + maxThreads);
     } else {
-      logger(ns, 'No adjustment mad to ' + targets[i].hostname);
+      logger(ns, 'No adjustment made to ' + targets[i].hostname);
     }
 
     //What next section
@@ -343,7 +343,7 @@ export class ServerFactory {
 
     let server;
 
-    if (ns.getServerMaxMoney(hostname) > 0 && hostname != 'home') {
+    if (ns.getServerMaxMoney(hostname) > 0 && hostname != 'home' && ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel()) {
       server = new TargetServer(ns, hostname);
     } else if (ns.getServerMaxRam(hostname) > 0) {
       server = new DroneServer(ns, hostname);

@@ -22,20 +22,20 @@ export async function fileDump(ns, data, filename='dumpfile.txt') {
 
 /** Given a server object, will attempt to gain root
 * @param {ns} ns
-* @param {object} server
+* @param {string} hostname
 * @returns {boolean} result
 */
 export function getRoot(ns, target) {
 	let result = false;
 	let ports = 0;
-		if (can(ns, "brutessh.exe")) { ns.brutessh(target.hostname); ++ports; }
-		if (can(ns, "ftpcrack.exe")) { ns.ftpcrack(target.hostname); ++ports; }
-		if (can(ns, "relaysmtp.exe")) { ns.relaysmtp(target.hostname); ++ports; }
-		if (can(ns, "httpworm.exe")) { ns.httpworm(target.hostname); ++ports; }
-		if (can(ns, "sqlinject.exe")) { ns.sqlinject(target.hostname); ++ports; }
-		if (ports >= target.numOpenPortsRequired) {
-			ns.nuke(target.hostname);
-			if (ns.hasRootAccess(target.hostname)){
+		if (can(ns, "brutessh.exe")) { ns.brutessh(hostname); ++ports; }
+		if (can(ns, "ftpcrack.exe")) { ns.ftpcrack(hostname); ++ports; }
+		if (can(ns, "relaysmtp.exe")) { ns.relaysmtp(hostname); ++ports; }
+		if (can(ns, "httpworm.exe")) { ns.httpworm(hostname); ++ports; }
+		if (can(ns, "sqlinject.exe")) { ns.sqlinject(hostname); ++ports; }
+		if (ports >= ns.getServerNumPortsRequired(hostname)) {
+			ns.nuke(hostname);
+			if (ns.hasRootAccess(hostname)){
 				result = true;
 			}
 		}
