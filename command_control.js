@@ -37,40 +37,36 @@ export async function main(ns) {
     inventory.push(serverFactory.create(ns, serverList[i]));
   }
 
-  //Filter inventory
+  //Filter inventory && Sort
   const targets = inventory.filter(obj => {
     return obj.isTarget;
+  });
+  targets.sort(function(a,b) {
+    return (b.ratio() != null) - (a.ratio() != null) || b.ratio() - a.ratio();
   });
   const drones = inventory.filter(obj => {
     return obj.isDrone;
   });
+  drones.sort(function(a,b)) {
+    return b.maxRam - a.maxRam;
+  }
   let maxRam = 0;
   for (let drone of drones) {
-    if (drone.hasAdminRights) {maxRam += drone.maxRam;}
+    maxRam += drone.maxRam;
   }
-  logger(ns, 'INFO: Have ' + targets.length + ' Targets and ' + drones.length + ' Drones.');
+
+  //some general info for update
   let maxThreads = Math.floor(maxRam/neededRam);
-  logger(ns, 'INFO: Max avaliable Ram is ' + maxRam + 'GB yeilding a max of ' + maxThreads + ' Threads.');
+  logger(ns, 'INFO: Have ' + targets.length + ' Targets and ' + drones.length +
+    ' Drones. Best target is ' + targets[0].hostname + ' with a current ratio of ' + targets[0],ratio() + '. Best drone server is ' +
+    drones[0].hostname + " with " + drones[0].maxRam + "GB ram. Max Ram is " + maxRam + 'GB yeilding ' + maxThreads + ' Threads.');
 
   //Targets ratio adjustments
-  targets.sort(function(a,b) {
-    //logger(ns, JSON.stringify(a));
-    //logger(ns, 'INFO: ' + a.hostname + ' has ' + a.ratio() + " " + b.hostname + ' has ' + b.ratio);
-    return (b.ratio() != null) - (a.ratio() != null) || b.ratio() - a.ratio();
-  });
   logger(ns, 'INFO: Starting adjustments, standby....');
-  logger(ns, 'INFO: Best target is ' + targets[0].hostname + ' with a current ratio of ' + targets[0].ratio());
-  await fileDump(ns, targets);
+  //await fileDump(ns, targets);
   await TargetServer.adjustTake(ns, targets, maxThreads);
-  await fileDump(ns, targets, 'adjusteddump.txt');
+  //await fileDump(ns, targets, 'adjusteddump.txt');
 
-
-
-  /** BUG: Currently the estmated take from the-hub at 48% without formulas (best target) = 19B/sec
-    * where the estimated take from alpha-ent at 5.6% with formulas (best target) = 10B/sec
-    * this is doesn't make sense as first the formules should help get a better target
-    * and second the current rate from c_cv3.js vs the hub is about 1B/sec
-    */
 
   // TODO: deploy drone scripts on drones agianst targets
   // OPTIMIZE: check the deployments on home server and see if that reduces needed threads due to core upgrades (weakens and grows)
