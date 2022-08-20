@@ -345,7 +345,7 @@ export class ServerFactory {
 
     if (ns.getServerMaxMoney(hostname) > 0 && hostname != 'home' && ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel()) {
       server = new TargetServer(ns, hostname);
-    } else if (ns.getServerMaxRam(hostname) > 0) {
+    } else if (ns.getServerMaxRam(hostname) > 0 && getRoot(ns, hostname)) {
       server = new DroneServer(ns, hostname);
     } else {
       server = new BasicServer(ns, hostname);
