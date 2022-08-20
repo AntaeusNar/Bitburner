@@ -25,7 +25,7 @@ export async function fileDump(ns, data, filename='dumpfile.txt') {
 * @param {string} hostname
 * @returns {boolean} result
 */
-export function getRoot(ns, target) {
+export function getRoot(ns, hostname) {
 	let result = false;
 	let ports = 0;
 		if (can(ns, "brutessh.exe")) { ns.brutessh(hostname); ++ports; }
