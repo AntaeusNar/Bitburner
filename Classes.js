@@ -64,7 +64,7 @@ export class BasicServer {
     let time = weakenTime + baseDelay*3;
 
     /**calc threads **/
-    
+
     return money/threads/time;
   }//end get priority
 
@@ -243,10 +243,10 @@ export class TargetServer extends DroneServer {
   //So the return will be agjusted to match.
   ratio() {
     if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
-    let targetTake = this.moneyMax*this.takePercent;
-    let ratio = Math.floor(targetTake/this.vectorsPerBatch/(this.batchTime/1000)); // $/thread/Sec
-    if (isNaN(ratio) || ratio == null || ratio == 0) {
-      throw new Error('Error: ' + this.hostname + ' has an invalid ratio!')
+    let targetTake = this.moneyMax*this.takePercent*this.batchesPerCycle;
+    let ratio = Math.floor(targetTake/(this.vectorsPerBatch*this.batchesPerCycle)/(this.batchTime/1000)); // $/thread/Sec
+    if (isNaN(ratio) || ratio == null) {
+      throw new Error('Error: ' + this.hostname + ' has an invalid ratio! Ratio: ' + ratio + ' TargetTake: ' + targetTake + " vectorsPerBatch: " + this.vectorsPerBatch + " batchTime:" + this.batchTime)
     }
     return ratio;
   }
