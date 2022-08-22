@@ -161,7 +161,7 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
     vectors.totalVectors = vectors.primeWeaken; //update total vectors
     maxThreads -= vectors.totalVectors; //reduce maxThreads
 		// TODO: move this isPrimedStr set to only when deployment works
-    if (vectors.primeWeaken == targetPrimeWeakens) {server.isPrimedStr = true;} //setting the isPrimedStr flag to true
+    if (vectors.primeWeaken == targetPrimeWeakens && !dryrun) {server.isPrimedStr = true;} //setting the isPrimedStr flag to true
   }
 
   //continue if there is a min of 4 threads (one each for GWHW)
@@ -207,7 +207,9 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
     maxThreads -= vectors.growWeakens;//reduce maxThreads
 
     if (!server.isPrimedMoney && !growBypass &&
-      vectors.growThreads == targetGrowThreads && vectors.growWeakens == targetgrowWeakens) {
+      vectors.growThreads == targetGrowThreads &&
+			vectors.growWeakens == targetgrowWeakens &&
+			!dryrun) {
 				// TODO: should be moved to completed deployments
 				server.isPrimedMoney = true; //set the isPrimedMoney flag if was false, not bypassed & needed threads are allocated
     }
