@@ -120,6 +120,25 @@ export function multiscan(ns, serverName='home') {
   return serverList;
 }
 
+
+/** evalVectorsPerBatch: calculates the number of GWHW threads under Ideal settings
+ 	* ONLY USED for establishing priority of targets, NOT FOR REALWORLD USE
+	* @param {NS} ns
+	* @param {Object} server
+	* @param {number} maxThreads
+	* @returns {number} caclulated total attack vectors
+	*/
+export function evalVectorsPerBatch(ns, server, maxThreads) {
+
+	//setup
+	const weakenRate = .05;
+	const growRate = .004;
+	const hackRate = .002;
+	let totalVectors = 4; //one each GWHW
+
+	//Grow threads
+
+}
 /**
   * @typedef {Object} Vectors
   * @property {number} totalVectors - Total number of vectors
