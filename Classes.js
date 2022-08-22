@@ -1,4 +1,4 @@
-import {can, getRoot, evalVectors, logger} from 'lib.js';
+import {can, getRoot, realVectors, logger} from 'lib.js';
 import {baseDelay} from 'options.js';
 
 /** Basic Server Class */
@@ -140,7 +140,7 @@ export class TargetServer extends DroneServer {
     return this.#_isPrimedStr;
   }
 
-  //sets isPrimedStr (should only come from evalVectors and only when used to realworld delpoyment)
+  //sets isPrimedStr (should only come from realVectors and only when used to realworld delpoyment)
   // TODO: change this to be only used on completed deployment
   set isPrimedStr(boolean) {
     this.#_isPrimedStr = boolean;
@@ -154,7 +154,7 @@ export class TargetServer extends DroneServer {
     return this.#_isPrimedMoney;
   }
 
-  //sets isPrimedMoney (should only come from evalVectors and only when used to realworld deploment)
+  //sets isPrimedMoney (should only come from realVectors and only when used to realworld deploment)
   // TODO: change this to only be used on completed deplayment
   set isPrimedMoney(boolean) {
     this.#_isPrimedMoney = boolean;
@@ -223,7 +223,7 @@ export class TargetServer extends DroneServer {
   //Generates the number of vectors in a single batch
   get vectorsPerBatch() {
     if (this.requiredHackingSkill > this.ns.getHackingLevel() || !this.hasAdminRights) {return null;} //if you call this, and your hack isn't high enough, you get nothing
-    return evalVectors(this.ns, this).totalVectors;
+    return realVectors(this.ns, this).totalVectors;
   }
 
   //should give estmated $/Sec

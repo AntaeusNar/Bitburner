@@ -130,7 +130,7 @@ export function multiscan(ns, serverName='home') {
   * @property {number} hackWeakens - Number of weaken()s to counter the hack()s
   */
 
-/** evalVectors: calculates the number of (W)GWHW threads
+/** realVectors: calculates the number of (W)GWHW threads
   * @param {NS} ns
   * @param {Object} server - server class object
   * @param {number} [maxThreads=Infinity] - max number of available threads
@@ -138,7 +138,7 @@ export function multiscan(ns, serverName='home') {
   * @returns {Vectors} calculated attack vectors
   */
 /** used 3 times, first dry run to get initial ratio, second dry run to increase take, thrid for real world deployments */
-export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
+export function realVectors(ns, server, maxThreads = Infinity, dryrun=true) {
 
   //setup
   const weakenRate = .05;
@@ -251,7 +251,7 @@ export function evalVectors(ns, server, maxThreads = Infinity, dryrun=true) {
 		}
 	}
   return vectors;
-}// end of evalVectors
+}// end of realVectors
 
 /** deployVectors: deploys attack vectors across the drone network
 	* @param {ns} ns
@@ -277,7 +277,7 @@ export function deployVectors(ns, target, drones, maxThreads, fileNames, cycleBa
 	let stageFourDelay = baseDelay * 3 + weakenTime - hackTime;
 	let stageFiveDelay = baseDelay * 4;
 	//Vectors
-	let vectors = evalVectors(ns, target, maxThreads, false);
+	let vectors = realVectors(ns, target, maxThreads, false);
 	//Control Tacking
 	let successful = false;
 	/** Deployment Control
