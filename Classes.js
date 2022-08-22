@@ -15,6 +15,7 @@ export class BasicServer {
     this.isTarget = false;
     this._hasAdminRights = false;
     this.numberOfPortsRequired = this.ns.getServerNumPortsRequired(this.hostname);
+    this.minDifficulty = this.ns.getServerMinSecurityLevel(this.hostname);
     //maxRam and moneyMax with handling for home
     if (this.hostname == 'home') {
       this.maxRam = this.ns.getServerMaxRam(this.hostname) - 32;
@@ -39,9 +40,38 @@ export class BasicServer {
     return this._hasAdminRights;
   }
 
+  //New prioritization calculation
+  get priority() {
+    if (this.moneyMax == 0 || this.hostname == 'home') { return null;}
+    /**Calc Money */
+    //calc percentPerHack
+    let pPHdiffMult = (100 - this.minDifficulty)/100;
+    let pPHskillMult = (this.ns.getHackingLevel() -(this.requiredHack-1))/this.ns.getHackingLevel();
+    let percentPerHack = Math.max(Math.min(1, (pPHdiffMult*pPHskillMult)/240),0);
+    //calc chancePerHack
+    let cPHdiffMult = pPHdiffMult;
+    let cPHskillMult = 1.75*this.ns.getHackingLevel();
+    let cPHskillChance = (cPHskillMult-this.requiredHack)/cPHskillMult;
+    let chancePerHack = Math.max(Math.min(1, cPHskillChance*cPHdiffMult),0);
+    let money = this.moneyMax*percentPerHack*chancePerHack;
+
+    /** calc Time */
+    let difficultyMult = this.requiredHack*this.minDifficulty;
+    let skillFactor = 2.5 * difficultyMult + 500;
+    skillFactor /= this.ns.getHackingLevel() + 50;
+    let hackTime = skillFactor;
+    let weakenTime = hackTime *4;
+    let time = weakenTime + baseDelay*3;
+
+    /**calc threads **/
+    
+    return money/threads/time;
+  }//end get priority
+
   toJSON() {
     return {
       hostname: this.hostname,
+      minDifficulty: this.minDifficulty,
     }
   }
 }// end of BasicServer class
@@ -91,7 +121,6 @@ export class TargetServer extends DroneServer {
     this.#_isPrimedStr = false;
     this.#_isPrimedMoney = false;
     this.requiredHackingSkill = this.ns.getServerRequiredHackingLevel(this.hostname);
-    this.minDifficulty = this.ns.getServerMinSecurityLevel(this.hostname);
     this.idealServerState = {
       hackDifficulty: this.minDifficulty,
       requiredHackingSkill: this.requiredHackingSkill,
@@ -233,7 +262,6 @@ export class TargetServer extends DroneServer {
       isPrimedStr: this.isPrimedStr,
       isPrimedMoney: this.isPrimedMoney,
       requiredHackingSkill: this.requiredHackingSkill,
-      minDifficulty: this.minDifficulty,
       ratio: this.ratio(),
       estReturn: this.estReturn,
       takePercent: this.takePercent,
