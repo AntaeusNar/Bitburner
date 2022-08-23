@@ -130,6 +130,30 @@ export function calculateIntelligenceBonus(intelligence, weight) {
 	return 1 + (weight * Math.pow(intelligence, 0.8))/600;
 }
 
+/** evalPercentTakePerHack: calculates the % takes per single hack thread
+	* https://github.com/danielyxie/bitburner/blob/dev/src/Hacking.ts
+	* @param {NS} ns
+	* @param {Object} server
+	* @param {Object} player
+	*/
+export evalPercentTakePerHack(ns, server, player) {
+	/** Setup */
+	let playerHackingSkill = Math.max(server.requiredHackingSkill, player.skills.hacking);
+	let bitNodeMultipliers = {
+		ScriptHackMoney: 1
+	};
+	let difficultyMult = (100 - server.minDifficulty) / 100;
+	//calculatePercentPerThread
+	let skillMult = (playerHackingSkill - (server.requiredHackingSkill -1)) / playerHackingSkill;
+	let balanceFactor = 240;
+	let percentPerSingleHack = (difficultyMult * skillMult * player.mults.hacking_money * bitNodeMultipliers.ScriptHackMoney) / balanceFactor;
+	//CalculateHackChance
+	let skillMultChance = 1.75 * playerHackingSkill;
+	let skillChance = (skillMultChance - server.requiredHackingSkill) / skillMultChance;
+	let chancePerHack = skillChance * difficultyMult * player.mults.hacking_chance * calculateIntelligenceBonus(player.skills.intelligence, 1);
+	return percentPerSingleHack/chancePerHack;
+}// end of evalPercentTakePerHack
+
 /** evalVectorsPerBatch: calculates the number of GWHW threads under Ideal settings
  	* ONLY USED for establishing priority of targets, NOT FOR REALWORLD USE
 	* @param {NS} ns
@@ -158,19 +182,10 @@ export function evalVectorsPerBatch(ns, server, player) {
   let coreBonus = 1/16;
   let bitMult = 1; //complete hack of a number....looking it up requires being in BN 5 or owning SF-5 (singularity)
 
-  let growThreads = Math.log(growth) / (Math.log(ajdGrowthRate) * player.mults.hacking_grow * serverGrowthPercentage * bitNodeMultipliers.ServerGrowthRate * coreBonus);
+  let growThreads = Math.ceil(Math.log(growth) / (Math.log(ajdGrowthRate) * player.mults.hacking_grow * serverGrowthPercentage * bitNodeMultipliers.ServerGrowthRate * coreBonus));
 
-  /** Hack Threads -> https://github.com/danielyxie/bitburner/blob/dev/src/Hacking.ts*/
-	let difficultyMult = (100 - server.minDifficulty) / 100;
-	//calculatePercentPerThread
-	let skillMult = (playerHackingSkill - (server.requiredHackingSkill -1)) / playerHackingSkill;
-	let balanceFactor = 240;
-	let percentPerSingleHack = (difficultyMult * skillMult * player.mults.hacking_money * bitNodeMultipliers.ScriptHackMoney) / balanceFactor;
-	//CalculateHackChance
-	let skillMultChance = 1.75 * playerHackingSkill;
-	let skillChance = (skillMultChance - server.requiredHackingSkill) / skillMultChance;
-	let chancePerHack = skillChance * difficultyMult * player.mults.hacking_chance * calculateIntelligenceBonus(player.skills.intelligence, 1);
-  let hackThreads = server.takePercent/(percentPerSingleHack/chancePerHack);
+  /** Hack Threads */
+  let hackThreads = Math.ceil(server.takePercent/evalPercentTakePerHack(ns, server, player));
 
   /** Weaken Threads */
   let weakenThreads = Math.ceil(hackThreads*hackRate/weakenRate) + Math.ceil(growThreads*growRate/weakenRate);
