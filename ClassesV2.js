@@ -95,6 +95,10 @@ export class InactiveTarget {
     return evalPercentTakePerHack(this.ns, this, this.ns.getPlayer());
   }
 
+  get idealWeakenTime() {
+    return evalWeakenTime(this.ns, this, this.ns.getPlayer());
+  }
+
   init() {
     logger(this.ns, 'Initialized InactiveTarget ' + this.hostname, 0);
     this.isHackable;
@@ -110,6 +114,7 @@ export class InactiveTarget {
       minDifficulty: this.minDifficulty,
       moneyMax: this.moneyMax,
       percentPerSingleHack: this.percentPerSingleHack,
+      evalWeakenTime: this.evalWeakenTime,
     }
   }
 
@@ -142,6 +147,7 @@ export class TargetServer extends InactiveTarget {
       minDifficulty: this.minDifficulty,
       moneyMax: this.moneyMax,
       percentPerSingleHack: this.percentPerSingleHack,
+      evalWeakenTime: this.evalWeakenTime,
     }
   }
 
