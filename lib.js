@@ -205,6 +205,7 @@ export function evalHackingTime(server, player) {
 /** evalWeakenTime -> https://github.com/danielyxie/bitburner/blob/dev/src/Hacking.ts
 	* @param {Object} server
 	* @param {Object} player
+	* @return {number} weaken time in seconds
 	*/
 export function evalWeakenTime(server, player) {
 	const weakenTimeMultiplier = 4; // Relative to hackingTime
