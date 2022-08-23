@@ -122,30 +122,29 @@ export function multiscan(ns, serverName='home') {
 
 /**calculate Inteligence bonus
 	* ->https://github.com/danielyxie/bitburner/blob/dev/src/PersonObjects/formulas/intelligence.ts
-	* @param {NS} ns
+	* @param {number} intelligence
 	* @param {number} weight
 	* @return {number}
 	*/
-export function calculateIntelligenceBonus(ns, weight) {
-	return 1 + (weight * Math.pow(ns.getPlayer().skills.intelligence, 0.8))/600;
+export function calculateIntelligenceBonus(intelligence, weight) {
+	return 1 + (weight * Math.pow(intelligence, 0.8))/600;
 }
 
 /** evalVectorsPerBatch: calculates the number of GWHW threads under Ideal settings
  	* ONLY USED for establishing priority of targets, NOT FOR REALWORLD USE
 	* @param {NS} ns
 	* @param {Object} server
+	* @param {Object} player
 	* @returns {number} caclulated total attack vectors
 	*/
-export function evalVectorsPerBatch(ns, server) {
+export function evalVectorsPerBatch(ns, server, player) {
 
 	/** Setup */
 	const weakenRate = .05;
 	const growRate = .004;
 	const hackRate = .002;
-	//get the player's info
-	let player = ns.getPlayer();
 	//in order to eval even if the players hacking level is too low
-	let playerHackingSkill = Math.max(server.requiredHackingSkill, ns.getHackingLevel());
+	let playerHackingSkill = Math.max(server.requiredHackingSkill, player.skills.hacking);
 	//placeholder for bitnode info // TODO: replace or upgrade with a check to get actual.
 	let bitNodeMultipliers = {
 		ScriptHackMoney: 1,
@@ -170,7 +169,7 @@ export function evalVectorsPerBatch(ns, server) {
 	//CalculateHackChance
 	let skillMultChance = 1.75 * playerHackingSkill;
 	let skillChance = (skillMultChance - server.requiredHackingSkill) / skillMultChance;
-	let chancePerHack = skillChance * difficultyMult * player.mults.hacking_chance * calculateIntelligenceBonus(ns, 1);
+	let chancePerHack = skillChance * difficultyMult * player.mults.hacking_chance * calculateIntelligenceBonus(player.skills.intelligence, 1);
   let hackThreads = server.takePercent/(percentPerSingleHack/chancePerHack);
 
   /** Weaken Threads */
@@ -182,6 +181,35 @@ export function evalVectorsPerBatch(ns, server) {
 
 }//end of evalVectorsPerBatch
 
+/** evalHackingTime -> https://github.com/danielyxie/bitburner/blob/dev/src/Hacking.ts
+	* EVAL ONLY! will NOT reflect realworld
+	* @param {Object} server
+	* @param {Object} player
+	* @returns {number} hacking time in seconds
+	*/
+export function evalHackingTime(server, player) {
+	//setup for ideal
+	let playerHackingSkill = Math.max(player.skills.hacking, server.requiredHackingSkill);
+
+	const difficultyMult = server.requiredHackingSkill * server.minDifficulty;
+	const baseDiff = 500;
+	const baseSkill = 50;
+	const diffFactor = 2.5;
+	let skillFactor = diffFactor * difficultyMult + baseDiff;
+	skillFactor /= playerHackingSkill + baseSkill;
+	const hackTimeMultiplier = 5;
+	const = hackingTime = (hackTimeMultiplier * skillFactor) / (player.mults.hacking_speed * calculateIntelligenceBonus(player.skills.intelligence, 1));
+	return hackingTime;
+}
+
+/** evalWeakenTime -> https://github.com/danielyxie/bitburner/blob/dev/src/Hacking.ts
+	* @param {Object} server
+	* @param {Object} player
+	*/
+export function evalWeakenTime(server, player) {
+	const weakenTimeMultiplier = 4; // Relative to hackingTime
+	return weakenTimeMultiplier * evalHackingTime(server, player);
+}
 
 /**
   * @typedef {Object} Vectors
