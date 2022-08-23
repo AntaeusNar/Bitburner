@@ -124,11 +124,12 @@ export function multiscan(ns, serverName='home') {
 	* ->https://github.com/danielyxie/bitburner/blob/dev/src/PersonObjects/formulas/intelligence.ts
 	* @param {NS} ns
 	* @param {number} weight
-	* @returns {number}
+	* @return {number}
 	*/
 export function calculateIntelligenceBonus(ns, weight) {
 	return 1 + (weight * Math.pow(ns.getPlayer().skills.intelligence. 0.8))/600;
 }
+
 /** evalVectorsPerBatch: calculates the number of GWHW threads under Ideal settings
  	* ONLY USED for establishing priority of targets, NOT FOR REALWORLD USE
 	* @param {NS} ns
