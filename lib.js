@@ -120,7 +120,15 @@ export function multiscan(ns, serverName='home') {
   return serverList;
 }
 
-
+/**calculate Inteligence bonus
+	* ->https://github.com/danielyxie/bitburner/blob/dev/src/PersonObjects/formulas/intelligence.ts
+	* @param {NS} ns
+	* @param {number} weight
+	* @returns {number}
+	*/
+export function calculateIntelligenceBonus(ns, weight) {
+	return 1 + (weight * Math.pow(ns.getPlayer().skills.intelligence. 0.8))/600;
+}
 /** evalVectorsPerBatch: calculates the number of GWHW threads under Ideal settings
  	* ONLY USED for establishing priority of targets, NOT FOR REALWORLD USE
 	* @param {NS} ns
@@ -136,7 +144,7 @@ export function evalVectorsPerBatch(ns, server, maxThreads) {
 	const hackRate = .002;
 	let totalVectors = 4; //one each GWHW
 
-	/** Grow Threads */
+	/** Grow Threads -> https://github.com/danielyxie/bitburner/blob/dev/src/Server/ServerHelpers.ts*/
   let growth = server.moneyMax/Math.max(1, (server.moneyMax * (1-server.takePercent)));
   let ajdGrowthRate = Math.min(1.0035, 1 + (1.03-1)/server.minDifficulty);
   let serverGrowthPercentage = ns.getServerGrowth(server.hostname)/100;
@@ -145,7 +153,16 @@ export function evalVectorsPerBatch(ns, server, maxThreads) {
 
   let growThreads = Math.log(growth) / (Math.log(ajdGrowthRate) * ns.getPlayer().mults.hacking_grow * serverGrowthPercentage * bitMult * coreBonus);
 
-  /** Hack Threads */
+  /** Hack Threads -> https://github.com/danielyxie/bitburner/blob/dev/src/Hacking.ts*/
+	//calculatePercentPerThread
+	let difficultyMult = (100 - server.minDifficulty) / 100;
+	let skillMult = (ns.getHackingLevel() - (server.requiredHackingSkill -1)) / ns.getHackingLevel();
+	let balanceFactor = 240;
+	let percentPerSingleHack = (difficultyMult * skillMult * ns.getPlayer().mults.hacking_money * bitMult) / balanceFactor;
+	//CalculateHackChance
+	let skillMult = 1.75 * ns.getHackingLevel();
+	let skillChance = (skillMult - server.requiredHackingSkill) / skillMult;
+	let chancePerHack = skillChance * difficultyMult * ns.getPlayer().mults.hacking_chance * calculateIntelligenceBonus(ns, 1);
   let hackThreads = server.takePercent/(percentPerSingleHack/chancePerHack);
 
   /** Weaken Threads */
