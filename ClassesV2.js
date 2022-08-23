@@ -108,6 +108,11 @@ export class InactiveTarget {
     this._takePercent += Math.max(take, this.percentPerSingleHack);
   }
 
+  get basePriority() {
+    //$/threads/sec at lowest take and ideal conditions
+    return this.moneyMax*this.percentPerSingleHack/evalVectorsPerBatch(this.ns, this, this.ns.getPlayer())/this.idealWeakenTime;
+  }
+
   init() {
     logger(this.ns, 'Initialized InactiveTarget ' + this.hostname, 0);
     this.isHackable;
@@ -126,6 +131,7 @@ export class InactiveTarget {
       percentPerSingleHack: this.percentPerSingleHack,
       evalWeakenTime: this.evalWeakenTime,
       takePercent: this.takePercent,
+      basePriority: this.basePriority,
     }
   }
 
@@ -160,6 +166,7 @@ export class TargetServer extends InactiveTarget {
       percentPerSingleHack: this.percentPerSingleHack,
       evalWeakenTime: this.evalWeakenTime,
       takePercent: this.takePercent,
+      basePriority: this.basePriority,
     }
   }
 
