@@ -127,7 +127,7 @@ export function multiscan(ns, serverName='home') {
 	* @return {number}
 	*/
 export function calculateIntelligenceBonus(ns, weight) {
-	return 1 + (weight * Math.pow(ns.getPlayer().skills.intelligence. 0.8))/600;
+	return 1 + (weight * Math.pow(ns.getPlayer().skills.intelligence, 0.8))/600;
 }
 
 /** evalVectorsPerBatch: calculates the number of GWHW threads under Ideal settings
@@ -180,7 +180,7 @@ export function evalVectorsPerBatch(ns, server) {
   let totalVectors = Math.min(growThreads + hackThreads + weakenThreads, 4);
   return totalVectors;
 
-}//end of realVectors
+}//end of evalVectorsPerBatch
 
 
 /**
