@@ -79,6 +79,7 @@ export class InactiveTarget {
     this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
     this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
     this._isHackable = false;
+    this._takePercent = .001;
   }
 
   get isHackable() {
@@ -99,9 +100,18 @@ export class InactiveTarget {
     return evalWeakenTime(this.ns, this, this.ns.getPlayer());
   }
 
+  get takePercent() {
+    return this._takePercent;
+  }
+
+  set takePercent(take) {
+    this._takePercent += Math.max(take, this.percentPerSingleHack);
+  }
+
   init() {
     logger(this.ns, 'Initialized InactiveTarget ' + this.hostname, 0);
     this.isHackable;
+    this._takePercent = this.percentPerSingleHack;
   }
 
   toJSON() {
@@ -115,6 +125,7 @@ export class InactiveTarget {
       moneyMax: this.moneyMax,
       percentPerSingleHack: this.percentPerSingleHack,
       evalWeakenTime: this.evalWeakenTime,
+      takePercent: this.takePercent,
     }
   }
 
@@ -148,6 +159,7 @@ export class TargetServer extends InactiveTarget {
       moneyMax: this.moneyMax,
       percentPerSingleHack: this.percentPerSingleHack,
       evalWeakenTime: this.evalWeakenTime,
+      takePercent: this.takePercent,
     }
   }
 
