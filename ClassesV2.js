@@ -146,12 +146,12 @@ export class TargetServer extends InactiveTarget {
     */
   constructor(ns, hostname) {
     super(ns, hostname);
-
   }
 
   init() {
     logger(this.ns, 'Initialized TargetServer ' + this.hostname, 0);
     this.isHackable;
+    this._takePercent = this.percentPerSingleHack;
   }
 
   toJSON() {
