@@ -1,4 +1,4 @@
-import {can, getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime} from 'lib.js';
+import {can, getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime, evalPercentTakePerHack} from 'lib.js';
 import {baseDelay} from 'options.js';
 
 /** InactiveDrone server class */
@@ -90,6 +90,10 @@ export class InactiveTarget {
     return this._isHackable;
   }
 
+  get percentPerSingleHack() {
+    return evalPercentTakePerHack(this.ns, this, this.ns.getPlayer());
+  }
+
   init() {
     logger(this.ns, 'Initialized InactiveTarget ' + this.hostname, 0);
     this.isHackable;
@@ -103,7 +107,8 @@ export class InactiveTarget {
       requiredHackingSkill: this.requiredHackingSkill,
       isHackable: this.isHackable,
       minDifficulty: this.minDifficulty,
-      moneyMax: this.moneyMax.
+      moneyMax: this.moneyMax,
+      percentPerSingleHack: this.percentPerSingleHack,
     }
   }
 
@@ -134,7 +139,8 @@ export class TargetServer extends InactiveTarget {
       requiredHackingSkill: this.requiredHackingSkill,
       isHackable: this.isHackable,
       minDifficulty: this.minDifficulty,
-      moneyMax: this.moneyMax.
+      moneyMax: this.moneyMax,
+      percentPerSingleHack: this.percentPerSingleHack,
     }
   }
 
