@@ -90,6 +90,7 @@ export class InactiveTarget {
     return this._isHackable;
   }
 
+  //EVAL ONLY: returns best case.
   get percentPerSingleHack() {
     return evalPercentTakePerHack(this.ns, this, this.ns.getPlayer());
   }
