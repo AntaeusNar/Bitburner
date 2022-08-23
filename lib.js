@@ -130,15 +130,34 @@ export function multiscan(ns, serverName='home') {
 	*/
 export function evalVectorsPerBatch(ns, server, maxThreads) {
 
-	//setup
+	/** Setup */
 	const weakenRate = .05;
 	const growRate = .004;
 	const hackRate = .002;
 	let totalVectors = 4; //one each GWHW
 
-	//Grow threads
+	/** Grow Threads */
+  let growth = server.moneyMax/Math.max(1, (server.moneyMax * (1-server.takePercent)));
+  let ajdGrowthRate = Math.min(1.0035, 1 + (1.03-1)/server.minDifficulty);
+  let serverGrowthPercentage = ns.getServerGrowth(server.hostname)/100;
+  let coreBonus = 1/16;
+  let bitMult = 1; //complete hack of a number....looking it up requires being in BN 5 or owning SF-5 (singularity)
 
-}
+  let growThreads = Math.log(growth) / (Math.log(ajdGrowthRate) * ns.getPlayer().mults.hacking_grow * serverGrowthPercentage * bitMult * coreBonus);
+
+  /** Hack Threads */
+  let hackThreads = server.takePercent/(percentPerSingleHack/chancePerHack);
+
+  /** Weaken Threads */
+  let weakenThreads = Math.ceil(hackThreads*hackRate/weakenRate) + Math.ceil(growThreads*growRate/weakenRate);
+
+  /** Wrap-up */
+  let totalVectors = growThreads + hackThreads + weakenThreads;
+  return totalVectors;
+
+}//end of realVectors
+
+
 /**
   * @typedef {Object} Vectors
   * @property {number} totalVectors - Total number of vectors
