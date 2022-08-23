@@ -198,7 +198,7 @@ export function evalHackingTime(server, player) {
 	let skillFactor = diffFactor * difficultyMult + baseDiff;
 	skillFactor /= playerHackingSkill + baseSkill;
 	const hackTimeMultiplier = 5;
-	const = hackingTime = (hackTimeMultiplier * skillFactor) / (player.mults.hacking_speed * calculateIntelligenceBonus(player.skills.intelligence, 1));
+	const hackingTime = (hackTimeMultiplier * skillFactor) / (player.mults.hacking_speed * calculateIntelligenceBonus(player.skills.intelligence, 1));
 	return hackingTime;
 }
 
