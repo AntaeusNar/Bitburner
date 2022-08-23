@@ -92,6 +92,7 @@ export class InactiveTarget {
 
   init() {
     logger(this.ns, 'Initialized InactiveTarget ' + this.hostname, 0);
+    this.isHackable;
   }
 
   toJSON() {
@@ -100,6 +101,7 @@ export class InactiveTarget {
       serverType: this.serverType,
       numberOfPortsRequired: this.numberOfPortsRequired,
       requiredHackingSkill: this.requiredHackingSkill,
+      isHackable: this.isHackable,
       minDifficulty: this.minDifficulty,
       moneyMax: this.moneyMax.
     }
@@ -121,6 +123,7 @@ export class TargetServer extends InactiveTarget {
 
   init() {
     logger(this.ns, 'Initialized TargetServer ' + this.hostname, 0);
+    this.isHackable;
   }
 
   toJSON() {
@@ -129,6 +132,7 @@ export class TargetServer extends InactiveTarget {
       serverType: this.serverType,
       numberOfPortsRequired: this.numberOfPortsRequired,
       requiredHackingSkill: this.requiredHackingSkill,
+      isHackable: this.isHackable,
       minDifficulty: this.minDifficulty,
       moneyMax: this.moneyMax.
     }
@@ -172,16 +176,16 @@ export class ServerFactory {
     server.serverType = serverType;
     server.ns = ns;
     //hasAdminRights
+    server._hasAdminRights = false;
     const hasAdminRightsPattern = {
-      value: false,
       get() {
-        if (!this.hasAdminRights) {
-          this.hasAdminRights = this.ns.hasRootAccess(this.hostname);
+        if (!this._hasAdminRights) {
+          this._hasAdminRights = this.ns.hasRootAccess(this.hostname);
         }
         if (!hasAdminRights) {
-          this.hasAdminRights = getRoot(this.ns, this.hostname);
+          this._hasAdminRights = getRoot(this.ns, this.hostname);
         }
-        return this.hasAdminRights;
+        return this._hasAdminRights;
       }
     }
     Object.defineProperty(server, 'hasAdminRights', hasAdminRightsPattern);
