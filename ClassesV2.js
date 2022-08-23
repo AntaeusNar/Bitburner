@@ -75,6 +75,19 @@ export class InactiveTarget {
     */
   constructor(ns, hostname) {
     if (hostname == 'home') {throw new Error('Home is not a valid option for a target.')}
+    this.moneyMax = ns.getServerMaxMoney(hostname);
+    this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
+    this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
+    this._isHackable = false;
+  }
+
+  get isHackable() {
+    if (!this._isHackable) {
+      if (this.hasAdminRights && this.requiredHackingSkill <= this.ns.getHackingLevel()){
+        this._isHackable = true;
+      }
+    }
+    return this._isHackable;
   }
 
   init() {
@@ -154,24 +167,6 @@ export class ServerFactory {
       server = new InactiveDrone(ns, hostname);
     }
 
-    /** Targets only */
-    if (serverType == 'Target' || serverType == 'InactiveTarget') {
-      server.moneyMax = ns.getServerMaxMoney(hostname);
-      server.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
-      server.minDifficulty = ns.getServerMinSecurityLevel(hostname);
-      //isHackable
-      const isHackablePattern = {
-        value: false,
-        get() {
-          if (this.hasAdminRights && this.requiredHackingSkill <= this.ns.getHackingLevel()){
-            this.isHackable = true;
-          }
-          return this.isHackable;
-        }
-      }
-      Object.defineProperty(server, 'isHackable', isHackablePattern);
-    }
-    
     /** Common to all properties */
     server.hostname = hostname;
     server.serverType = serverType;
