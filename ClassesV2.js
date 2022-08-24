@@ -10,7 +10,7 @@ export class InactiveDrone {
     */
   constructor(ns, hostname) {
     this.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
-    this.threads = null;
+    this.threads = 0;
     if (hostname == 'home') {
       this.maxRam = ns.getServerMaxRam(hostname) - 32;
     } else {
