@@ -260,7 +260,7 @@ export class TargetServer extends InactiveTarget {
       logger(ns, 'INFO: Last Server ' + targets[i].hostname);
 
       while (reservedThreads < maxThreads &&
-        targets[i].takePercent < 1 + targets[i].percentPerSingleHack &&
+        targets[i].takePercent < 1 - targets[i].percentPerSingleHack &&
         reservedScripts < maxScripts) {
           let oldThreads = numBatchesPerCycle*targets[i].actualVectorsPerBatch;
           targets[i].takePercent = .001;
@@ -276,7 +276,7 @@ export class TargetServer extends InactiveTarget {
       // TODO: in late bitnode progression there maybe more threads available but no more scripts
         //need to figureout the control structucres needed to max thread usage while under script usage
       while (reservedThreads < maxThreads &&
-        targets[i].takePercent < 1 + targets[i].percentPerSingleHack &&
+        targets[i].takePercent < 1 - targets[i].percentPerSingleHack &&
         reservedScripts < maxScripts &&
         targets[i].adjustedPriority > targets[i+1].adjustedPriority) {
           let oldThreads = numBatchesPerCycle*targets[i].actualVectorsPerBatch;
