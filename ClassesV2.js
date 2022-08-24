@@ -21,7 +21,6 @@ export class InactiveDrone {
   //calculates the number of threads the server can host
   numberOfThreads(neededRam) {
     this.threads = this.maxRam/neededRam;
-    logger(ns, 'INFO: threads should be ' this.maxRam/neededRam);
   }
 
   init(neededRam) {
@@ -367,7 +366,7 @@ export class ServerFactory {
     }
     Object.defineProperty(server, 'hasAdminRights', hasAdminRightsPattern);
 
-    if (server.serverType == 'InactiveDrone' || server.serverType == 'Drones') {
+    if (server.serverType == 'InactiveDrone' || server.serverType == 'Drone') {
       server.init(neededRam);
     } else {
       server.init();
