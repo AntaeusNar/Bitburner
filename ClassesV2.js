@@ -308,7 +308,7 @@ export class TargetServer extends InactiveTarget {
     } else if (indexOfTarget + 1 >= targets.length) { //Stop when finished with last target fully adjusted and all others readjusted
       logger(ns, 'WARNING: Finished last target, but should only reach this if there are available threads and scripts to still use.');
     } else { //if we still have threads, scripts, and targets, and have loop up and back to here, check the next one
-      logger(ns, 'INFO: Calculating take for next Target.');
+      //logger(ns, 'INFO: Calculating take for next Target.');
       indexOfTarget++;
       await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget);
     }
