@@ -85,15 +85,14 @@ export async function main(ns) {
   logger(ns, message);
 
   await fileDump(ns, inventory);
-  /**
+
 
   //Targets ratio adjustments
   logger(ns, 'INFO: Starting adjustments, standby....');
-  //await fileDump(ns, targets);
-  await TargetServer.adjustTake(ns, targets, maxThreads);
-  //await fileDump(ns, targets, 'adjusteddump.txt');
+  await TargetServer.adjustTake(ns, inventory.targets, estThreads);
+  await fileDump(ns, inventory, 'adjusteddump.txt');
 
-  */
+
   // TODO: deploy drone scripts on drones agianst targets
   // OPTIMIZE: check the deployments on home server and see if that reduces needed threads due to core upgrades (weakens and grows)
   // TODO: checks to reeval if new skill level or tools can access more targets/drones

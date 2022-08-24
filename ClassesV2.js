@@ -1,5 +1,5 @@
 import {can, getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime, evalPercentTakePerHack, truncateNumber} from 'lib.js';
-import {baseDelay} from 'options.js';
+import {baseDelay, maxScripts} from 'options.js';
 
 /** InactiveDrone server class */
 export class InactiveDrone {
@@ -113,7 +113,16 @@ export class InactiveTarget {
 
   //EVAL ONLY: returns best case.
   get idealVectorsPerBatch() {
-    return evalVectorsPerBatch(this.ns, this, this.ns.getPlayer());
+    let realTake = this._takePercent;
+    this._takePercent = this.percentPerSingleHack;
+    let result = evalVectorsPerBatch(this.ns, this, this.ns.getPlayer());
+    this._takePercent = realTake;
+    return result;
+  }
+
+  //EVAL ONLY: returns best case.
+  get batchesPerCycle() {
+    return this.idealWeakenTime + (baseDelay*3/1000)/baseDelay;
   }
 
   get takePercent() {
@@ -121,7 +130,11 @@ export class InactiveTarget {
   }
 
   set takePercent(take) {
-    this._takePercent += Math.max(take, this.percentPerSingleHack);
+    if (take < 0) {
+      this._takePercent += Math.max(take, this.percentPerSingleHack);
+    } else {
+      this._takePercent -= Math.max(take, this.percentPerSingleHack);
+    }
   }
 
   get basePriority() {
@@ -173,6 +186,11 @@ export class TargetServer extends InactiveTarget {
     this.betterThanLast = 1;
   }
 
+  //returns ideal vectors at actual take
+  get actualVectorsPerBatch() {
+    return evalVectorsPerBatch(this.ns, this, this.ns.getPlayer());
+  }
+
   //$/threads/sec at take and ideal conditions
   get adjustedPriority() {
     return trucateNumber(this.moneyMax*this.takePercent/this.idealVectorsPerBatch/this.idealWeakenTime);
@@ -207,6 +225,93 @@ export class TargetServer extends InactiveTarget {
       targets[i].betterThanLast = truncateNumber(targets[i].basePriority/targets[targets.length-1].basePriority);
     }
   }//end of betterThanNextLast
+
+  /** This static function will adjust the take % of an array of TargetServer class objects
+    * until array[i].adjustedPriority ~= array[i+1].adjustedPriority recursivly.
+    * because the math to do this is very complexe, this function will loop and test.
+    * This function will stay below the sounted maximum threads and below the max number of scripts
+    * listed in options.js
+    * This should focus efforts on the best $/thread/sec targets and limit system crashes
+    * due to realworld memory limits
+    * @param {NS} ns
+    * @param {array} targets
+    * @param {number} maxThreads
+    * @param {number} [numBatchesPerCycle=0] - the control speed
+    * @param {number} [reservedThreads=0] - the number of allocated threads
+    * @param {number} [reservedScripts=0] - the number of allocated scripts 4 per batch
+    * @param {number} [indexOfTarget=0] - the current target index in array of targets
+    * @param {boolean} [firstRun=true] - if this is the first time running
+    */
+  static async adjustTake(ns, targets, maxThreads, numBatchesPerCycle = 0, reservedThreads = 0, reservedScripts = 0, indexOfTarget = 0 , firstRun = true) {
+    //Setup
+    let i = indexOfTarget;
+    let tempVectorsPerCycle = 0;
+    //first run only
+    if (i == 0 && firstRun) {
+      numBatchesPerCycle = targets[0].batchesPerCycle;
+      reserveThreads = numBatchesPerCycle*targets[0].actualVectorsPerBatch;
+    }
+
+    let oldTake = targets[i].takePercent;
+    reservedScripts += numBatchesPerCycle*4;
+
+    if (i + 1 == targets.length) { //handling for last server in arrray
+      logger(ns, 'INFO: Last Server ' + targets[i].hostname);
+
+      while (reservedThreads < maxThreads &&
+        targets[i].takePercent < .999 &&
+        reservedScripts < maxScripts) {
+          let oldThreads = numBatchesPerCycle*targets[i].actualVectorsPerBatch;
+          targets[i].takePercent = .001;
+          let newThreads = numBatchesPerCycle*targets[i].actualVectorsPerBatch;
+          reservedThreads = reservedThreads + (newThreads - oldThreads);
+          await ns.sleep(1)
+        }
+    } else { //handling for everything else
+      /** Loop to incease the take % while
+        * there scripts available, threads available, the take % is less then 99%
+        * and the adjustedPriority of a is less then b.
+        */
+      // TODO: in late bitnode progression there maybe more threads available but no more scripts
+        //need to figureout the control structucres needed to max thread usage while under script usage
+      while (reservedThreads < maxThreads &&
+        targets[i].takePercent < .999 &&
+        reservedScripts < maxScripts &&
+        targets[i].adjustedPriority > targets[i+1].adjustedPriority) {
+          let oldThreads = numBatchesPerCycle*targets[i].actualVectorsPerBatch;
+          targets[i].takePercent = .001;
+          let newThreads = numBatchesPerCycle*targets[i].actualVectorsPerBatch;
+          reservedThreads = reservedThreads + (newThreads - oldThreads);
+          await ns.sleep(1)
+      }
+    }
+
+    // TODO: adjust take % back down if we are over threads after running
+
+    //Status update on adjustments
+    if (oldTake < targets[i].takePercent) {
+      logger(ns, 'Increased ' + targets[i].hostname + ' from  ' + oldTake*100 + '% to ' + targets[i].takePercent*100 + '% threads at ' + reserveThreads + '/' + maxThreads);
+    } else {
+      logger(ns, 'No adjustment made to ' + targets[i].hostname);
+    }
+
+    //What next control
+    if (reservedThreads >= maxThreads) {//Stop when out of Threads
+      logger(ns, 'INFO: Max Threads limit reached, stopping take increase calc.');
+    } else if (reservedScripts >= maxScripts) {//Stop when out of Scripts
+      logger(ns, 'INFO: Max Scripts limit reached, stopping take increase calc');
+    } else if (indexOfTarget != 0 && oldTake < targets[i].takePercent) { //Recure up if we adjusted the take and not on the best target
+      logger(ns, 'INFO: adjusted take, check previous Target.');
+      indexOfTarget--;
+      await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget, false);
+    } else if (indexOfTarget >= targets.length) { //Stop when finished with last target fully adjusted and all others readjusted
+      logger(ns, 'WARNING: Finished last target, but should only reach this if there are available threads and scripts to still use.');
+    } else { //if we still have threads, scripts, and targets, and have loop up and back to here, check the next one
+      logger(ns, 'INFO: Calculating take for next Target.');
+      indexOfTarget++;
+      await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget, false);
+    }
+  }// end of adjustTake
 
 }// end of active Target Class
 
