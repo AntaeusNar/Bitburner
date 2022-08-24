@@ -126,7 +126,7 @@ export class InactiveTarget {
   }
 
   get takePercent() {
-    return Math.max(1,truncateNumber(this._takePercent));
+    return Math.min(1,truncateNumber(this._takePercent));
   }
 
   set takePercent(take) {
