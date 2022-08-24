@@ -49,7 +49,7 @@ export async function main(ns) {
     } else if (ns.getServerMaxMoney(serverhostname) > 0 && serverhostname != 'home') {
       inventory.inactiveTargets.push(serverFactory.create(ns, serverhostname, 'InactiveTarget'));
     }
-    if (ns.getServerMaxRam(serverhostname) > 0 && getRoot(ns, serverhostname)) {
+    if (ns.getServerMaxRam(serverhostname) > 0 && getRoot(ns, serverhostname || serverhostname == 'home')) {
       inventory.drones.push(serverFactory.create(ns, serverhostname, 'Drone', neededRam));
     } else if (ns.getServerMaxRam(serverhostname) > 0) {
       inventory.inactiveDrones.push(serverFactory.create(ns, serverhostname, 'InactiveDrone', neededRam));
