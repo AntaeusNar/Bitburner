@@ -170,7 +170,7 @@ export class TargetServer extends InactiveTarget {
       takePercent: this.takePercent,
       basePriority: this.basePriority,
       betterThanNext: this.betterThanNext,
-      betterThanLast: this.betterThanLast.
+      betterThanLast: this.betterThanLast,
     }
   }
 
@@ -179,8 +179,8 @@ export class TargetServer extends InactiveTarget {
     */
   static betterThanNextLast(targets) {
     for (let i = 0; i+1 < targets.length; i++) {
-      targets[i].betterThanNext = targets[i].basePriority/targets[i+1].basePriority;
-      targets[i].betterThanLast = targets[i].basePriority/targets[targets.length+1].basePriority;
+      targets[i].betterThanNext = Math.ceil(targets[i].basePriority/targets[i+1].basePriority*100)/100;
+      targets[i].betterThanLast = Math.ceil(targets[i].basePriority/targets[targets.length-1].basePriority*100)/100;
     }
   }
 
