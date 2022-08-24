@@ -93,7 +93,7 @@ export class InactiveTarget {
 
   //EVAL ONLY: returns best case.
   get percentPerSingleHack() {
-    return truncateNumber(evalPercentTakePerHack(this.ns, this, this.ns.getPlayer()), 3);
+    return truncateNumber(evalPercentTakePerHack(this.ns, this, this.ns.getPlayer()));
   }
 
   get idealWeakenTime() {
@@ -110,7 +110,7 @@ export class InactiveTarget {
 
   get basePriority() {
     //$/threads/sec at lowest take and ideal conditions
-    return truncateNumber(this.moneyMax*this.percentPerSingleHack/evalVectorsPerBatch(this.ns, this, this.ns.getPlayer())/this.idealWeakenTime, 3);
+    return truncateNumber(this.moneyMax*this.percentPerSingleHack/evalVectorsPerBatch(this.ns, this, this.ns.getPlayer())/this.idealWeakenTime);
   }
 
   init() {
@@ -179,8 +179,8 @@ export class TargetServer extends InactiveTarget {
     */
   static betterThanNextLast(targets) {
     for (let i = 0; i+1 < targets.length; i++) {
-      targets[i].betterThanNext = truncateNumber(targets[i].basePriority/targets[i+1].basePriority, 2);
-      targets[i].betterThanLast = truncateNumber(targets[i].basePriority/targets[targets.length-1].basePriority, 2);
+      targets[i].betterThanNext = truncateNumber(targets[i].basePriority/targets[i+1].basePriority);
+      targets[i].betterThanLast = truncateNumber(targets[i].basePriority/targets[targets.length-1].basePriority);
     }
   }
 

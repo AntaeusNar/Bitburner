@@ -133,11 +133,11 @@ export function calculateIntelligenceBonus(intelligence, weight) {
 /** trucateNumber: given a number, number of decimals, and ceil,floor or round
 	* adjusts the number to match
 	* @param {number} number
-	* @param {number} decimal
+	* @param {number} [decimal=3]
 	* @param {string} [type=round]
 	* @returns {number}
 	*/
-export function truncateNumber(number, decimal, type = 'round'){
+export function truncateNumber(number, decimal = 3, type = 'round'){
 	let result = null;
 	let factor = 10 ** decimal;
 	if (type =='round') {
