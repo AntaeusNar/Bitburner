@@ -11,7 +11,7 @@
   * @param {NS} ns
   */
 import {logger, getNeededRam, multiscan, fileDump, getRoot} from 'lib.js';
-import {ServerFactory} from 'ClassesV2.js';
+import {TargetServer, ServerFactory} from 'ClassesV2.js';
 export async function main(ns) {
 
   //Initial Launch
@@ -69,12 +69,15 @@ export async function main(ns) {
     return b.requiredHackingSkill - a.requiredHackingSkill;
   });
 
+  TargetServer.betterThanNextLast(inventory.targets);
+  /**
   let bestTarget = inventory.targets[0];
   let betterThanNext = Math.floor((bestTarget.basePriority/inventory.targets[1].basePriority)*10)/10;
   let bestTargetMessage = 'Best Target is ' + bestTarget.hostname +
     ' with a basic priority of ' + bestTarget.basePriority +
     '. ' + betterThanNext + 'X better than ' + inventory.targets[1].hostname;
   logger(ns, bestTargetMessage);
+  */
   await fileDump(ns, inventory);
   /**
   //Filter inventory && Sort
