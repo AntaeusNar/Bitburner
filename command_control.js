@@ -68,6 +68,13 @@ export async function main(ns) {
   inventory.inactiveTargets.sort(function(a, b) {
     return b.requiredHackingSkill - a.requiredHackingSkill;
   });
+
+  let bestTarget = inventory.targets[0];
+  let betterThanNext = Math.floor((bestTarget.basePriority/inventory.targets[1].basePriority)*10)/10;
+  let bestTargetMessage = 'Best Target is ' + bestTarget.hostname +
+    ' with a basic priority of ' + bestTarget.basePriority +
+    '. ' + betterThanNext + 'X better than ' + inventory.targets[1].hostname;
+  logger(ns, bestTargetMessage);
   await fileDump(ns, inventory);
   /**
   //Filter inventory && Sort
