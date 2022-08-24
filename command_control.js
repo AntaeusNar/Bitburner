@@ -19,6 +19,7 @@ export async function main(ns) {
   ns.disableLog('ALL');
   let files = ['lt-weaken.js', 'lt-grow.js', 'lt-hack.js'];
   let neededRam = getNeededRam(ns, files);
+  logger(ns, 'INFO: needed ram is ' + neededRam +'GB.');
 
 
   //Recursivly Scan the network

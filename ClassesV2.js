@@ -19,8 +19,8 @@ export class InactiveDrone {
   }//end of constructor
 
   //calculates the number of threads the server can host
-  numberOfThreads(needRam) {
-    this.threads = this.maxRam/needRam;
+  numberOfThreads(neededRam) {
+    this.threads = this.maxRam/neededRam;
   }
 
   init(neededRam) {
@@ -133,7 +133,7 @@ export class InactiveTarget {
     if (take < 0) {
       this._takePercent += Math.max(take, this.percentPerSingleHack);
     } else {
-      this._takePercent -= Math.max(take, this.percentPerSingleHack);
+      this._takePercent -= Math.min(take, this.percentPerSingleHack);
     }
   }
 
