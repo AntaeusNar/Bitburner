@@ -152,6 +152,8 @@ export class TargetServer extends InactiveTarget {
     logger(this.ns, 'Initialized TargetServer ' + this.hostname, 0);
     this.isHackable;
     this._takePercent = this.percentPerSingleHack;
+    this.betterThanNext = 1;
+    this.betterThanLast = 1;
   }
 
   toJSON() {
@@ -167,6 +169,17 @@ export class TargetServer extends InactiveTarget {
       evalWeakenTime: this.evalWeakenTime,
       takePercent: this.takePercent,
       basePriority: this.basePriority,
+
+    }
+  }
+
+  /** Calculates how much better each target is the the target with the next lowest basePriority and the Last
+    *@param {array} targets - array of TargetServer Objects sorted buy basePriority, decending
+    */
+  static betterThanNextLast(targets) {
+    for (let i = 0; i+1 < targets.length; i++) {
+      targets[i].betterThanNext = targets[i].basePriority/targets[i+1].basePriority;
+      targets[i].betterThanLast = targets[i].basePriority/targets[targets.length+1].basePriority;
     }
   }
 
