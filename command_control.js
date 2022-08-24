@@ -49,9 +49,9 @@ export async function main(ns) {
       inventory.inactiveTargets.push(serverFactory.create(ns, serverhostname, 'InactiveTarget'));
     }
     if (ns.getServerMaxRam(serverhostname) > 0 && getRoot(ns, serverhostname)) {
-      inventory.drones.push(serverFactory.create(ns, serverhostname, 'Drone'));
+      inventory.drones.push(serverFactory.create(ns, serverhostname, 'Drone', neededRam));
     } else if (ns.getServerMaxRam(serverhostname) > 0) {
-      inventory.inactiveDrones.push(serverFactory.create(ns, serverhostname, 'InactiveDrone'));
+      inventory.inactiveDrones.push(serverFactory.create(ns, serverhostname, 'InactiveDrone', neededRam));
     }
   }
 

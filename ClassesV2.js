@@ -10,6 +10,7 @@ export class InactiveDrone {
     */
   constructor(ns, hostname) {
     this.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
+    this.threads = null;
     if (hostname == 'home') {
       this.maxRam = ns.getServerMaxRam(hostname) - 32;
     } else {
@@ -17,8 +18,14 @@ export class InactiveDrone {
     }
   }//end of constructor
 
-  init() {
+  //calculates the number of threads the server can host
+  numberOfThreads(needRam) {
+    this.threads = this.maxRam/needRam;
+  }
+
+  init(neededRam) {
     logger(this.ns, 'Initialized InactiveDrone ' + this.hostname, 0);
+    this.numberOfThreads(neededRam);
   }
 
   toJSON() {
@@ -27,6 +34,7 @@ export class InactiveDrone {
       serverType: this.serverType,
       numberOfPortsRequired: this.numberOfPortsRequired,
       maxRam: this.maxRam,
+      threads: this.threads,
     }
   }
 
@@ -51,8 +59,9 @@ export class DroneServer extends InactiveDrone {
     return this.maxRam - this.ramUsed;
   }
 
-  init() {
+  init(neededRam) {
     logger(this.ns, 'Initialized DroneServer ' + this.hostname, 0);
+    this.numberOfThreads(needRam);
   }
 
   toJSON() {
@@ -61,6 +70,7 @@ export class DroneServer extends InactiveDrone {
       serverType: this.serverType,
       numberOfPortsRequired: this.numberOfPortsRequired,
       maxRam: this.maxRam,
+      threads: this.threads,
       ramAvailable: this.ramAvailable,
     }
   }
@@ -201,8 +211,9 @@ export class ServerFactory {
     * @param {NS} ns
     * @param {string} hostname
     * @param {string} serverType
+    * @param {number} [needRam=0] - ram per thread
     */
-  create = (ns, hostname, serverType) => {
+  create = (ns, hostname, serverType, neededRam=0) => {
     //Check for valid hostname
     if (typeof(hostname) !== 'string' || !ns.serverExists(hostname)) {
       throw new Error(hostname + ' is not a valid string or a valid hostname.');
@@ -244,7 +255,11 @@ export class ServerFactory {
     }
     Object.defineProperty(server, 'hasAdminRights', hasAdminRightsPattern);
 
-    server.init();
+    if (server.serverType == 'InactiveDrone' || server.serverType == 'Drones') {
+      server.init(neededRam);
+    } else {
+      server.init();
+    }
 
     return server;
   }//end of create
