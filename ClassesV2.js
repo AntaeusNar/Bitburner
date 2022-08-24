@@ -110,7 +110,7 @@ export class InactiveTarget {
 
   get basePriority() {
     //$/threads/sec at lowest take and ideal conditions
-    return this.moneyMax*this.percentPerSingleHack/evalVectorsPerBatch(this.ns, this, this.ns.getPlayer())/this.idealWeakenTime;
+    return truncateNumber(this.moneyMax*this.percentPerSingleHack/evalVectorsPerBatch(this.ns, this, this.ns.getPlayer())/this.idealWeakenTime, 3);
   }
 
   init() {
