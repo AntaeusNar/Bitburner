@@ -122,7 +122,7 @@ export class InactiveTarget {
 
   //EVAL ONLY: returns best case.
   get batchesPerCycle() {
-    return this.idealWeakenTime + (baseDelay*3/1000)/baseDelay;
+    return truncateNumber(this.idealWeakenTime + (baseDelay*3/1000)/baseDelay, 0, 'floor');
   }
 
   get takePercent() {
