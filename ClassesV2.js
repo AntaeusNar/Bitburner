@@ -251,9 +251,10 @@ export class TargetServer extends InactiveTarget {
       numBatchesPerCycle = targets[0].batchesPerCycle;
       reservedThreads = numBatchesPerCycle*targets[0].actualVectorsPerBatch;
     }
-
+    if (firstRun) {
+      reservedScripts += numBatchesPerCycle*4;
+    }
     let oldTake = targets[i].takePercent;
-    reservedScripts += numBatchesPerCycle*4;
 
     if (i + 1 == targets.length) { //handling for last server in arrray
       logger(ns, 'INFO: Last Server ' + targets[i].hostname);
@@ -309,7 +310,7 @@ export class TargetServer extends InactiveTarget {
     } else { //if we still have threads, scripts, and targets, and have loop up and back to here, check the next one
       logger(ns, 'INFO: Calculating take for next Target.');
       indexOfTarget++;
-      await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget, false);
+      await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget);
     }
   }// end of adjustTake
 
