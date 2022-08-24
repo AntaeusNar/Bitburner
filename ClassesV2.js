@@ -292,7 +292,7 @@ export class TargetServer extends InactiveTarget {
     //Status update on adjustments
     if (oldTake < targets[i].takePercent) {
       logger(ns, 'Increased ' + targets[i].hostname + ' from  ' + oldTake*100 + '% to ' + targets[i].takePercent*100 + '%.  Threads at ' + reservedThreads + '/' + maxThreads);
-    } else if (firstRun){
+    } else {
       logger(ns, 'No adjustment made to ' + targets[i].hostname);
     }
 
@@ -301,14 +301,14 @@ export class TargetServer extends InactiveTarget {
       logger(ns, 'INFO: Max Threads limit reached, stopping take increase calc.');
     } else if (reservedScripts >= maxScripts) {//Stop when out of Scripts
       logger(ns, 'INFO: Max Scripts limit reached, stopping take increase calc');
-    } else if (indexOfTarget != 0 && oldTake < targets[i].takePercent) { //Recure up if we adjusted the take and not on the best target
+    } else if (indexOfTarget != 0 && oldTake < targets[i].takePercent && targets[i-1].takePercent < 1 - targets[i-1].percentPerSingleHack) { //Recure up if we adjusted the take and not on the best target
       logger(ns, 'INFO: adjusted take, check previous Target.');
       indexOfTarget--;
       await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget, false);
     } else if (indexOfTarget + 1 >= targets.length) { //Stop when finished with last target fully adjusted and all others readjusted
       logger(ns, 'WARNING: Finished last target, but should only reach this if there are available threads and scripts to still use.');
     } else { //if we still have threads, scripts, and targets, and have loop up and back to here, check the next one
-      if (firstRun) {logger(ns, 'INFO: Calculating take for next Target.')};
+      logger(ns, 'INFO: Calculating take for next Target.');
       indexOfTarget++;
       await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget);
     }
