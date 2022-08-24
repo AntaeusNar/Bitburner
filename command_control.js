@@ -60,7 +60,7 @@ export async function main(ns) {
     return b.basePriority - a.basePriority;
   });
   inventory.drones.sort(function(a,b) {
-    return b.maxRam -a.maxRam;
+    return b.maxRam - a.maxRam;
   });
   inventory.inactiveDrones.sort(function(a,b) {
     return b.numberOfPortsRequired - a.numberOfPortsRequired;
@@ -80,19 +80,7 @@ export async function main(ns) {
   */
   await fileDump(ns, inventory);
   /**
-  //Filter inventory && Sort
-  const targets = inventory.filter(obj => {
-    return obj.isTarget;
-  });
-  targets.sort(function(a,b) {
-    return (b.ratio() != null) - (a.ratio() != null) || b.ratio() - a.ratio();
-  });
-  const drones = inventory.filter(obj => {
-    return obj.isDrone;
-  });
-  drones.sort(function(a,b) {
-    return b.maxRam - a.maxRam;
-  });
+
   let maxRam = 0;
   for (let drone of drones) {
     maxRam += drone.maxRam;
