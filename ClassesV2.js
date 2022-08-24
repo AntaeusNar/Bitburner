@@ -20,7 +20,7 @@ export class InactiveDrone {
 
   //calculates the number of threads the server can host
   numberOfThreads(neededRam) {
-    this.threads = this.maxRam/neededRam;
+    this.threads = truncateNumber(this.maxRam/neededRam, 0);
   }
 
   init(neededRam) {
@@ -126,7 +126,7 @@ export class InactiveTarget {
   }
 
   get takePercent() {
-    return this._takePercent;
+    return Math.max(1,truncateNumber(this._takePercent));
   }
 
   set takePercent(take) {
