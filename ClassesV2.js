@@ -169,7 +169,8 @@ export class TargetServer extends InactiveTarget {
       evalWeakenTime: this.evalWeakenTime,
       takePercent: this.takePercent,
       basePriority: this.basePriority,
-
+      betterThanNext: this.betterThanNext,
+      betterThanLast: this.betterThanLast.
     }
   }
 
