@@ -75,27 +75,17 @@ export async function main(ns) {
   const estThreads = inventory.drones.reduce((accumulator, drone) => {
     return accumulator + drone.threads;
   }, 0);
-  /**
+
+  // status message
   let bestTarget = inventory.targets[0];
-  let betterThanNext = Math.floor((bestTarget.basePriority/inventory.targets[1].basePriority)*10)/10;
-  let bestTargetMessage = 'Best Target is ' + bestTarget.hostname +
-    ' with a basic priority of ' + bestTarget.basePriority +
-    '. ' + betterThanNext + 'X better than ' + inventory.targets[1].hostname;
-  logger(ns, bestTargetMessage);
-  */
+  let bestDrone = inventory.drones[0];
+  let targetMessage = 'Best target is ' + bestTarget.hostname + ' with a basic priority of ' + bestTarget.basePriority + '.  ';
+  let droneMessage = 'Best drone is ' + bestDrone.hostname + ' with ' + bestDrone.threads + ' threads of ' + estThreads + ' total threads.  ';
+  let message = targetMessage + droneMessage;
+  logger(ns, message);
+
   await fileDump(ns, inventory);
   /**
-
-  let maxRam = 0;
-  for (let drone of drones) {
-    maxRam += drone.maxRam;
-  }
-
-  //some general info for update
-  let maxThreads = Math.floor(maxRam/neededRam);
-  logger(ns, 'INFO: Have ' + targets.length + ' Targets and ' + drones.length +
-    ' Drones. Best target is ' + targets[0].hostname + ' with a current ratio of ' + targets[0].ratio() + '. Best drone server is ' +
-    drones[0].hostname + " with " + drones[0].maxRam + "GB ram. Max Ram is " + maxRam + 'GB yeilding ' + maxThreads + ' Threads.');
 
   //Targets ratio adjustments
   logger(ns, 'INFO: Starting adjustments, standby....');
