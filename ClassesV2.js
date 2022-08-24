@@ -97,7 +97,7 @@ export class InactiveTarget {
   }
 
   get idealWeakenTime() {
-    return evalWeakenTime(this.ns, this, this.ns.getPlayer());
+    return evalWeakenTime(this, this.ns.getPlayer());
   }
 
   get takePercent() {
