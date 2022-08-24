@@ -211,7 +211,7 @@ export function evalVectorsPerBatch(ns, server, player) {
   let weakenThreads = Math.ceil(hackThreads*hackRate/weakenRate) + Math.ceil(growThreads*growRate/weakenRate);
 
   /** Wrap-up */
-  let totalVectors = Math.min(growThreads + hackThreads + weakenThreads, 4);
+  let totalVectors = Math.max(growThreads + hackThreads + weakenThreads, 4);
   return totalVectors;
 
 }//end of evalVectorsPerBatch
