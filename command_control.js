@@ -81,7 +81,7 @@ export async function main(ns) {
   let bestTarget = inventory.targets[0];
   let bestDrone = inventory.drones[0];
   let targetMessage = 'Best target is ' + bestTarget.hostname + ' with a basic priority of ' + bestTarget.basePriority + '.  ';
-  let droneMessage = 'Best drone is ' + bestDrone.hostname + ' with ' + estThreads/bestDrone.threads + '% of threads.  ' + bestDrone.threads + '/'estThreads;
+  let droneMessage = 'Best drone is ' + bestDrone.hostname + ' with ' + truncateNumber(bestDrone.threads/estThreads, 2) + '% of threads.  ' + bestDrone.threads + '/' + estThreads;
   let message = targetMessage + droneMessage;
   logger(ns, message);
 
