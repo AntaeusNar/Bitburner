@@ -20,7 +20,7 @@ export class InactiveDrone {
 
   //calculates the number of threads the server can host
   numberOfThreads(neededRam) {
-    this.threads = truncateNumber(this.maxRam/neededRam, 0);
+    this.threads = truncateNumber(this.maxRam/neededRam, 0, 'floor');
   }
 
   init(neededRam) {
