@@ -214,7 +214,7 @@ export class ServerFactory {
         if (!this._hasAdminRights) {
           this._hasAdminRights = this.ns.hasRootAccess(this.hostname);
         }
-        if (!hasAdminRights) {
+        if (!this._hasAdminRights) {
           this._hasAdminRights = getRoot(this.ns, this.hostname);
         }
         return this._hasAdminRights;
