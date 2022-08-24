@@ -55,6 +55,19 @@ export async function main(ns) {
     }
   }
 
+  //sorts
+  inventory.targets.sort(function(a,b) {
+    return b.basePriority - a.basePriority;
+  });
+  inventory.drones.sort(function(a,b) {
+    return b.maxRam -a.maxRam;
+  });
+  inventory.inactiveDrones.sort(function(a,b) {
+    return b.numberOfPortsRequired - a.numberOfPortsRequired;
+  });
+  inventory.inactiveTargets.sort(function(a, b) {
+    return b.requiredHackingSkill - a.requiredHackingSkill;
+  });
   await fileDump(ns, inventory);
   /**
   //Filter inventory && Sort
