@@ -21,6 +21,7 @@ export class InactiveDrone {
   //calculates the number of threads the server can host
   numberOfThreads(neededRam) {
     this.threads = this.maxRam/neededRam;
+    logger(ns, 'INFO: threads should be ' this.maxRam/neededRam);
   }
 
   init(neededRam) {
@@ -322,7 +323,7 @@ export class ServerFactory {
     * @param {NS} ns
     * @param {string} hostname
     * @param {string} serverType
-    * @param {number} [needRam=0] - ram per thread
+    * @param {number} [neededRam=0] - ram per thread
     */
   create = (ns, hostname, serverType, neededRam=0) => {
     //Check for valid hostname
