@@ -136,7 +136,7 @@ export function calculateIntelligenceBonus(intelligence, weight) {
 	* @param {Object} server
 	* @param {Object} player
 	*/
-export evalPercentTakePerHack(ns, server, player) {
+export function evalPercentTakePerHack(ns, server, player) {
 	/** Setup */
 	let playerHackingSkill = Math.max(server.requiredHackingSkill, player.skills.hacking);
 	let bitNodeMultipliers = {
