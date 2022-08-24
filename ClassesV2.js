@@ -130,7 +130,7 @@ export class InactiveTarget {
   }
 
   set takePercent(take) {
-    if (take < 0) {
+    if (take > 0) {
       this._takePercent += Math.max(take, this.percentPerSingleHack);
     } else {
       this._takePercent -= Math.min(take, this.percentPerSingleHack);
@@ -290,7 +290,7 @@ export class TargetServer extends InactiveTarget {
 
     //Status update on adjustments
     if (oldTake < targets[i].takePercent) {
-      logger(ns, 'Increased ' + targets[i].hostname + ' from  ' + oldTake*100 + '% to ' + targets[i].takePercent*100 + '% threads at ' + reserveThreads + '/' + maxThreads);
+      logger(ns, 'Increased ' + targets[i].hostname + ' from  ' + oldTake*100 + '% to ' + targets[i].takePercent*100 + '% threads at ' + reservedThreads + '/' + maxThreads);
     } else {
       logger(ns, 'No adjustment made to ' + targets[i].hostname);
     }
