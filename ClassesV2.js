@@ -173,6 +173,11 @@ export class TargetServer extends InactiveTarget {
     this.betterThanLast = 1;
   }
 
+  //$/threads/sec at take and ideal conditions
+  get adjustedPriority() {
+    return trucateNumber(this.moneyMax*this.takePercent/this.idealVectorsPerBatch/this.idealWeakenTime);
+  }
+
   toJSON() {
     return {
       hostname: this.hostname,
@@ -189,6 +194,7 @@ export class TargetServer extends InactiveTarget {
       idealVectorsPerBatch: this.idealVectorsPerBatch,
       betterThanNext: this.betterThanNext,
       betterThanLast: this.betterThanLast,
+      adjustedPriority: this.adjustedPriority,
     }
   }
 
@@ -201,7 +207,7 @@ export class TargetServer extends InactiveTarget {
       targets[i].betterThanLast = truncateNumber(targets[i].basePriority/targets[targets.length-1].basePriority);
     }
   }//end of betterThanNextLast
-  
+
 }// end of active Target Class
 
 /** Server Factory: given a hostname, and server type will create the server*/
