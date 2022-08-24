@@ -11,7 +11,7 @@
   * @param {NS} ns
   */
 import {logger, getNeededRam, multiscan, fileDump} from 'lib.js';
-import {ServerFactory, BasicServer, DroneServer, TargetServer} from 'Classes.js';
+import {ServerFactory} from 'ClassesV2.js';
 export async function main(ns) {
 
   //Initial Launch
@@ -30,13 +30,33 @@ export async function main(ns) {
 
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
-  let inventory = [];
+  let inventory = {
+    targets: [],
+    drones: [],
+    inactiveTargets: [],
+    inactiveDrones: [],
+  };
   const serverFactory = new ServerFactory();
   for (let i = 0; i < serverList.length; i++) {
-    logger(ns, 'INFO: Building ' + serverList[i], 0);
-    inventory.push(serverFactory.create(ns, serverList[i]));
+    let serverhostname = serverList[i];
+    logger(ns, 'INFO: Building ' + serverhostname, 0);
+    if (ns.getServerRequiredHackingLevel(serverhostname) <= ns.getHackingLevel() &&
+      ns.getServerMaxMoney(serverhostname) > 0 &&
+      serverhostname != 'home' &&
+      getRoot(ns, serverhostname)){
+        inventory.targets.push(serverFactory.create(ns, serverhostname, 'Target'));
+    } else if (ns.getServerMaxMoney(hostname) > 0 && serverhostname != 'home') {
+      inventory.inactiveTargets.push(serverFactory.create(ns, serverhostname, 'InactiveTarget'));
+    }
+    if (ns.getServerMaxRam(serverhostname) > 0 && getRoot(ns, serverhostname)) {
+      inventory.drones.push(serverFactory.create(ns, serverhostname, 'Drone'));
+    } else if (ns.getServerMaxRam(serverhostname) > 0) {
+      inventory.inactiveDrones.push(serverFactory.create(ns, serverhostname, 'InactiveDrone'));
+    }
   }
 
+  await fileDump(ns, inventory);
+  /**
   //Filter inventory && Sort
   const targets = inventory.filter(obj => {
     return obj.isTarget;
@@ -67,7 +87,7 @@ export async function main(ns) {
   await TargetServer.adjustTake(ns, targets, maxThreads);
   //await fileDump(ns, targets, 'adjusteddump.txt');
 
-
+  */
   // TODO: deploy drone scripts on drones agianst targets
   // OPTIMIZE: check the deployments on home server and see if that reduces needed threads due to core upgrades (weakens and grows)
   // TODO: checks to reeval if new skill level or tools can access more targets/drones
