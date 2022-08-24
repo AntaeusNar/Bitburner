@@ -45,7 +45,7 @@ export async function main(ns) {
       serverhostname != 'home' &&
       getRoot(ns, serverhostname)){
         inventory.targets.push(serverFactory.create(ns, serverhostname, 'Target'));
-    } else if (ns.getServerMaxMoney(hostname) > 0 && serverhostname != 'home') {
+    } else if (ns.getServerMaxMoney(serverhostname) > 0 && serverhostname != 'home') {
       inventory.inactiveTargets.push(serverFactory.create(ns, serverhostname, 'InactiveTarget'));
     }
     if (ns.getServerMaxRam(serverhostname) > 0 && getRoot(ns, serverhostname)) {
