@@ -130,6 +130,26 @@ export function calculateIntelligenceBonus(intelligence, weight) {
 	return 1 + (weight * Math.pow(intelligence, 0.8))/600;
 }
 
+/** trucateNumber: given a number, number of decimals, and ceil,floor or round
+	* adjusts the number to match
+	* @param {number} number
+	* @param {number} decimal
+	* @param {string} [type=round]
+	* @returns {number}
+	*/
+export function truncateNumber(number, decimal, type = 'round'){
+	let result = null;
+	let factor = 10 ** decimal;
+	if (type =='round') {
+		result = Math.round(number*factor)/factor;
+	} else if (type == 'ceil') {
+		result = Math.ceil(number*factor)/factor;
+	} else if (type =='floor'){
+		result = Math.floor(number*factor)/factor;
+	}
+	return result;
+}
+
 /** evalPercentTakePerHack: calculates the % takes per single hack thread
 	* https://github.com/danielyxie/bitburner/blob/dev/src/Hacking.ts
 	* @param {NS} ns
