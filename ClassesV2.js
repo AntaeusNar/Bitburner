@@ -93,7 +93,7 @@ export class InactiveTarget {
 
   //EVAL ONLY: returns best case.
   get percentPerSingleHack() {
-    return evalPercentTakePerHack(this.ns, this, this.ns.getPlayer());
+    return truncateNumber(evalPercentTakePerHack(this.ns, this, this.ns.getPlayer()), 3);
   }
 
   get idealWeakenTime() {
@@ -179,8 +179,8 @@ export class TargetServer extends InactiveTarget {
     */
   static betterThanNextLast(targets) {
     for (let i = 0; i+1 < targets.length; i++) {
-      targets[i].betterThanNext = truncateNumber(targets[i].basePriority/targets[i+1].basePriority, 2, 'ceil');
-      targets[i].betterThanLast = truncateNumber(targets[i].basePriority/targets[targets.length-1].basePriority, 2, 'ceil');
+      targets[i].betterThanNext = truncateNumber(targets[i].basePriority/targets[i+1].basePriority, 2);
+      targets[i].betterThanLast = truncateNumber(targets[i].basePriority/targets[targets.length-1].basePriority, 2);
     }
   }
 
