@@ -200,8 +200,8 @@ export class TargetServer extends InactiveTarget {
       targets[i].betterThanNext = truncateNumber(targets[i].basePriority/targets[i+1].basePriority);
       targets[i].betterThanLast = truncateNumber(targets[i].basePriority/targets[targets.length-1].basePriority);
     }
-  }
-
+  }//end of betterThanNextLast
+  
 }// end of active Target Class
 
 /** Server Factory: given a hostname, and server type will create the server*/
