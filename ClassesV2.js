@@ -61,7 +61,7 @@ export class DroneServer extends InactiveDrone {
 
   init(neededRam) {
     logger(this.ns, 'Initialized DroneServer ' + this.hostname, 0);
-    this.numberOfThreads(needRam);
+    this.numberOfThreads(neededRam);
   }
 
   toJSON() {
@@ -193,7 +193,7 @@ export class TargetServer extends InactiveTarget {
 
   //$/threads/sec at take and ideal conditions
   get adjustedPriority() {
-    return trucateNumber(this.moneyMax*this.takePercent/this.idealVectorsPerBatch/this.idealWeakenTime);
+    return truncateNumber(this.moneyMax*this.takePercent/this.idealVectorsPerBatch/this.idealWeakenTime);
   }
 
   toJSON() {
@@ -249,7 +249,7 @@ export class TargetServer extends InactiveTarget {
     //first run only
     if (i == 0 && firstRun) {
       numBatchesPerCycle = targets[0].batchesPerCycle;
-      reserveThreads = numBatchesPerCycle*targets[0].actualVectorsPerBatch;
+      reservedThreads = numBatchesPerCycle*targets[0].actualVectorsPerBatch;
     }
 
     let oldTake = targets[i].takePercent;
