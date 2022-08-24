@@ -69,7 +69,12 @@ export async function main(ns) {
     return b.requiredHackingSkill - a.requiredHackingSkill;
   });
 
+  //calc ratio between each target and the next and last targets
   TargetServer.betterThanNextLast(inventory.targets);
+  //collect the estimated number of available threads
+  const estThreads = inventory.drones.reduce((accumulator, drone) => {
+    return accumulator + drone.threads;
+  }, 0);
   /**
   let bestTarget = inventory.targets[0];
   let betterThanNext = Math.floor((bestTarget.basePriority/inventory.targets[1].basePriority)*10)/10;
