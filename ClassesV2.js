@@ -1,4 +1,4 @@
-import {can, getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime, evalPercentTakePerHack} from 'lib.js';
+import {can, getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime, evalPercentTakePerHack, truncateNumber} from 'lib.js';
 import {baseDelay} from 'options.js';
 
 /** InactiveDrone server class */
@@ -179,8 +179,8 @@ export class TargetServer extends InactiveTarget {
     */
   static betterThanNextLast(targets) {
     for (let i = 0; i+1 < targets.length; i++) {
-      targets[i].betterThanNext = Math.ceil(targets[i].basePriority/targets[i+1].basePriority*100)/100;
-      targets[i].betterThanLast = Math.ceil(targets[i].basePriority/targets[targets.length-1].basePriority*100)/100;
+      targets[i].betterThanNext = truncateNumber(targets[i].basePriority/targets[i+1].basePriority, 2, 'ceil');
+      targets[i].betterThanLast = truncateNumber(targets[i].basePriority/targets[targets.length-1].basePriority, 2, 'ceil');
     }
   }
 
