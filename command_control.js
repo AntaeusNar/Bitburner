@@ -12,6 +12,7 @@
   */
 import {logger, getNeededRam, multiscan, fileDump, getRoot, truncateNumber} from 'lib.js';
 import {TargetServer, ServerFactory} from 'ClassesV2.js';
+import {baseDelay, maxScripts} from 'options.js';
 export async function main(ns) {
 
   //Initial Launch
@@ -93,6 +94,31 @@ export async function main(ns) {
   await TargetServer.adjustTake(ns, inventory.targets, estThreads);
   await fileDump(ns, inventory, 'adjusteddump.txt');
 
+  /** Main Control loop
+    * Deploy drone scripts on drones against targets
+    */
+  //loop initalization
+  let cycle = 1;
+  let batch = 1;
+
+  //Main loop
+  while (true) {
+    //logging
+    logger(ns, 'INFO: Cycle #: ' + cycle + ' Batch #: ' + batch);
+
+    /** Interive deployment handling */
+    let i = 0;
+    let usableThreads = estThreads;
+    let usableScripts = maxScripts;
+    while (1 < inventory.targets.length &&
+      usableThreads > 0 &&
+      usableScripts > 0) {
+        let currentTarget = inventory.targets[i];
+        let vectors = currentTarget.realVectorsPerBatch(usableThreads);
+        let cycleBatch = cycle + '/'+ batch;
+
+      }//end of iterive deployment handling
+  }//end of main control loop
 
   // TODO: deploy drone scripts on drones agianst targets
   // OPTIMIZE: check the deployments on home server and see if that reduces needed threads due to core upgrades (weakens and grows)
