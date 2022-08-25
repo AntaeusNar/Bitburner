@@ -110,8 +110,7 @@ export async function main(ns) {
   let batch = 1;
   let sleepTime = baseDelay;
   let actualNumOfBatches = 0;
-  let reservedThreads = 0;
-  let reservedScripts = 0;
+
 
   logger(ns, 'INFO: Starting Main Loop');
   //Main loop
@@ -123,7 +122,8 @@ export async function main(ns) {
     let i = 0;
     let usableThreads = estThreads;
     let usableScripts = maxScripts;
-    while (1 < inventory.targets.length &&
+
+    while (i < inventory.targets.length &&
       usableThreads > 0 &&
       usableScripts > 0) {
         let currentTarget = inventory.targets[i];
@@ -138,15 +138,15 @@ export async function main(ns) {
         if (i == 0) {
           let maxNumBatches = Math.min(usableThreads/results.vectors.totalVectors, usableScripts/4);
           let theoryTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
-          actualNumOfBatches = Math.floor(results.batchTime/theory);
+          actualNumOfBatches = Math.floor(results.batchTime/theoryTime);
           sleepTime = Math.ceil(results.batchTime/actualNumOfBatches);
         }
 
         //logging
-        reservedThreads = actualNumOfBatches*results.vectors.totalVectors;
-        reservedScripts = actualNumOfBatches*results.deployedScripts;
+        let reservedThreads = actualNumOfBatches*results.vectors.totalVectors;
+        let reservedScripts = actualNumOfBatches*results.deployedScripts;
         let message = 'Target: ' + currentTarget.hostname + ' @ ' + currentTarget.takePercent*100 + '%' +
-          ' Hacks/Vectos/Reserve/Usable Threads: ' + results.vectors.hackThreads + '/' + results.vectors.totalVectors+ '/' + reservedThreads + '/' + usableThreads +
+          ' Hacks/Vectors/Reserve/Usable Threads: ' + results.vectors.hackThreads + '/' + results.vectors.totalVectors+ '/' + reservedThreads + '/' + usableThreads +
           ' Reserve/Usable Scripts: ' + reservedScripts + '/' + usableScripts;
         logger(ns, message, 0);
 
