@@ -386,11 +386,12 @@ export function realVectors(ns, server, maxThreads) {
 	* @param {ns} ns
 	* @param {Server} target - target to be attacked
 	* @param {array} drones - drones to be used
-	* @param {number} maxThreads - max total threads
+	* @param {number} usableThreads - usable threads
+	* @param {number} usableScripts - usable scripts
 	* @param {array} fileNames - files to be deployed
 	* @param {string} cycleBatch - cycle/batch # to pass as arg to deployed scripts
 	*/
-export function deployVectors(ns, target, drones, maxThreads, fileNames, cycleBatch) {
+export function deployVectors(ns, target, drones, usableThreads, , usableScipts, fileNames, cycleBatch) {
 	/** Setup */
 	//Files
 	let weakenFile = fileNames[0];
@@ -406,7 +407,7 @@ export function deployVectors(ns, target, drones, maxThreads, fileNames, cycleBa
 	let stageFourDelay = baseDelay * 3 + weakenTime - hackTime;
 	let stageFiveDelay = baseDelay * 4;
 	//Vectors
-	let vectors = target.realVectors(maxThreads);
+	let vectors = target.realVectors(usableThreads);
 	//Control Tacking
 	let successful = false;
 	/** Deployment Control
