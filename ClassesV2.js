@@ -116,6 +116,7 @@ export class InactiveTarget {
     return evalWeakenTime(this, this.ns.getPlayer());
   }
 
+  //EVAL ONLY: returns best case at lowest take.
   get idealVectorsPerBatch() {
     let realTake = this._takePercent;
     this._takePercent = this.percentPerSingleHack;
@@ -141,9 +142,17 @@ export class InactiveTarget {
     }
   }
 
+  get batchTime() {
+    return this.idealWeakenTime+baseDelay*5;
+  }
+
+  get cycleThreads() {
+    return truncateNumber(this.batchesPerCycle*this.batchTime/baseDelay*this.idealVectorsPerBatch, 0, 'ceil');
+  }
+
   get basePriority() {
     //$/threads/sec at lowest take and ideal conditions
-    return truncateNumber(this.moneyMax*this.percentPerSingleHack/this.idealVectorsPerBatch/this.idealWeakenTime);
+    return truncateNumber(this.moneyMax*this.percentPerSingleHack/this.idealVectorsPerBatch/this.batchTime);
   }
 
   init() {
@@ -161,10 +170,10 @@ export class InactiveTarget {
       isHackable: this.isHackable,
       minDifficulty: this.minDifficulty,
       moneyMax: this.moneyMax,
-      percentPerSingleHack: this.percentPerSingleHack,
-      evalWeakenTime: this.evalWeakenTime,
-      takePercent: this.takePercent,
       basePriority: this.basePriority,
+      percentPerSingleHack: this.percentPerSingleHack,
+      idealWeakenTime: this.idealWeakenTime,
+      takePercent: this.takePercent,
       idealVectorsPerBatch: this.idealVectorsPerBatch,
     }
   }
@@ -218,16 +227,10 @@ export class TargetServer extends InactiveTarget {
 
   //$/threads/sec at take and ideal conditions
   get adjustedPriority() {
-    return truncateNumber(this.moneyMax*this.takePercent/this.idealVectorsPerBatch/this.idealWeakenTime);
+    return truncateNumber(this.moneyMax*this.takePercent/this.actualVectorsPerBatch/this.batchTime);
   }
 
-  get batchTime() {
-    return this.idealWeakenTime+baseDelay*5;
-  }
 
-  get cycleThreads() {
-    return truncateNumber(this.batchesPerCycle*this.batchTime/baseDelay*this.idealVectorsPerBatch, 0, 'ceil');
-  }
 
   init() {
     logger(this.ns, 'Initialized TargetServer ' + this.hostname, 0);
@@ -252,10 +255,10 @@ export class TargetServer extends InactiveTarget {
       isHackable: this.isHackable,
       minDifficulty: this.minDifficulty,
       moneyMax: this.moneyMax,
+      basePriority: this.basePriority,
       percentPerSingleHack: this.percentPerSingleHack,
       evalWeakenTime: this.evalWeakenTime,
       takePercent: this.takePercent,
-      basePriority: this.basePriority,
       idealVectorsPerBatch: this.idealVectorsPerBatch,
       betterThanNext: this.betterThanNext,
       betterThanLast: this.betterThanLast,
