@@ -52,7 +52,10 @@ export async function main(ns) {
     }
     if (ns.getServerMaxRam(serverhostname) > 0 && getRoot(ns, serverhostname) || serverhostname == 'home') {
       inventory.drones.push(serverFactory.create(ns, serverhostname, 'Drone', neededRam));
-      await ns.scp(files, 'home', drone.hostname);
+      if(drone.hostname != 'home') {
+        await ns.scp(files, 'home', drone.hostname);
+        ns.killall(drone.hostname);
+      };
     } else if (ns.getServerMaxRam(serverhostname) > 0) {
       inventory.inactiveDrones.push(serverFactory.create(ns, serverhostname, 'InactiveDrone', neededRam));
     }
