@@ -223,11 +223,11 @@ export class TargetServer extends InactiveTarget {
   }
 
   get batchTime() {
-    this.evalHackingTime*4+baseDelay*5;
+    return this.idealWeakenTime+baseDelay*5;
   }
-  
+
   get cycleThreads() {
-    this.batchesPerCycle*this.batchTime/baseDelay;
+    return truncateNumber(this.batchesPerCycle*this.batchTime/baseDelay*this.idealVectorsPerBatch, 0, 'ceil');
   }
 
   init() {
@@ -263,7 +263,7 @@ export class TargetServer extends InactiveTarget {
       adjustedPriority: this.adjustedPriority,
       isPrimedStr: this.isPrimedStr,
       isPrimedMoney: this.isPrimedMoney,
-      cylceThreads: this.cycleThreads,
+      cycleThreads: this.cycleThreads,
     }
   }
 
