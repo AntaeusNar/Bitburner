@@ -410,13 +410,65 @@ export function deployVectors(ns, target, drones, usableThreads, , usableScipts,
 	let vectors = target.realVectors(usableThreads);
 	//Control Tacking
 	let successful = false;
-	/** Deployment Control
-		* Calculate delays, deploy (W)GWHW vectors in 5 stages
+
+	/** Deployment controls
+		* (W)GWHW from vectors
 		*/
-	// timing calcualations
+	// (W) threads
+	if (vectors.primeWeaken > 0) { //if we need to prime the strength
+		if (!macroDeploy(ns, drones, weakenFile, target.hostname, vectors.primeWeaken, 0 , cycleBatch)) {
+			logger(ns, 'WARNING: Could not deploy all Primary Weaken()s against ' + target.hostname);
+			successful = false;
+		} else {
+			successful = true;
+			if (vectors.shouldPrimeStr) { //if deploying all of the primeWeaken threads should get the target to primed, set flag
+				target.isPrimedStr = true;
+			}
+		}
+	}// end of (W) threads
 
+	// GW threads
+	if (vectors.growThreads > 0 && (target.isPrimedStr) {//if we need to grow and target strength is primed
+		//Deploy the growWeakens first
+		if (!macroDeploy(ns, drones, weakenFile, target.hostname, vectors.growWeakens, stageThreeDelay, cycleBatch)) {
+			logger(ns, 'WARNING: Could not deploy all growWeaken()s agianst ' + target.hostname);
+			successful = false;
+		} else {
+			successful = true:
+		}
 
+		//Deploy the grows
+		if (vectors.growThreads > 0 && successful) {
+			if (!macroDeploy(ns, drones, growFile, target.hostname, vectors.growThreads, stageTwoDelay, cycleBatch)) {
+				logger(ns, 'WARNING: Could not deploy all Grow()s against ' + target.hostname);
+				successful = false;
+			} else {
+				successful = true;
+				if (vectors.shouldPrimeMoney) { //if deploying all of the growThreads should get the target's money primed, set  flag
+					target.isPrimedMoney = true;
+				}
+			}
+		}
+	}//end of GW Threads
 
+	// HW threads
+	if (vectors.hackThreads > 0 && target.isPrimedMoney) {
+		//deploy the hackWeakens first
+		if (!macroDeploy(ns, drones, weakenFile, target.hostname, vectors.hackWeakens, stageFiveDelay, cycleBatch)) {
+			logger(ns, 'WARNING: Could not deploy all hackWeaken()s against ' + target.hostname);
+			successful = false;
+		} else {
+			successful = true;
+		}
 
+		//Deploy the hacks
+		if (!macroDeploy(ns, drones, hackFile, target.hostname, vectors.hackThreads, stageFourDelay, cycleBatch)) {
+			logger(ns, 'WARNING: Could not deploy all Hack()s agianst ' + target.hostname);
+			successful = false;
+		} else {
+			successful = true;
+		}
+	}
 
+	return successful;
 }//end of deployVectors
