@@ -234,6 +234,9 @@ export function evalHackingTime(server, player) {
 	skillFactor /= playerHackingSkill + baseSkill;
 	const hackTimeMultiplier = 5;
 	const hackingTime = (hackTimeMultiplier * skillFactor) / (player.mults.hacking_speed * calculateIntelligenceBonus(player.skills.intelligence, 1));
+	if (hackingTime > server.ns.getHackTime(server.hostname)) {
+		throw new Error('evalHackingTime returned a worse time then getHackTime() for ' + server.hostname);
+	}
 	return hackingTime;
 }
 

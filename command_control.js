@@ -162,9 +162,9 @@ export async function main(ns) {
       }//end of iterive deployment handling
 
       if ( usableThreads <= 0) {
-        logger(ns, 'INFO: Ran out of threads.');
+        logger(ns, 'INFO: Ran out of threads.', 0);
       } else if (usableScripts <= 0) {
-        logger(ns, 'INFO: Ran out of Scipts');
+        logger(ns, 'INFO: Ran out of Scipts', 0);
       }
 
       // BUG: Seems to be deploying against fewer targets then anticipated
