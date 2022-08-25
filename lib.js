@@ -487,7 +487,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		successful: successful,
 		deployedScripts: oldUsableScripts - usableScripts,
 		batchTime: weakenTime + stageFiveDelay,
-		totalVectors: vectors.totalVectors,
+		vectors: vectors,
 	}
 	return results;
 }//end of deployVectors

@@ -110,7 +110,10 @@ export async function main(ns) {
   let batch = 1;
   let sleepTime = baseDelay;
   let actualNumOfBatches = 0;
+  let reservedThreads = 0;
+  let reservedScripts = 0;
 
+  logger(ns, 'INFO: Starting Main Loop');
   //Main loop
   while (true) {
     //logging
@@ -133,15 +136,23 @@ export async function main(ns) {
 
         /**Main Control Loop timing prep */
         if (i == 0) {
-          let maxNumBatches = Math.min(usableThreads/results.totalVectors, usableScripts/4);
+          let maxNumBatches = Math.min(usableThreads/results.vectors.totalVectors, usableScripts/4);
           let actTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
           sleepTime = Math.ceil(actTime);
           actualNumOfBatches = Math.floor(results.batchTime/sleepTime);
         }
 
+        //logging
+        reservedThreads = actualNumOfBatches*results.vectors.totalVectors;
+        reserveScripts = actualNumOfBatches*results.deployedScripts;
+        let message = 'Target: ' currentTarget.hostname + ' @ ' currentTarget.takePercent*100 + '%' +
+          ' Hacks/Vectos/Reserve/Usable Threads: ' + results.vectors.hackThreads + '/' + results.vectors.totalVectors+ '/' + reservedThreads + '/' + usableThreads +
+          ' Reserve/Usable Scripts: ' + reserveScripts + '/' + usableScripts);
+        logger(ns, message, 0);
+
         /** Interive Loop Cleanup */
-        usableScripts -= actualNumOfBatches*results.deployedScripts;
-        usableThreads -= actualNumOfBatches*results.totalVectors;
+        usableScripts -= reservedScripts;
+        usableThreads -= reservedThreads;
         i++;
         await ns.sleep(1);
       }//end of iterive deployment handling
