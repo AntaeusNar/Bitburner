@@ -410,6 +410,7 @@ export function deployVectors(ns, target, drones, usableThreads, , usableScipts,
 	let vectors = target.realVectors(usableThreads);
 	//Control Tacking
 	let successful = false;
+	let deployedScripts = 0;
 
 	/** Deployment controls
 		* (W)GWHW from vectors
@@ -469,6 +470,9 @@ export function deployVectors(ns, target, drones, usableThreads, , usableScipts,
 			successful = true;
 		}
 	}
-
-	return successful;
+	let results = {
+		successful: successful,
+		deployedScripts: deployedScripts,
+	}
+	return results;
 }//end of deployVectors

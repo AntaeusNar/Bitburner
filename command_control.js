@@ -115,8 +115,8 @@ export async function main(ns) {
       usableScripts > 0) {
         let currentTarget = inventory.targets[i];
         let cycleBatch = cycle + '/'+ batch;
-        let deploySuccessful = deployVectors(ns, currentTarget, inventory.drones, usableThreads, usableScipts, fileNames, cycleBatch);
-        if (!deploySuccessful) {
+        let results = deployVectors(ns, currentTarget, inventory.drones, usableThreads, usableScipts, fileNames, cycleBatch);
+        if (!results.successful) {
           logger(ns, 'WARNING: Vector deployment against' + currentTarget.hostname + ' failed, stopping deployments.');
           break;
         }
