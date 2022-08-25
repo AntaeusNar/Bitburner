@@ -167,7 +167,6 @@ export async function main(ns) {
         logger(ns, 'INFO: Ran out of Scipts', 0);
       }
 
-      // BUG: Seems to be deploying against fewer targets then anticipated
       // BUG: Is deploying more scripts then limit
       // BUG: seems to be producing 1/2ish of c_cv3.js
 
