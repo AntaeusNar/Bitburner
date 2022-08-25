@@ -165,6 +165,7 @@ export async function main(ns) {
 
       // BUG: Seems to be deploying against fewer targets then anticipated
       // BUG: Is deploying more scripts then limit
+      // BUG: seems to be producing 1/2ish of c_cv3.js
 
       // TODO: checks to reeval if new skill level or tools can access more targets/drones
       // TODO: add in the eval and purchase of persnal servers
