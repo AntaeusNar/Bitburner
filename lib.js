@@ -289,7 +289,7 @@ export function realVectors(ns, server, maxThreads) {
     vectors.primeWeaken = Math.min(targetPrimeWeakens, maxThreads); //stay inside available threads
     vectors.totalVectors = vectors.primeWeaken; //update total vectors
     maxThreads -= vectors.totalVectors; //reduce maxThreads
-    if (vectors.primeWeaken == targetPrimeWeakens && !dryrun) {vectors.shouldPrimeStr = true;} //setting the isPrimedStr flag to true
+    if (vectors.primeWeaken == targetPrimeWeakens) {vectors.shouldPrimeStr = true;} //setting the isPrimedStr flag to true
   }
 
   //continue if there is a min of 4 threads (one each for GWHW)
@@ -404,13 +404,13 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 	// TODO: adjust this section to account to hitting a primed target with Formulas.exe
 	let weakenTime = ns.getWeakenTime(target.hostname);
 	let growTime = ns.getGrowTime(target.hostname);
-	let hackTIme = ns.getHackTime(target.hostname);
+	let hackTime = ns.getHackTime(target.hostname);
 	let stageTwoDelay = weakenTime + baseDelay - growTime;
 	let stageThreeDelay = baseDelay * 2;
 	let stageFourDelay = baseDelay * 3 + weakenTime - hackTime;
 	let stageFiveDelay = baseDelay * 4;
 	//Vectors
-	let vectors = target.realVectors(usableThreads);
+	let vectors = target.realVectorsPerBatch(usableThreads);
 	//Control Tacking
 	let successful = false;
 	let oldUsableScripts = usableScripts;

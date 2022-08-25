@@ -10,7 +10,7 @@
   * Recursivly scans the network, evals targets and drones, deploys (W)GWHW batchs on drone agianst targets
   * @param {NS} ns
   */
-import {logger, getNeededRam, multiscan, fileDump, getRoot, truncateNumber} from 'lib.js';
+import {logger, getNeededRam, multiscan, fileDump, getRoot, truncateNumber, deployVectors} from 'lib.js';
 import {TargetServer, ServerFactory} from 'ClassesV2.js';
 import {baseDelay, maxScripts} from 'options.js';
 export async function main(ns) {
@@ -125,7 +125,7 @@ export async function main(ns) {
       usableScripts > 0) {
         let currentTarget = inventory.targets[i];
         let cycleBatch = cycle + '/'+ batch;
-        let results = deployVectors(ns, currentTarget, inventory.drones, usableThreads, usableScipts, fileNames, cycleBatch);
+        let results = deployVectors(ns, currentTarget, inventory.drones, usableThreads, usableScripts, files, cycleBatch);
         if (!results.successful) {
           logger(ns, 'WARNING: Vector deployment against' + currentTarget.hostname + ' failed, stopping deployments.');
           break;
@@ -133,7 +133,7 @@ export async function main(ns) {
 
         /**Main Control Loop timing prep */
         if (i == 0) {
-          let maxNumBatches = Math.min(usableThreads/results.totalVectors, usableScipts/4);
+          let maxNumBatches = Math.min(usableThreads/results.totalVectors, usableScripts/4);
           let actTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
           sleepTime = Math.ceil(actTime);
           actualNumOfBatches = Math.floor(results.batchTime/sleepTime);
