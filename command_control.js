@@ -115,6 +115,7 @@ export async function main(ns) {
       usableScripts > 0) {
         let currentTarget = inventory.targets[i];
         let cycleBatch = cycle + '/'+ batch;
+        let deploySuccessful = deployVectors(ns, currentTarget, inventory.drones, usableThreads, fileNames, cycleBatch);
 
       }//end of iterive deployment handling
   }//end of main control loop
