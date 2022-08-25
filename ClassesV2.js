@@ -62,7 +62,6 @@ export class DroneServer extends InactiveDrone {
   init(neededRam) {
     logger(this.ns, 'Initialized DroneServer ' + this.hostname, 0);
     this.numberOfThreads(neededRam);
-    // TODO: add scp of dronescripts
   }
 
   toJSON() {
