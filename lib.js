@@ -425,7 +425,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 	if (vectors.primeWeaken > 0 && usableScripts> 0) { //if we need to prime the strength
 		let localResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.primeWeaken, 0 , cycleBatch)
 		if (!localResults.successful) {
-			logger(ns, 'WARNING: Could not deploy all Primary Weaken()s against ' + target.hostname);
+			logger(ns, 'WARNING: Could not deploy all Primary Weaken()s against ' + target.hostname, 0);
 			successful = false;
 		} else {
 			successful = true;
@@ -441,7 +441,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		//Deploy the growWeakens first
 		let localResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.growWeakens, stageThreeDelay, cycleBatch)
 		if (!localResults.successful) {
-			logger(ns, 'WARNING: Could not deploy all growWeaken()s agianst ' + target.hostname);
+			logger(ns, 'WARNING: Could not deploy all growWeaken()s agianst ' + target.hostname, 0);
 			successful = false;
 		} else {
 			successful = true;
@@ -452,7 +452,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		localResults = macroDeploy(ns, drones, growFile, target.hostname, vectors.growThreads, stageTwoDelay, cycleBatch)
 		if (vectors.growThreads > 0 && successful && usableScripts > 0) {
 			if (!localResults.successful) {
-				logger(ns, 'WARNING: Could not deploy all Grow()s against ' + target.hostname);
+				logger(ns, 'WARNING: Could not deploy all Grow()s against ' + target.hostname, 0);
 				successful = false;
 			} else {
 				successful = true;
@@ -469,7 +469,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		//deploy the hackWeakens first
 		let localResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.hackWeakens, stageFiveDelay, cycleBatch)
 		if (!localResults.successful) {
-			logger(ns, 'WARNING: Could not deploy all hackWeaken()s against ' + target.hostname);
+			logger(ns, 'WARNING: Could not deploy all hackWeaken()s against ' + target.hostname, 0);
 			successful = false;
 		} else {
 			successful = true;
@@ -479,7 +479,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		//Deploy the hacks
 		localResults = macroDeploy(ns, drones, hackFile, target.hostname, vectors.hackThreads, stageFourDelay, cycleBatch)
 		if (!localResults.successful) {
-			logger(ns, 'WARNING: Could not deploy all Hack()s agianst ' + target.hostname);
+			logger(ns, 'WARNING: Could not deploy all Hack()s agianst ' + target.hostname, 0);
 			successful = false;
 		} else {
 			successful = true;
