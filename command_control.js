@@ -120,6 +120,7 @@ export async function main(ns) {
           logger(ns, 'WARNING: Vector deployment against' + currentTarget.hostname + ' failed, stopping deployments.');
           break;
         }
+        usableScripts -= results.deployedScripts;
 
       }//end of iterive deployment handling
   }//end of main control loop

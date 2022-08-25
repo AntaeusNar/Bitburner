@@ -410,18 +410,20 @@ export function deployVectors(ns, target, drones, usableThreads, , usableScipts,
 	let vectors = target.realVectors(usableThreads);
 	//Control Tacking
 	let successful = false;
-	let deployedScripts = 0;
+	let oldUsableScripts = usableScripts;
 
 	/** Deployment controls
 		* (W)GWHW from vectors
 		*/
 	// (W) threads
-	if (vectors.primeWeaken > 0) { //if we need to prime the strength
-		if (!macroDeploy(ns, drones, weakenFile, target.hostname, vectors.primeWeaken, 0 , cycleBatch)) {
+	if (vectors.primeWeaken > 0 && usableScripts> 0) { //if we need to prime the strength
+		let localResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.primeWeaken, 0 , cycleBatch)
+		if (!localResults.successful) {
 			logger(ns, 'WARNING: Could not deploy all Primary Weaken()s against ' + target.hostname);
 			successful = false;
 		} else {
 			successful = true;
+			usableScripts -= localResults.deployedScripts;
 			if (vectors.shouldPrimeStr) { //if deploying all of the primeWeaken threads should get the target to primed, set flag
 				target.isPrimedStr = true;
 			}
@@ -429,22 +431,26 @@ export function deployVectors(ns, target, drones, usableThreads, , usableScipts,
 	}// end of (W) threads
 
 	// GW threads
-	if (vectors.growThreads > 0 && (target.isPrimedStr) {//if we need to grow and target strength is primed
+	if (vectors.growThreads > 0 && (target.isPrimedStr && usableScripts > 0) {//if we need to grow and target strength is primed
 		//Deploy the growWeakens first
-		if (!macroDeploy(ns, drones, weakenFile, target.hostname, vectors.growWeakens, stageThreeDelay, cycleBatch)) {
+		let localResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.growWeakens, stageThreeDelay, cycleBatch)
+		if (!localResults.successful) {
 			logger(ns, 'WARNING: Could not deploy all growWeaken()s agianst ' + target.hostname);
 			successful = false;
 		} else {
 			successful = true:
+			usableScripts -= localResults.deployedScripts;
 		}
 
 		//Deploy the grows
-		if (vectors.growThreads > 0 && successful) {
-			if (!macroDeploy(ns, drones, growFile, target.hostname, vectors.growThreads, stageTwoDelay, cycleBatch)) {
+		localResults = macroDeploy(ns, drones, growFile, target.hostname, vectors.growThreads, stageTwoDelay, cycleBatch)
+		if (vectors.growThreads > 0 && successful && usableScripts > 0) {
+			if (!localResults.successful) {
 				logger(ns, 'WARNING: Could not deploy all Grow()s against ' + target.hostname);
 				successful = false;
 			} else {
 				successful = true;
+				usableScripts -= localResults.deployedScripts;
 				if (vectors.shouldPrimeMoney) { //if deploying all of the growThreads should get the target's money primed, set  flag
 					target.isPrimedMoney = true;
 				}
@@ -453,26 +459,30 @@ export function deployVectors(ns, target, drones, usableThreads, , usableScipts,
 	}//end of GW Threads
 
 	// HW threads
-	if (vectors.hackThreads > 0 && target.isPrimedMoney) {
+	if (vectors.hackThreads > 0 && target.isPrimedMoney && usableScripts) {
 		//deploy the hackWeakens first
-		if (!macroDeploy(ns, drones, weakenFile, target.hostname, vectors.hackWeakens, stageFiveDelay, cycleBatch)) {
+		let localResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.hackWeakens, stageFiveDelay, cycleBatch)
+		if (!localResults.successful) {
 			logger(ns, 'WARNING: Could not deploy all hackWeaken()s against ' + target.hostname);
 			successful = false;
 		} else {
 			successful = true;
+			usableScripts -= localResults.deployedScripts;
 		}
 
 		//Deploy the hacks
-		if (!macroDeploy(ns, drones, hackFile, target.hostname, vectors.hackThreads, stageFourDelay, cycleBatch)) {
+		localResults = macroDeploy(ns, drones, hackFile, target.hostname, vectors.hackThreads, stageFourDelay, cycleBatch)
+		if (!localResults.successful) {
 			logger(ns, 'WARNING: Could not deploy all Hack()s agianst ' + target.hostname);
 			successful = false;
 		} else {
 			successful = true;
+			usableScripts -= localResults.deployedScripts;
 		}
 	}
 	let results = {
 		successful: successful,
-		deployedScripts: deployedScripts,
+		deployedScripts: oldUsableScripts - usableScripts,
 	}
 	return results;
 }//end of deployVectors
