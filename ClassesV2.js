@@ -196,6 +196,10 @@ export class TargetServer extends InactiveTarget {
     return truncateNumber(this.moneyMax*this.takePercent/this.idealVectorsPerBatch/this.idealWeakenTime);
   }
 
+  realVectorsPerBatch(maxThreads) {
+    return realVectors(this.ns, this, maxThreads);
+  }
+
   toJSON() {
     return {
       hostname: this.hostname,
