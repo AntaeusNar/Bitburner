@@ -125,7 +125,6 @@ export async function main(ns) {
       }//end of iterive deployment handling
   }//end of main control loop
 
-  // TODO: deploy drone scripts on drones agianst targets
   // OPTIMIZE: check the deployments on home server and see if that reduces needed threads due to core upgrades (weakens and grows)
   // TODO: checks to reeval if new skill level or tools can access more targets/drones
   // TODO: add in the eval and purchase of persnal servers
