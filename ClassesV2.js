@@ -355,7 +355,7 @@ export class TargetServer extends InactiveTarget {
     } else if (reservedScripts >= maxScripts) {//Stop when out of Scripts
       logger(ns, 'INFO: Max Scripts limit reached, stopping take increase calc');
     } else if (indexOfTarget != 0 && oldTake < targets[i].takePercent && targets[i-1].takePercent < 1 - targets[i-1].percentPerSingleHack) { //Recure up if we adjusted the take and not on the best target
-      logger(ns, 'INFO: adjusted take, check previous Target.');
+      logger(ns, 'INFO: adjusted take, check previous Target(s).');
       indexOfTarget--;
       await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget, false);
     } else if (indexOfTarget + 1 >= targets.length) { //Stop when finished with last target fully adjusted and all others readjusted
