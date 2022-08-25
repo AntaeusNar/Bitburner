@@ -390,6 +390,8 @@ export function realVectors(ns, server, maxThreads) {
 	* @param {number} usableScripts - usable scripts
 	* @param {array} fileNames - files to be deployed
 	* @param {string} cycleBatch - cycle/batch # to pass as arg to deployed scripts
+	* @return {boolean} results.successful
+	* @return {number} results.deployedScripts
 	*/
 export function deployVectors(ns, target, drones, usableThreads, , usableScipts, fileNames, cycleBatch) {
 	/** Setup */
@@ -486,3 +488,44 @@ export function deployVectors(ns, target, drones, usableThreads, , usableScipts,
 	}
 	return results;
 }//end of deployVectors
+
+/** macroDeploy: deploys a single file against a single target on all drones until x threads have been deployed
+	* @param {NS} ns
+	* @param {array} drones
+	* @param {string} script
+	* @param {string} target - hostname
+	* @param {number} threads
+	* @param {number} waitTime
+	* @param {string} cycleBatch
+	* @return {boolean} results.successful
+	* @return {number} results.deployedScripts
+	*/
+export function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) {
+
+	//setup
+	let neededRam = ns.getScriptRam(script);
+	let successful = false;
+	let deployedScripts = 0;
+
+	//deploy loop
+	let i = 0;
+	while (!successful && i < drones.length) {
+		let currentDrone = drones[i];
+		let currentAvailableThreads = Math.floor(currentDrone.ramAvailable/neededRam);
+		let deployableThreads = Math.min(threads, currentAvailableThreads);
+		if (deployableThreads > 0) {
+			microDeploy(ns, currentDrone.hostname, script, target, deployableThreads, waitTime, cycleBatch);
+			threads -= deployableThreads;
+			deployedScripts += 1;
+			if (threads <= 0) {
+				successful = true;
+			}
+		}
+		i++;
+	}
+	let results = {
+		successful: successful,
+		deployedScripts: deployedScripts,
+	}
+	return results;
+}//end of macroDeploy
