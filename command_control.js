@@ -64,7 +64,7 @@ export async function main(ns) {
       ns.killall(drone.hostname);
     }
   }
-  
+
   //sorts
   inventory.targets.sort(function(a,b) {
     return b.basePriority - a.basePriority;
@@ -108,6 +108,8 @@ export async function main(ns) {
   //loop initalization
   let cycle = 1;
   let batch = 1;
+  let sleepTime = baseDelay;
+  let actualNumOfBatches = 0;
 
   //Main loop
   while (true) {
@@ -128,17 +130,41 @@ export async function main(ns) {
           logger(ns, 'WARNING: Vector deployment against' + currentTarget.hostname + ' failed, stopping deployments.');
           break;
         }
-        usableScripts -= results.deployedScripts;
 
+        /**Main Control Loop timing prep */
+        if (i == 0) {
+          let maxNumBatches = Math.min(usableThreads/results.totalVectors, usableScipts/4);
+          let actTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
+          sleepTime = Math.ceil(actTime);
+          actualNumOfBatches = Math.floor(results.batchTime/sleepTime);
+        }
+
+        /** Interive Loop Cleanup */
+        usableScripts -= actualNumOfBatches*results.deployedScripts;
+        usableThreads -= actualNumOfBatches*results.totalVectors;
+        i++;
+        await ns.sleep(1);
       }//end of iterive deployment handling
+
+      // TODO: checks to reeval if new skill level or tools can access more targets/drones
+      // TODO: add in the eval and purchase of persnal servers
+      // TODO: add in the purchase of additional home ram
+
+      // IDEA: look incorporating gang management and sleeve management
+      // IDEA: faction server backdooring
+      // IDEA: faction work management
+
+      /** Main Control Loop timing handling */
+      let waitTime = new Date(sleepTime).toISOString().substr(11,12);
+      logger(ns, 'INFO: Waiting: ' + waitTime + ' # of Batches in cycle: ' + actualNumOfBatches);
+      batch++;
+      if (batch >= actualNumOfBatches) {
+        cycle++;
+        batch = 1;
+      }
+
   }//end of main control loop
 
-	// TODO: checks to reeval if new skill level or tools can access more targets/drones
-  // TODO: add in the eval and purchase of persnal servers
-  // TODO: add in the purchase of additional home ram
 
-  // IDEA: look incorporating gang management and sleeve management
-  // IDEA: faction server backdooring
-  // IDEA: faction work management
 
 } //end of Main Program
