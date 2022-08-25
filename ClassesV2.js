@@ -189,9 +189,9 @@ export class TargetServer extends InactiveTarget {
   //gets/checks if target is/projected to be at min security
   get isPrimedStr() {
     if (this.ns.getServerSecurityLevel(this.hostname) == this.minDifficulty) {
-      this.#_isPrimedStr = true;
+      this._isPrimedStr = true;
     }
-    return this.#_isPrimedStr;
+    return this._isPrimedStr;
   }
 
   //sets isPrimedStr (should only come from realVectors and only when used to realworld delpoyment)

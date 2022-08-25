@@ -346,7 +346,7 @@ export function realVectors(ns, server, maxThreads) {
     //or if a dryrun
     if (maxThreads > 2 &&
 			(server.isPrimedMoney || vectors.shouldPrimeMoney) &&
-			(server.isPrimedStr || vectors.shouldPrimeStr) {
+			(server.isPrimedStr || vectors.shouldPrimeStr)) {
 
       //calc number of hack() threads needed to steal takePercent of server money
       let targetHackThreads = Math.ceil(server.takePercent/server.percentPerSingleHack);
@@ -393,7 +393,7 @@ export function realVectors(ns, server, maxThreads) {
 	* @return {boolean} results.successful
 	* @return {number} results.deployedScripts
 	*/
-export function deployVectors(ns, target, drones, usableThreads, , usableScipts, fileNames, cycleBatch) {
+export function deployVectors(ns, target, drones, usableThreads, usableScripts, fileNames, cycleBatch) {
 	/** Setup */
 	// OPTIMIZE: check the deployments on home server and see if that reduces needed threads due to core upgrades (weakens and grows)
 	//Files
@@ -434,14 +434,14 @@ export function deployVectors(ns, target, drones, usableThreads, , usableScipts,
 	}// end of (W) threads
 
 	// GW threads
-	if (vectors.growThreads > 0 && (target.isPrimedStr && usableScripts > 0) {//if we need to grow and target strength is primed
+	if (vectors.growThreads > 0 && (target.isPrimedStr && usableScripts > 0)) {//if we need to grow and target strength is primed
 		//Deploy the growWeakens first
 		let localResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.growWeakens, stageThreeDelay, cycleBatch)
 		if (!localResults.successful) {
 			logger(ns, 'WARNING: Could not deploy all growWeaken()s agianst ' + target.hostname);
 			successful = false;
 		} else {
-			successful = true:
+			successful = true;
 			usableScripts -= localResults.deployedScripts;
 		}
 
