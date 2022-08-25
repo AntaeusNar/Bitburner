@@ -114,7 +114,7 @@ export async function main(ns) {
   //Main loop
   while (true) {
     //logging
-    logger(ns, 'INFO: Cycle #: ' + cycle + ' Batch #: ' + batch);
+    logger(ns, 'INFO: Cycle #: ' + cycle + ' Batch #: ' + batch, 0);
 
     /** Interive deployment handling */
     let i = 0;
@@ -156,7 +156,7 @@ export async function main(ns) {
 
       /** Main Control Loop timing handling */
       let waitTime = new Date(sleepTime).toISOString().substr(11,12);
-      logger(ns, 'INFO: Waiting: ' + waitTime + ' # of Batches in cycle: ' + actualNumOfBatches);
+      logger(ns, 'INFO: Waiting: ' + waitTime + ' # of Batches in cycle: ' + actualNumOfBatches, 0);
       batch++;
       if (batch >= actualNumOfBatches) {
         cycle++;
