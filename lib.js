@@ -500,7 +500,7 @@ export function deployVectors(ns, target, drones, usableThreads, , usableScipts,
 	* @return {boolean} results.successful
 	* @return {number} results.deployedScripts
 	*/
-export function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) {
+function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) {
 
 	//setup
 	let neededRam = ns.getScriptRam(script);
@@ -529,3 +529,16 @@ export function macroDeploy(ns, drones, script, target, threads, waitTime, cycle
 	}
 	return results;
 }//end of macroDeploy
+
+/** microDeploy: deploys a single script on a single drone with x threads against a single target
+	* @param {NS} ns
+	* @param {string} drone - hostname
+	* @param {string} script
+	* @param {string} target - hostname
+	* @param {number} threads
+	* @param {number} waitTime
+	* @param {string} cycleBatch
+	*/
+function microDeploy(ns, drone, script, target, threads, waitTime, cycleBatch) {
+	ns.exec(script, drone, threads, target, waitTime, cycleBatch);
+}//end of microDeploy
