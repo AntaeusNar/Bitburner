@@ -147,6 +147,7 @@ export async function main(ns) {
         }
 
         //logging
+
         let reservedThreads = actualNumOfBatches*results.vectors.totalVectors;
         let reservedScripts = actualNumOfBatches*results.deployedScripts;
         let message = 'Target: ' + currentTarget.hostname + ' @ ' + currentTarget.takePercent*100 + '%' +
@@ -155,6 +156,10 @@ export async function main(ns) {
         logger(ns, message, 0);
 
         /** Interive Loop Cleanup */
+        // OPTIMIZE: if the current targets threads will complete before the cycle time (ei weaken is less then actual weaken)
+        // sort out how to adjust the number of reservedThreads to compinast.
+        // basicly some servers will use far less time to complete then the marching time.
+        //I don't think i can do that for scripts becuase my realworld limitation is ditacted by the number of completing scipts at a time (uses more then 3GB real would ram)
         usableScripts -= reservedScripts;
         usableThreads -= reservedThreads;
         i++;
