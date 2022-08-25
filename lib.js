@@ -486,6 +486,8 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 	let results = {
 		successful: successful,
 		deployedScripts: oldUsableScripts - usableScripts,
+		batchTime: weakenTime + stageFiveDelay,
+		totalVectors: vectors.totalVectors,
 	}
 	return results;
 }//end of deployVectors
