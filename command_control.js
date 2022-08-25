@@ -163,6 +163,9 @@ export async function main(ns) {
         logger(ns, 'INFO: Ran out of Scipts');
       }
 
+      // BUG: Seems to be deploying against fewer targets then anticipated
+      // BUG: Is deploying more scripts then limit
+
       // TODO: checks to reeval if new skill level or tools can access more targets/drones
       // TODO: add in the eval and purchase of persnal servers
       // TODO: add in the purchase of additional home ram
