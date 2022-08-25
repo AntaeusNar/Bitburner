@@ -116,6 +116,10 @@ export async function main(ns) {
         let currentTarget = inventory.targets[i];
         let cycleBatch = cycle + '/'+ batch;
         let deploySuccessful = deployVectors(ns, currentTarget, inventory.drones, usableThreads, usableScipts, fileNames, cycleBatch);
+        if (!deploySuccessful) {
+          logger(ns, 'WARNING: Vector deployment against' + currentTarget.hostname + ' failed, stopping deployments.');
+          break;
+        }
 
       }//end of iterive deployment handling
   }//end of main control loop
