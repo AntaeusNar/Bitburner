@@ -181,8 +181,8 @@ export class TargetServer extends InactiveTarget {
     */
   constructor(ns, hostname) {
     super(ns, hostname);
-    this._isPrimedStr = false,
-    this._isPrimedMoney = false,
+    this._isPrimedStr = false;
+    this._isPrimedMoney = false;
 
   }
 
