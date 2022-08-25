@@ -125,8 +125,7 @@ export async function main(ns) {
       }//end of iterive deployment handling
   }//end of main control loop
 
-  // OPTIMIZE: check the deployments on home server and see if that reduces needed threads due to core upgrades (weakens and grows)
-  // TODO: checks to reeval if new skill level or tools can access more targets/drones
+	// TODO: checks to reeval if new skill level or tools can access more targets/drones
   // TODO: add in the eval and purchase of persnal servers
   // TODO: add in the purchase of additional home ram
 

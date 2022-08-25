@@ -395,6 +395,7 @@ export function realVectors(ns, server, maxThreads) {
 	*/
 export function deployVectors(ns, target, drones, usableThreads, , usableScipts, fileNames, cycleBatch) {
 	/** Setup */
+	// OPTIMIZE: check the deployments on home server and see if that reduces needed threads due to core upgrades (weakens and grows)
 	//Files
 	let weakenFile = fileNames[0];
 	let growFile = fileNames[1];
