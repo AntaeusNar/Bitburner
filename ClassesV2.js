@@ -116,7 +116,6 @@ export class InactiveTarget {
     return evalWeakenTime(this, this.ns.getPlayer());
   }
 
-  //EVAL ONLY: returns best case.
   get idealVectorsPerBatch() {
     let realTake = this._takePercent;
     this._takePercent = this.percentPerSingleHack;
