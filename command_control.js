@@ -137,17 +137,17 @@ export async function main(ns) {
         /**Main Control Loop timing prep */
         if (i == 0) {
           let maxNumBatches = Math.min(usableThreads/results.vectors.totalVectors, usableScripts/4);
-          let actTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
-          sleepTime = Math.ceil(actTime);
-          actualNumOfBatches = Math.floor(results.batchTime/sleepTime);
+          let theoryTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
+          actualNumOfBatches = Math.floor(results.batchTime/theory);
+          sleepTime = Math.ceil(results.batchTime/actualNumOfBatches);
         }
 
         //logging
         reservedThreads = actualNumOfBatches*results.vectors.totalVectors;
-        reserveScripts = actualNumOfBatches*results.deployedScripts;
-        let message = 'Target: ' currentTarget.hostname + ' @ ' currentTarget.takePercent*100 + '%' +
+        reservedScripts = actualNumOfBatches*results.deployedScripts;
+        let message = 'Target: ' + currentTarget.hostname + ' @ ' + currentTarget.takePercent*100 + '%' +
           ' Hacks/Vectos/Reserve/Usable Threads: ' + results.vectors.hackThreads + '/' + results.vectors.totalVectors+ '/' + reservedThreads + '/' + usableThreads +
-          ' Reserve/Usable Scripts: ' + reserveScripts + '/' + usableScripts);
+          ' Reserve/Usable Scripts: ' + reservedScripts + '/' + usableScripts;
         logger(ns, message, 0);
 
         /** Interive Loop Cleanup */
@@ -156,6 +156,12 @@ export async function main(ns) {
         i++;
         await ns.sleep(1);
       }//end of iterive deployment handling
+
+      if ( usableThreads <= 0) {
+        logger(ns, 'INFO: Ran out of threads.');
+      } else if (usableScripts <= 0) {
+        logger(ns, 'INFO: Ran out of Scipts');
+      }
 
       // TODO: checks to reeval if new skill level or tools can access more targets/drones
       // TODO: add in the eval and purchase of persnal servers
