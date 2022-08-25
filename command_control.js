@@ -52,15 +52,19 @@ export async function main(ns) {
     }
     if (ns.getServerMaxRam(serverhostname) > 0 && getRoot(ns, serverhostname) || serverhostname == 'home') {
       inventory.drones.push(serverFactory.create(ns, serverhostname, 'Drone', neededRam));
-      if(drone.hostname != 'home') {
-        await ns.scp(files, 'home', drone.hostname);
-        ns.killall(drone.hostname);
-      };
     } else if (ns.getServerMaxRam(serverhostname) > 0) {
       inventory.inactiveDrones.push(serverFactory.create(ns, serverhostname, 'InactiveDrone', neededRam));
     }
   }
 
+  //additional drone prep
+  for (let drone in inventory.drones) {
+    if(drone.hostname != 'home'){
+      await ns.scp(files, 'home', drone.hostname);
+      ns.killall(drone.hostname);
+    }
+  }
+  
   //sorts
   inventory.targets.sort(function(a,b) {
     return b.basePriority - a.basePriority;
