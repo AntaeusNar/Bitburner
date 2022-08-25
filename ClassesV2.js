@@ -222,6 +222,14 @@ export class TargetServer extends InactiveTarget {
     return truncateNumber(this.moneyMax*this.takePercent/this.idealVectorsPerBatch/this.idealWeakenTime);
   }
 
+  get batchTime() {
+    this.evalHackingTime*4+baseDelay*5;
+  }
+  
+  get cycleThreads() {
+    this.batchesPerCycle*this.batchTime/baseDelay;
+  }
+
   init() {
     logger(this.ns, 'Initialized TargetServer ' + this.hostname, 0);
     this.isHackable;
@@ -255,6 +263,7 @@ export class TargetServer extends InactiveTarget {
       adjustedPriority: this.adjustedPriority,
       isPrimedStr: this.isPrimedStr,
       isPrimedMoney: this.isPrimedMoney,
+      cylceThreads: this.cycleThreads,
     }
   }
 
