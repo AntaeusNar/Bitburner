@@ -406,7 +406,7 @@ export function deployVectors(ns, target, drones, maxThreads, fileNames, cycleBa
 	let stageFourDelay = baseDelay * 3 + weakenTime - hackTime;
 	let stageFiveDelay = baseDelay * 4;
 	//Vectors
-	let vectors = realVectors(ns, target, maxThreads, false);
+	let vectors = target.realVectors(maxThreads);
 	//Control Tacking
 	let successful = false;
 	/** Deployment Control

@@ -114,7 +114,6 @@ export async function main(ns) {
       usableThreads > 0 &&
       usableScripts > 0) {
         let currentTarget = inventory.targets[i];
-        let vectors = currentTarget.realVectorsPerBatch(usableThreads);
         let cycleBatch = cycle + '/'+ batch;
 
       }//end of iterive deployment handling
