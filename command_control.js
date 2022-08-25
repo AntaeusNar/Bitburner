@@ -102,6 +102,10 @@ export async function main(ns) {
   await TargetServer.adjustTake(ns, inventory.targets, estThreads);
   await fileDump(ns, inventory, 'adjusteddump.txt');
 
+  if (ns.args[0]) {
+    logger(ns, 'WARNING: Requested test run only, exiting');
+    throw '';
+  }
   /** Main Control loop
     * Deploy drone scripts on drones against targets
     */
