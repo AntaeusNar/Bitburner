@@ -92,6 +92,11 @@ export class InactiveTarget {
     this._takePercent = .001;
   }
 
+  //gets current available money
+  get moneyAvailable() {
+    return this.ns.getServerMoneyAvailable(this.hostname);
+  }
+
   get isHackable() {
     if (!this._isHackable) {
       if (this.hasAdminRights && this.requiredHackingSkill <= this.ns.getHackingLevel()){
@@ -176,14 +181,35 @@ export class TargetServer extends InactiveTarget {
     */
   constructor(ns, hostname) {
     super(ns, hostname);
+    this._isPrimedStr = false,
+    this._isPrimedMoney = false,
+
   }
 
-  init() {
-    logger(this.ns, 'Initialized TargetServer ' + this.hostname, 0);
-    this.isHackable;
-    this._takePercent = this.percentPerSingleHack;
-    this.betterThanNext = 1;
-    this.betterThanLast = 1;
+  //gets/checks if target is/projected to be at min security
+  get isPrimedStr() {
+    if (this.ns.getServerSecurityLevel(this.hostname) == this.minDifficulty) {
+      this.#_isPrimedStr = true;
+    }
+    return this.#_isPrimedStr;
+  }
+
+  //sets isPrimedStr (should only come from realVectors and only when used to realworld delpoyment)
+  set isPrimedStr(boolean) {
+    this._isPrimedStr = boolean;
+  }
+
+  //gets/checks if target is/projected to be at max money
+  get isPrimedMoney() {
+    if (this.moneyMax == this.moneyAvailable) {
+      this._isPrimedMoney = true;
+    }
+    return this._isPrimedMoney;
+  }
+
+  //sets isPrimedMoney (should only come from realVectors and only when used to realworld deploment)
+  set isPrimedMoney(boolean) {
+    this._isPrimedMoney = boolean;
   }
 
   //returns ideal vectors at actual take
@@ -194,6 +220,16 @@ export class TargetServer extends InactiveTarget {
   //$/threads/sec at take and ideal conditions
   get adjustedPriority() {
     return truncateNumber(this.moneyMax*this.takePercent/this.idealVectorsPerBatch/this.idealWeakenTime);
+  }
+
+  init() {
+    logger(this.ns, 'Initialized TargetServer ' + this.hostname, 0);
+    this.isHackable;
+    this._takePercent = this.percentPerSingleHack;
+    this.betterThanNext = 1;
+    this.betterThanLast = 1;
+    this.isPrimedStr;
+    this.isPrimedMoney;
   }
 
   realVectorsPerBatch(maxThreads) {
@@ -217,6 +253,8 @@ export class TargetServer extends InactiveTarget {
       betterThanNext: this.betterThanNext,
       betterThanLast: this.betterThanLast,
       adjustedPriority: this.adjustedPriority,
+      isPrimedStr: this.isPrimedStr,
+      isPrimedMoney: this.isPrimedMoney,
     }
   }
 
