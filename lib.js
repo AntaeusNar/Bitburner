@@ -264,6 +264,7 @@ export function evalWeakenTime(server, player) {
   * @returns {Vectors} calculated attack vectors
   */
 /** only used for real world deployment */
+// TODO: incorport using formulas.exe to get more actrite numbers
 export function realVectors(ns, server, maxThreads) {
 
   //setup
