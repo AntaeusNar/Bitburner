@@ -260,12 +260,11 @@ export function evalWeakenTime(server, player) {
 /** realVectors: calculates the number of (W)GWHW threads
   * @param {NS} ns
   * @param {Object} server - server class object
-  * @param {number} [maxThreads=Infinity] - max number of available threads
-  * @param {boolean} [dryrun=true]
+  * @param {number} maxThreads - max number of available threads
   * @returns {Vectors} calculated attack vectors
   */
-/** used 3 times, first dry run to get initial ratio, second dry run to increase take, thrid for real world deployments */
-export function realVectors(ns, server, maxThreads = Infinity, dryrun=true) {
+/** only used for real world deployment */
+export function realVectors(ns, server, maxThreads) {
 
   //setup
   const weakenRate = .05;
@@ -278,17 +277,18 @@ export function realVectors(ns, server, maxThreads = Infinity, dryrun=true) {
     hackThreads: 0,
     hackWeakens: 0,
 		totalVectors: 0,
+		shouldPrimeStr: false,
+		shouldPrimeMoney: false,
   }
 
-  //Primary Weaken: only done on !dryrun and if !isPrimedStr
-  if(!server.isPrimedStr && !dryrun) {
+  //Primary Weaken: only done if !isPrimedStr
+  if(!server.isPrimedStr) {
     let currentDifficulty = ns.getServerSecurityLevel(server.hostname); //get current security level
     let targetPrimeWeakens = Math.ceil((currentDifficulty - server.minDifficulty)/weakenRate); //calc totale needed weaken threads
     vectors.primeWeaken = Math.min(targetPrimeWeakens, maxThreads); //stay inside available threads
     vectors.totalVectors = vectors.primeWeaken; //update total vectors
     maxThreads -= vectors.totalVectors; //reduce maxThreads
-		// TODO: move this isPrimedStr set to only when deployment works
-    if (vectors.primeWeaken == targetPrimeWeakens && !dryrun) {server.isPrimedStr = true;} //setting the isPrimedStr flag to true
+    if (vectors.primeWeaken == targetPrimeWeakens && !dryrun) {vectors.shouldPrimeStr = true;} //setting the isPrimedStr flag to true
   }
 
   //continue if there is a min of 4 threads (one each for GWHW)
@@ -302,7 +302,7 @@ export function realVectors(ns, server, maxThreads = Infinity, dryrun=true) {
     let growBypass = false;
 
     //Calc growthMultiplier
-    if (dryrun || server.isPrimedMoney) { //on dryrun or isPrimedMoney get min growth
+    if (server.isPrimedMoney) { //on isPrimedMoney get min growth
 			//includes handleing for all money gone.
       growthMultiplier = server.moneyMax/Math.max(1, (server.moneyMax * (1 - server.takePercent)));
     } else { //get needed growth
@@ -335,16 +335,17 @@ export function realVectors(ns, server, maxThreads = Infinity, dryrun=true) {
 
     if (!server.isPrimedMoney && !growBypass &&
       vectors.growThreads == targetGrowThreads &&
-			vectors.growWeakens == targetgrowWeakens &&
-			!dryrun) {
+			vectors.growWeakens == targetgrowWeakens) {
 				// TODO: should be moved to completed deployments
-				server.isPrimedMoney = true; //set the isPrimedMoney flag if was false, not bypassed & needed threads are allocated
+				vectors.shouldPrimeMoney = true; //set the isPrimedMoney flag if was false, not bypassed & needed threads are allocated
     }
 
     //Calc hack() and matching weaken()
     //continue if there is a min of 2 threads (one each for HW) && target server is fully primed
     //or if a dryrun
-    if (dryrun || (maxThreads > 2 && server.isPrimedMoney && server.isPrimedStr)) {
+    if (maxThreads > 2 &&
+			(server.isPrimedMoney || vectors.shouldPrimeMoney) &&
+			(server.isPrimedStr || vectors.shouldPrimeStr) {
 
       //calc number of hack() threads needed to steal takePercent of server money
       let targetHackThreads = Math.ceil(server.takePercent/server.percentPerSingleHack);
