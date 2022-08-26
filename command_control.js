@@ -159,7 +159,7 @@ export async function main(ns) {
 
         /**Main Control Loop timing prep */
         if (i == 0) {
-          let maxNumBatches = Math.min(estThreads/results.vectors.totalVectors, maxScripts/4);
+          let maxNumBatches = Math.max(1, Math.min(estThreads/results.vectors.totalVectors, maxScripts/4));
           let theoryTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
           actualNumOfBatches = Math.floor(results.batchTime/theoryTime);
           sleepTime = Math.ceil(results.batchTime/actualNumOfBatches);
