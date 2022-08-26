@@ -184,19 +184,27 @@ export async function main(ns) {
         logger(ns, 'INFO: Ran out of Scipts', 0);
       }
 
-      // BUG: cycles number of deployed script up over 1.4x limit, then down to 1/2 limit, then back up again
-      // Income matches cycle
-      // BUG: claims to run out of threads, but is using about 1/3 of max -> maybe due to running out of scripts, which happens alot.
-      // BUG: seems to be producing 1/2ish of c_cv3.js
-
-      // TODO: checks to reeval if new skill level or tools can access more targets/drones
-      // TODO: add in the eval and purchase of persnal servers
-      // TODO: add in the purchase of additional home ram
       // TODO: switch everything around when just needing to gain exp.
 
       // IDEA: look incorporating gang management and sleeve management
       // IDEA: faction server backdooring
       // IDEA: faction work management
+
+      /**Upgrade Control Sectio */
+      // TODO: checks to reeval if new skill level or tools can access more targets/drones
+      // TODO: add in the eval and purchase of persnal servers
+      let setReSpawn = false;
+      if (ns.singularity.upgradeHomeRam()) {
+        setReSpawn = true;
+      }
+
+      //respawn self
+      if (setReSpawn){
+        //kill all controled scripts
+        pids.forEach(pid => ns.kill(pid));
+        //respawn self
+        ns.spawn('command_control.js');
+      }
 
       /** Main Control Loop timing handling */
       let waitTime = new Date(sleepTime).toISOString().substr(11,12);
