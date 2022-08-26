@@ -432,9 +432,9 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		* (W)GWHW from vectors
 		*/
 	// (W) threads
-	if (vectors.primeWeaken > 0 && usableScripts> 0) { //if we need to prime the strength
-		let localResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.primeWeaken, 0 , cycleBatch)
-		if (!localResults.successful) {
+	if (vectors.primeWeaken > 0 && usableScripts > 0) { //if we need to prime the strength
+		let pwlocalResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.primeWeaken, 0 , cycleBatch)
+		if (!pwlocalResults.successful) {
 			logger(ns, 'WARNING: Could not deploy all Primary Weaken()s against ' + target.hostname, 0);
 			successful = false;
 		} else {
@@ -443,27 +443,27 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 				target.isPrimedStr = true;
 			}
 		}
-		usableScripts -= localResults.deployedScripts;
-		pids.push(...localResults.pids);
+		usableScripts -= pwlocalResults.deployedScripts;
+		pids.push(...pwlocalResults.pids);
 	}// end of (W) threads
 
 	// GW threads
 	if (vectors.growThreads > 0 && (target.isPrimedStr && usableScripts > 0)) {//if we need to grow and target strength is primed
 		//Deploy the growWeakens first
-		let localResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.growWeakens, stageThreeDelay, cycleBatch)
-		if (!localResults.successful) {
+		let gwlocalResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.growWeakens, stageThreeDelay, cycleBatch)
+		if (!gwlocalResults.successful) {
 			logger(ns, 'WARNING: Could not deploy all growWeaken()s agianst ' + target.hostname, 0);
 			successful = false;
 		} else {
 			successful = true;
 		}
-		usableScripts -= localResults.deployedScripts;
-		pids.push(...localResults.pids);
+		usableScripts -= gwlocalResults.deployedScripts;
+		pids.push(...gwlocalResults.pids);
 
 		//Deploy the grows
-		localResults = macroDeploy(ns, drones, growFile, target.hostname, vectors.growThreads, stageTwoDelay, cycleBatch)
+		let glocalResults = macroDeploy(ns, drones, growFile, target.hostname, vectors.growThreads, stageTwoDelay, cycleBatch)
 		if (vectors.growThreads > 0 && successful && usableScripts > 0) {
-			if (!localResults.successful) {
+			if (!glocalResults.successful) {
 				logger(ns, 'WARNING: Could not deploy all Grow()s against ' + target.hostname, 0);
 				successful = false;
 			} else {
@@ -473,34 +473,34 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 					target.isPrimedMoney = true;
 				}
 			}
-			usableScripts -= localResults.deployedScripts;
-			pids.push(...localResults.pids);
+			usableScripts -= glocalResults.deployedScripts;
+			pids.push(...glocalResults.pids);
 		}
 	}//end of GW Threads
 
 	// HW threads
 	if (vectors.hackThreads > 0 && target.isPrimedMoney && usableScripts) {
 		//deploy the hackWeakens first
-		let localResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.hackWeakens, stageFiveDelay, cycleBatch)
-		if (!localResults.successful) {
+		let hwlocalResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.hackWeakens, stageFiveDelay, cycleBatch)
+		if (!hwlocalResults.successful) {
 			logger(ns, 'WARNING: Could not deploy all hackWeaken()s against ' + target.hostname, 0);
 			successful = false;
 		} else {
 			successful = true;
 		}
-		usableScripts -= localResults.deployedScripts;
-		pids.push(...localResults.pids);
+		usableScripts -= hwlocalResults.deployedScripts;
+		pids.push(...hwlocalResults.pids);
 
 		//Deploy the hacks
-		localResults = macroDeploy(ns, drones, hackFile, target.hostname, vectors.hackThreads, stageFourDelay, cycleBatch)
-		if (!localResults.successful) {
+		let hlocalResults = macroDeploy(ns, drones, hackFile, target.hostname, vectors.hackThreads, stageFourDelay, cycleBatch)
+		if (!hlocalResults.successful) {
 			logger(ns, 'WARNING: Could not deploy all Hack()s agianst ' + target.hostname, 0);
 			successful = false;
 		} else {
 			successful = true;
 		}
-		usableScripts -= localResults.deployedScripts;
-		pids.push(...localResults.pids);
+		usableScripts -= hlocalResults.deployedScripts;
+		pids.push(...hlocalResults.pids);
 	}
 
 	//Error handling
@@ -544,6 +544,7 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
 	let neededRam = ns.getScriptRam(script);
 	let successful = false;
 	let deployedScripts = 0;
+	let plannedThreads = threads
 
 	//deploy loop
 	let i = 0;
@@ -553,8 +554,9 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
 		let currentAvailableThreads = Math.floor(currentDrone.ramAvailable/neededRam);
 		let deployableThreads = Math.min(threads, currentAvailableThreads);
 		if (deployableThreads > 0) {
-			pids.push(microDeploy(ns, currentDrone.hostname, script, target, deployableThreads, waitTime, cycleBatch));
-			if (pids[i] > 0) {
+			let result = microDeploy(ns, currentDrone.hostname, script, target, deployableThreads, waitTime, cycleBatch);
+			if (result > 0) {
+				pids.push(result)
 				threads -= deployableThreads;
 				deployedScripts += 1;
 				if (threads <= 0) {
@@ -563,6 +565,16 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
 			}
 		}
 		i++;
+	}
+	//Error handling
+	if (pids.length != deployedScripts) {
+		throw new Error('PIDs vs deployedScripts mismatch: Expected ' + deployedScripts + ' got ' + pids.length + ' agianst ' + target);
+	}
+
+	let deployedThreads = 0;
+	pids.forEach(pid => deployedThreads += ns.getRunningScript(pid).threads)
+	if (deployedThreads > plannedThreads) {
+		throw new Error('Deployed more Threads than expected: ' + plannedThreads + ' vs ' + deployedThreads + ' against ' + target);
 	}
 	let results = {
 		successful: successful,
