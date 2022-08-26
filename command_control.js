@@ -190,7 +190,7 @@ export async function main(ns) {
       // IDEA: faction server backdooring
       // IDEA: faction work management
 
-      /**Upgrade Control Sectio */
+      /**Upgrade Control Section */
       // TODO: checks to reeval if new skill level or tools can access more targets/drones
       // TODO: add in the eval and purchase of persnal servers
       let setReSpawn = false;
