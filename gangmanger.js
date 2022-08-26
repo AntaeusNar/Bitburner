@@ -7,16 +7,18 @@ import {logger} from 'lib.js';
 function tryToAscend(ns, memberName) {
   let result = false;
 	let ascended = ns.gang.getAscensionResult(memberName);
-  if (ascended.str > 2 ||
-      ascended.agi > 2 ||
-      ascended.def > 2 ||
-      ascended.dex > 2 ||) {
-        result = true;
-    }
-    if (result) {
-			ns.gang.ascendMember(memberName);
-			logger(ns, 'INFO: Ascended ' + memberName, 0);
-		}
+  if (ascended) {
+    if (ascended.str > 2 ||
+        ascended.agi > 2 ||
+        ascended.def > 2 ||
+        ascended.dex > 2) {
+          result = true;
+      }
+  }
+  if (result) {
+		ns.gang.ascendMember(memberName);
+		logger(ns, 'INFO: Ascended ' + memberName, 0);
+	}
 }
 
 /** @param {NS} ns */
@@ -92,7 +94,7 @@ export async function main(ns) {
     }
 
     //Wanted Level
-    if (gangInfo.wantedLevel < .5 && gangInfo.wantedLevel > 2) {
+    if (gangInfo.wantedPenalty < .5 && gangInfo.wantedLevel > 2) {
       vigJust = true;
       logger(ns, 'INFO: Reducing Wanted Level!', 0);
     } else if (vigJust && (gangInfo.wantedPenalty > .9 || gangInfo.wantedLevel < 2)) {
