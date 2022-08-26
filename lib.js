@@ -359,7 +359,7 @@ export function realVectors(ns, server, maxThreads) {
       if (targetHackThreads + targethackWeakens > maxThreads) {
         logger(ns, 'WARNING: Scaling down the hack threads for ' + server.hostname);
         //Math says that for every 25 hack()s you need 1 weaken() => groups of 26
-        numGroups = Math.floor(maxThreads/26);
+        let numGroups = Math.floor(maxThreads/26);
         targetHackThreads = numGroups*25;
         targethackWeakens = numGroups;
       }
@@ -431,12 +431,12 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 			successful = false;
 		} else {
 			successful = true;
-			usableScripts -= localResults.deployedScripts;
-			pids.push(...localResults.pids);
 			if (vectors.shouldPrimeStr) { //if deploying all of the primeWeaken threads should get the target to primed, set flag
 				target.isPrimedStr = true;
 			}
 		}
+		usableScripts -= localResults.deployedScripts;
+		pids.push(...localResults.pids);
 	}// end of (W) threads
 
 	// GW threads
@@ -448,9 +448,9 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 			successful = false;
 		} else {
 			successful = true;
-			usableScripts -= localResults.deployedScripts;
-			pids.push(...localResults.pids);
 		}
+		usableScripts -= localResults.deployedScripts;
+		pids.push(...localResults.pids);
 
 		//Deploy the grows
 		localResults = macroDeploy(ns, drones, growFile, target.hostname, vectors.growThreads, stageTwoDelay, cycleBatch)
@@ -460,12 +460,13 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 				successful = false;
 			} else {
 				successful = true;
-				usableScripts -= localResults.deployedScripts;
-				pids.push(...localResults.pids);
+
 				if (vectors.shouldPrimeMoney) { //if deploying all of the growThreads should get the target's money primed, set  flag
 					target.isPrimedMoney = true;
 				}
 			}
+			usableScripts -= localResults.deployedScripts;
+			pids.push(...localResults.pids);
 		}
 	}//end of GW Threads
 
@@ -478,9 +479,9 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 			successful = false;
 		} else {
 			successful = true;
-			usableScripts -= localResults.deployedScripts;
-			pids.push(...localResults.pids);
 		}
+		usableScripts -= localResults.deployedScripts;
+		pids.push(...localResults.pids);
 
 		//Deploy the hacks
 		localResults = macroDeploy(ns, drones, hackFile, target.hostname, vectors.hackThreads, stageFourDelay, cycleBatch)
@@ -489,14 +490,24 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 			successful = false;
 		} else {
 			successful = true;
-			usableScripts -= localResults.deployedScripts;
-			pids.push(...localResults.pids);
 		}
+		usableScripts -= localResults.deployedScripts;
+		pids.push(...localResults.pids);
 	}
 
+	//Error handling
 	if (pids.includes(0)) {
-		throw new Error('Ended up with a 0 for a pid in deployVectors trying to deploy ' + vectors.totalVectors + ' vectors against + ' target.hostname);
+		throw new Error('Ended up with a 0 for a pid in deployVectors trying to deploy ' + vectors.totalVectors + ' vectors against ' + target.hostname);
 	}
+
+	let deployedThreads = 0;
+	pids.forEach(pid => deployedThreads += ns.getRunningScript(pid).threads)
+	if (deployedThreads != vectors.totalVectors) {
+		throw new Error('Deployed Threads and Total Vectors mismatched.  Expected ' + vectors.totalVectors + ' got ' + deployedThreads + ' vs ' + target.hostname);
+	}
+
+
+	//results
 	let results = {
 		successful: successful,
 		deployedScripts: oldUsableScripts - usableScripts,

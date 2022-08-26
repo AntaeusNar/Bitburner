@@ -58,7 +58,7 @@ export async function main(ns) {
   }
 
   //additional drone prep
-  for (let drone in inventory.drones) {
+  for (let drone of inventory.drones) {
     if(drone.hostname != 'home'){
       await ns.scp(files, drone.hostname, 'home');
       ns.killall(drone.hostname);
@@ -123,9 +123,9 @@ export async function main(ns) {
     /** PID/Scripts/Threads Control Section */
     pids = pids.filter(pid => ns.getRunningScript(pid) != null);
     let activePids = pids.length;
-    let usableScipts = Math.max(maxScripts - activePids, 0);
+    let usableScripts = Math.max(maxScripts - activePids, 0);
     let activeThreads = 0;
-    pids.forEach(pid => activeThreads += ns.getRunningScript(pids).threads);
+    pids.forEach(pid => activeThreads += ns.getRunningScript(pid).threads);
     let usableThreads = Math.max(estThreads - activeThreads, 0);
 
     //logging
@@ -144,14 +144,14 @@ export async function main(ns) {
         let cycleBatch = cycle + '/'+ batch;
         let results = deployVectors(ns, currentTarget, inventory.drones, usableThreads, usableScripts, files, cycleBatch);
         if (!results.successful) {
-          logger(ns, 'WARNING: Vector deployment against' + currentTarget.hostname + ' failed, stopping deployments.');
+          logger(ns, 'WARNING: Vector deployment against ' + currentTarget.hostname + ' failed, stopping deployments.');
           break;
         } else {
           //PIDS/Scripts/Threads update
           let newPids = results.pids;
           let newScripts = results.pids.length;
           let newThreads = 0;
-          newPids.forEach(pid => newThreads += ns.getRunningScript(pids).threads);
+          newPids.forEach(pid => newThreads += ns.getRunningScript(pid).threads);
           usableScripts -= newScripts;
           usableThreads -= newThreads;
           pids.push(...newPids);
@@ -167,7 +167,7 @@ export async function main(ns) {
 
         //logging
         let message = 'Target: ' + currentTarget.hostname + ' @ ' + currentTarget.takePercent*100 + '%' +
-          ' Hacks/Vectors/Usable Threads: ' + results.vectors.hackThreads + '/' + results.vectors.totalVectors+ '/' + reservedThreads + '/' + usableThreads +
+          ' Hacks/Vectors/Usable Threads: ' + results.vectors.hackThreads + '/' + results.vectors.totalVectors+ '/' + usableThreads +
           ' Usable Scripts: ' + usableScripts;
         logger(ns, message, 0);
 
@@ -176,7 +176,7 @@ export async function main(ns) {
         await ns.sleep(1);
       }//end of iterive deployment handling
 
-      if ( usableThreads <= 0) {
+      if (usableThreads <= 0) {
         logger(ns, 'INFO: Ran out of threads.', 0);
       } else if (usableScripts <= 0) {
         logger(ns, 'INFO: Ran out of Scipts', 0);
@@ -204,6 +204,6 @@ export async function main(ns) {
         cycle++;
         batch = 1;
       }
-      ns.sleep(sleepTime);
+      await ns.sleep(sleepTime);
   }//end of main control loop
 } //end of Main Program
