@@ -9,7 +9,6 @@ function tryToAscend(ns, memberName) {
 	let ascended = ns.gang.getAscensionResult(memberName);
   if (ascended.str > 2 ||
       ascended.agi > 2 ||
-      ascended.cha > 2 ||
       ascended.def > 2 ||
       ascended.dex > 2 ||) {
         result = true;
