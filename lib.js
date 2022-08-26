@@ -318,7 +318,7 @@ export function realVectors(ns, server, maxThreads) {
 
     //adjusting the grow() + weaken() count to inside the maxThreads limit if needed
     if (targetGrowThreads + targetgrowWeakens > maxThreads) {
-      logger(ns, 'WARNING: Scaling down the growth threads for '+ server.hostname);
+      logger(ns, 'WARNING: Scaling down the growth threads for '+ server.hostname, 0);
       //Math says that for every 25 grow()s you need 2 weaken()s => groups of 27
       let numGroups = Math.floor(maxThreads/27);
       targetGrowThreads = numGroups*25;
@@ -357,7 +357,7 @@ export function realVectors(ns, server, maxThreads) {
 
       //adjust the hack()s + weaken()s count to inside the maxThreads limit if needed
       if (targetHackThreads + targethackWeakens > maxThreads) {
-        logger(ns, 'WARNING: Scaling down the hack threads for ' + server.hostname);
+        logger(ns, 'WARNING: Scaling down the hack threads for ' + server.hostname, 0);
         //Math says that for every 25 hack()s you need 1 weaken() => groups of 26
         let numGroups = Math.floor(maxThreads/26);
         targetHackThreads = numGroups*25;
@@ -389,7 +389,7 @@ export function realVectors(ns, server, maxThreads) {
 	if ( count != vectors.totalVectors) {
 		throw new Error(server.hostname + ' has a vector count mismatch. Counted ' + count + ' totalVectors: ' + vectors.totalVectors);
 	}
-	
+
   return vectors;
 }// end of realVectors
 
