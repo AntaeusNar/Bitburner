@@ -1,5 +1,12 @@
-function readyToAscend(ns, member, ascended) {
+import {logger} from 'lib.js';
+
+/** attempts to ascend member
+	* @param {NS} ns
+	* @param {string} getMember
+	*/
+function tryToAscend(ns, memberName) {
   let result = false;
+	let ascended = ns.gang.getAscensionResult(memberName);
   if (ascended.str > 2 ||
       ascended.agi > 2 ||
       ascended.cha > 2 ||
@@ -7,8 +14,11 @@ function readyToAscend(ns, member, ascended) {
       ascended.dex > 2 ||
       ascended.hack > 2) {
         result = true;
-      }
-      return result;
+    }
+    if (result) {
+			ns.gang.ascendMember(memberName);
+			logger(ns, 'INFO: Ascended ' + memberName, 0);
+		}
 }
 
 /** @param {NS} ns */
@@ -60,11 +70,7 @@ export async function main(ns) {
       let memberInfo = ns.gang.getMemberInformation(member);
 
       //possible ascention
-      let ascentionInfo = ns.gang.getAscensionResult(member);
-      if (ascentionInfo != undefined && readyToAscend(ns, memberInfo, ascentionInfo)) {
-        ns.gang.ascendMember(member);
-        ns.print("Ascending " + member);
-      }
+      tryToAscend(ns, member);
 
       //purchase equipment
       let memberEquipment = memberInfo.upgrades;
