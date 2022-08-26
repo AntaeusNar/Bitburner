@@ -191,12 +191,20 @@ export async function main(ns) {
       // IDEA: faction work management
 
       /**Upgrade Control Section */
-      // TODO: checks to reeval if new skill level or tools can access more targets/drones
+      // TODO: try to purchase new tools if needed.
       // TODO: add in the eval and purchase of persnal servers
       let setReSpawn = false;
       if (ns.singularity.upgradeHomeRam()) {
         setReSpawn = true;
-        logger(ns, 'INFO: Upgraded Home Ram, requesting respawn')
+        logger(ns, 'INFO: Upgraded Home Ram, requesting respawn,')
+      }
+      if (inventory.inactiveDrones[0].hasAdminRights) {
+        setReSpawn = true;
+        logger(ns, 'INFO: New Drone Available, requesting respawn.')
+      }
+      if (inventory.inactiveTargets[0].hasAdminRights && inventory.inactiveTargets[0].requiredHackingSkill <= ns.getHackingLevel()){
+        setReSpawn = true;
+        logger(ns, 'INFO: New Drone Available, requesting respawn.')
       }
 
       //respawn self
