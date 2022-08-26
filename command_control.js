@@ -196,10 +196,12 @@ export async function main(ns) {
       let setReSpawn = false;
       if (ns.singularity.upgradeHomeRam()) {
         setReSpawn = true;
+        logger(ns, 'INFO: Upgraded Home Ram, requesting respawn')
       }
 
       //respawn self
       if (setReSpawn){
+        logger(ns, 'INFO: Respawn Requested, killing controlled scripts and respawning, please standby...')
         //kill all controled scripts
         pids.forEach(pid => ns.kill(pid));
         //respawn self
