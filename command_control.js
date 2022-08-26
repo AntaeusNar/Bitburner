@@ -168,8 +168,8 @@ export async function main(ns) {
 
         //logging
         let message = 'Target: ' + currentTarget.hostname + ' @ ' + currentTarget.takePercent*100 + '%' +
-          ' Hacks/Vectors/Usable Threads: ' + results.vectors.hackThreads + '/' + results.vectors.totalVectors+ '/' + usableThreads +
-          ' Usable Scripts: ' + usableScripts;
+          ' Hacks/Vectors/Remaining Threads: ' + results.vectors.hackThreads + '/' + results.vectors.totalVectors+ '/' + usableThreads +
+          ' Remaining Scripts: ' + usableScripts;
         logger(ns, message, 0);
 
         /** Interive Loop Cleanup */
