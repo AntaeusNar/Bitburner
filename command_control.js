@@ -60,7 +60,7 @@ export async function main(ns) {
   //additional drone prep
   for (let drone in inventory.drones) {
     if(drone.hostname != 'home'){
-      await ns.scp(files, 'home', drone.hostname);
+      await ns.scp(files, drone.hostname, 'home');
       ns.killall(drone.hostname);
     }
   }
