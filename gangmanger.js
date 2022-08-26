@@ -11,8 +11,7 @@ function tryToAscend(ns, memberName) {
       ascended.agi > 2 ||
       ascended.cha > 2 ||
       ascended.def > 2 ||
-      ascended.dex > 2 ||
-      ascended.hack > 2) {
+      ascended.dex > 2 ||) {
         result = true;
     }
     if (result) {
