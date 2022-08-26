@@ -144,18 +144,18 @@ export async function main(ns) {
         let cycleBatch = cycle + '/'+ batch;
         let results = deployVectors(ns, currentTarget, inventory.drones, usableThreads, usableScripts, files, cycleBatch);
         if (!results.successful) {
-          logger(ns, 'WARNING: Vector deployment against ' + currentTarget.hostname + ' failed, stopping deployments.');
+          logger(ns, 'WARNING: Vector deployment against ' + currentTarget.hostname + ' incomplete, stopping deployments.');
           break;
-        } else {
-          //PIDS/Scripts/Threads update
-          let newPids = results.pids;
-          let newScripts = results.pids.length;
-          let newThreads = 0;
-          newPids.forEach(pid => newThreads += ns.getRunningScript(pid).threads);
-          usableScripts -= newScripts;
-          usableThreads -= newThreads;
-          pids.push(...newPids);
         }
+        //PIDS/Scripts/Threads update
+        let newPids = results.pids;
+        let newScripts = results.pids.length;
+        let newThreads = 0;
+        newPids.forEach(pid => newThreads += ns.getRunningScript(pid).threads);
+        usableScripts -= newScripts;
+        usableThreads -= newThreads;
+        pids.push(...newPids);
+
 
         /**Main Control Loop timing prep */
         if (i == 0) {
