@@ -202,7 +202,7 @@ export async function main(ns) {
         setReSpawn = true;
         logger(ns, 'INFO: New Drone Available, requesting respawn.')
       }
-      if (inventory.inactiveTarget.length > 0 && inventory.inactiveTargets[0].hasAdminRights && inventory.inactiveTargets[0].requiredHackingSkill <= ns.getHackingLevel()){
+      if (inventory.inactiveTargets.length > 0 && inventory.inactiveTargets[0].hasAdminRights && inventory.inactiveTargets[0].requiredHackingSkill <= ns.getHackingLevel()){
         setReSpawn = true;
         logger(ns, 'INFO: New Drone Available, requesting respawn.')
       }
