@@ -377,11 +377,19 @@ export function realVectors(ns, server, maxThreads) {
     }
 
   }
+	/** Error Handling */
+	//invalid vectors
 	for (let i in vectors) {
 		if (isNaN(vectors[i]) || vectors[i] == null) {
 			throw new Error(server.hostname + ' has an invalid vector result in ' + i + ': ' + JSON.stringify(vectors));
 		}
 	}
+	//count mismatch
+	let count = vectors.primeWeaken + vectors.growThreads + vectors.growWeakens + vectors.hackThreads + vectors.hackWeakens;
+	if ( count != vectors.totalVectors) {
+		throw new Error(server.hostname + ' has a vector count mismatch. Counted ' + count + ' totalVectors: ' + vectors.totalVectors);
+	}
+	
   return vectors;
 }// end of realVectors
 
@@ -502,8 +510,8 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 
 	let deployedThreads = 0;
 	pids.forEach(pid => deployedThreads += ns.getRunningScript(pid).threads)
-	if (deployedThreads != vectors.totalVectors) {
-		throw new Error('Deployed Threads and Total Vectors mismatched.  Expected ' + vectors.totalVectors + ' got ' + deployedThreads + ' vs ' + target.hostname);
+	if (deployedThreads > vectors.totalVectors) {
+		throw new Error('Deployed more Threads than expected: ' + vectors.totalVectors + ' vs ' + deployedThreads + ' against ' + target.hostname);
 	}
 
 
