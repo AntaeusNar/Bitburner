@@ -198,11 +198,11 @@ export async function main(ns) {
         setReSpawn = true;
         logger(ns, 'INFO: Upgraded Home Ram, requesting respawn,')
       }
-      if (inventory.inactiveDrones[0].hasAdminRights) {
+      if (inventory.inactiveDrones.length > 0 && inventory.inactiveDrones[0].hasAdminRights) {
         setReSpawn = true;
         logger(ns, 'INFO: New Drone Available, requesting respawn.')
       }
-      if (inventory.inactiveTargets[0].hasAdminRights && inventory.inactiveTargets[0].requiredHackingSkill <= ns.getHackingLevel()){
+      if (inventory.inactiveTarget.length > 0 && inventory.inactiveTargets[0].hasAdminRights && inventory.inactiveTargets[0].requiredHackingSkill <= ns.getHackingLevel()){
         setReSpawn = true;
         logger(ns, 'INFO: New Drone Available, requesting respawn.')
       }
