@@ -94,7 +94,7 @@ export async function main(ns) {
     }
 
     //Wanted Level
-    if (gangInfo.wantedPenalty < .5 && gangInfo.wantedLevel > 2) {
+    if (!vigJust && gangInfo.wantedPenalty < .5 && gangInfo.wantedLevel > 2) {
       vigJust = true;
       logger(ns, 'INFO: Reducing Wanted Level!', 0);
     } else if (vigJust && (gangInfo.wantedPenalty > .9 || gangInfo.wantedLevel < 2)) {
