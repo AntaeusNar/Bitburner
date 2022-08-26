@@ -395,6 +395,7 @@ export function realVectors(ns, server, maxThreads) {
 	* @param {string} cycleBatch - cycle/batch # to pass as arg to deployed scripts
 	* @return {boolean} results.successful
 	* @return {number} results.deployedScripts
+	* @return {array} results.pids
 	*/
 export function deployVectors(ns, target, drones, usableThreads, usableScripts, fileNames, cycleBatch) {
 	/** Setup */
@@ -417,6 +418,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 	//Control Tacking
 	let successful = false;
 	let oldUsableScripts = usableScripts;
+	let pids = [];
 
 	/** Deployment controls
 		* (W)GWHW from vectors
@@ -430,6 +432,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		} else {
 			successful = true;
 			usableScripts -= localResults.deployedScripts;
+			pids.push(...localResults.pids);
 			if (vectors.shouldPrimeStr) { //if deploying all of the primeWeaken threads should get the target to primed, set flag
 				target.isPrimedStr = true;
 			}
@@ -446,6 +449,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		} else {
 			successful = true;
 			usableScripts -= localResults.deployedScripts;
+			pids.push(...localResults.pids);
 		}
 
 		//Deploy the grows
@@ -457,6 +461,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 			} else {
 				successful = true;
 				usableScripts -= localResults.deployedScripts;
+				pids.push(...localResults.pids);
 				if (vectors.shouldPrimeMoney) { //if deploying all of the growThreads should get the target's money primed, set  flag
 					target.isPrimedMoney = true;
 				}
@@ -474,6 +479,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		} else {
 			successful = true;
 			usableScripts -= localResults.deployedScripts;
+			pids.push(...localResults.pids);
 		}
 
 		//Deploy the hacks
@@ -484,13 +490,19 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		} else {
 			successful = true;
 			usableScripts -= localResults.deployedScripts;
+			pids.push(...localResults.pids);
 		}
+	}
+
+	if (pids.includes(0)) {
+		throw new Error('Ended up with a 0 for a pid in deployVectors trying to deploy ' + vectors.totalVectors + ' vectors against + ' target.hostname);
 	}
 	let results = {
 		successful: successful,
 		deployedScripts: oldUsableScripts - usableScripts,
 		batchTime: weakenTime + stageFiveDelay,
 		vectors: vectors,
+		pids: pids,
 	}
 	return results;
 }//end of deployVectors
@@ -505,6 +517,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 	* @param {string} cycleBatch
 	* @return {boolean} results.successful
 	* @return {number} results.deployedScripts
+	* @return {array} results.pids
 	*/
 function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) {
 
@@ -515,16 +528,19 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
 
 	//deploy loop
 	let i = 0;
+	let pids = [];
 	while (!successful && i < drones.length) {
 		let currentDrone = drones[i];
 		let currentAvailableThreads = Math.floor(currentDrone.ramAvailable/neededRam);
 		let deployableThreads = Math.min(threads, currentAvailableThreads);
 		if (deployableThreads > 0) {
-			microDeploy(ns, currentDrone.hostname, script, target, deployableThreads, waitTime, cycleBatch);
-			threads -= deployableThreads;
-			deployedScripts += 1;
-			if (threads <= 0) {
-				successful = true;
+			pids.push(microDeploy(ns, currentDrone.hostname, script, target, deployableThreads, waitTime, cycleBatch));
+			if (pids[i] > 0) {
+				threads -= deployableThreads;
+				deployedScripts += 1;
+				if (threads <= 0) {
+					successful = true;
+				}
 			}
 		}
 		i++;
@@ -532,6 +548,7 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
 	let results = {
 		successful: successful,
 		deployedScripts: deployedScripts,
+		pids: pids,
 	}
 	return results;
 }//end of macroDeploy
@@ -544,7 +561,12 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
 	* @param {number} threads
 	* @param {number} waitTime
 	* @param {string} cycleBatch
+	* @return {number} PID of deployed script
 	*/
 function microDeploy(ns, drone, script, target, threads, waitTime, cycleBatch) {
-	ns.exec(script, drone, threads, target, waitTime, cycleBatch);
+	let result = ns.exec(script, drone, threads, target, waitTime, cycleBatch);
+	if (!result){
+		throw new Error('Failed to deploy ' + script + ' on ' + drone + ' against ' + target);
+	}
+	return result;
 }//end of microDeploy

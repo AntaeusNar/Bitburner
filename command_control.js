@@ -114,18 +114,28 @@ export async function main(ns) {
   let batch = 1;
   let sleepTime = baseDelay;
   let actualNumOfBatches = 0;
-
+  let pids = [];
 
   logger(ns, 'INFO: Starting Main Loop');
   //Main loop
   while (true) {
+
+    /** PID/Scripts/Threads Control Section */
+    pids = pids.filter(pid => ns.getRunningScript(pid) != null);
+    let activePids = pids.length;
+    let usableScipts = Math.max(maxScripts - activePids, 0);
+    let activeThreads = 0;
+    pids.forEach(pid => activeThreads += ns.getRunningScript(pids).threads);
+    let usableThreads = Math.max(estThreads - activeThreads, 0);
+
     //logging
-    logger(ns, 'INFO: Cycle #: ' + cycle + ' Batch #: ' + batch, 0);
+    let cycleBatchMessage = 'Cycle #: ' + cycle + ' Batch #: ' + batch + '.  ';
+    let scriptsMessage = 'Deployed/Available Scripts: ' + activePids + '/' + usableScripts + '.  ';
+    let threadsMessage = 'Deployed/Available Threads: ' + activeThreads + '/' + usableThreads + '. ';
+    logger(ns,  'INFO: ' + cycleBatchMessage + scriptsMessage + threadsMessage, 0);
 
     /** Interive deployment handling */
     let i = 0;
-    let usableThreads = estThreads;
-    let usableScripts = maxScripts;
 
     while (i < inventory.targets.length &&
       usableThreads > 0 &&
@@ -136,32 +146,32 @@ export async function main(ns) {
         if (!results.successful) {
           logger(ns, 'WARNING: Vector deployment against' + currentTarget.hostname + ' failed, stopping deployments.');
           break;
+        } else {
+          //PIDS/Scripts/Threads update
+          let newPids = results.pids;
+          let newScripts = results.pids.length;
+          let newThreads = 0;
+          newPids.forEach(pid => newThreads += ns.getRunningScript(pids).threads);
+          usableScripts -= newScripts;
+          usableThreads -= newThreads;
+          pids.push(...newPids);
         }
 
         /**Main Control Loop timing prep */
         if (i == 0) {
-          let maxNumBatches = Math.min(usableThreads/results.vectors.totalVectors, usableScripts/4);
+          let maxNumBatches = Math.min(estThreads/results.vectors.totalVectors, maxScripts/4);
           let theoryTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
           actualNumOfBatches = Math.floor(results.batchTime/theoryTime);
           sleepTime = Math.ceil(results.batchTime/actualNumOfBatches);
         }
 
         //logging
-
-        let reservedThreads = actualNumOfBatches*results.vectors.totalVectors;
-        let reservedScripts = actualNumOfBatches*results.deployedScripts;
         let message = 'Target: ' + currentTarget.hostname + ' @ ' + currentTarget.takePercent*100 + '%' +
-          ' Hacks/Vectors/Reserve/Usable Threads: ' + results.vectors.hackThreads + '/' + results.vectors.totalVectors+ '/' + reservedThreads + '/' + usableThreads +
-          ' Reserve/Usable Scripts: ' + reservedScripts + '/' + usableScripts;
+          ' Hacks/Vectors/Usable Threads: ' + results.vectors.hackThreads + '/' + results.vectors.totalVectors+ '/' + reservedThreads + '/' + usableThreads +
+          ' Usable Scripts: ' + usableScripts;
         logger(ns, message, 0);
 
         /** Interive Loop Cleanup */
-        // OPTIMIZE: if the current targets threads will complete before the cycle time (ei weaken is less then actual weaken)
-        // sort out how to adjust the number of reservedThreads to compinast.
-        // basicly some servers will use far less time to complete then the marching time.
-        //I don't think i can do that for scripts becuase my realworld limitation is ditacted by the number of completing scipts at a time (uses more then 3GB real would ram)
-        usableScripts -= reservedScripts;
-        usableThreads -= reservedThreads;
         i++;
         await ns.sleep(1);
       }//end of iterive deployment handling
@@ -194,9 +204,6 @@ export async function main(ns) {
         cycle++;
         batch = 1;
       }
-
+      ns.sleep(sleepTime);
   }//end of main control loop
-
-
-
 } //end of Main Program
