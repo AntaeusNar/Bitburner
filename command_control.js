@@ -136,6 +136,7 @@ export async function main(ns) {
 
     /** Interive deployment handling */
     let i = 0;
+    let setBreak = false;
 
     while (i < inventory.targets.length &&
       usableThreads > 0 &&
@@ -145,8 +146,8 @@ export async function main(ns) {
         let results = deployVectors(ns, currentTarget, inventory.drones, usableThreads, usableScripts, files, cycleBatch);
         if (!results.successful) {
           logger(ns, 'WARNING: Vector deployment against ' + currentTarget.hostname + ' incomplete, stopping deployments.', 0);
-          break;
-        }
+          setBreak = true;
+        } else {setBreak = false;}
         //PIDS/Scripts/Threads update
         let newPids = results.pids;
         let newScripts = results.pids.length;
@@ -172,6 +173,7 @@ export async function main(ns) {
         logger(ns, message, 0);
 
         /** Interive Loop Cleanup */
+        if (setBreak) {break;};
         i++;
         await ns.sleep(1);
       }//end of iterive deployment handling
