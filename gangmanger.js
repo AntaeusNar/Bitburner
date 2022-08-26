@@ -2,7 +2,7 @@ import {logger} from 'lib.js';
 
 /** attempts to ascend member
 	* @param {NS} ns
-	* @param {string} getMember
+	* @param {string} memberName
 	*/
 function tryToAscend(ns, memberName) {
   let result = false;
@@ -49,7 +49,7 @@ export async function main(ns) {
 
     /** Control Options */
     // Gang size
-    if (gangCrew.length = 12) {
+    if (gangCrew.length == 12) {
       //Active Terrorism
       if (requestTerrorism) { //there are 12, don't need this anymore
         requestTerrorism = false;
@@ -78,14 +78,15 @@ export async function main(ns) {
       if (requestWarfare) {//less then 12 and active warfare
         requestWarfare = false;
         requestPrep = false;
-        logger(ns, 'WARNING: Man down. Stopping Warfare.' 0);
+        logger(ns, 'WARNING: Man down. Stopping Warfare.', 0);
       }
       //Try to recrute a new member
       if (ns.gang.canRecruitMember()) {
         let number = Math.floor(Math.random()*1000);
         let name = "Fish" + number;
         ns.gang.recruitMember(name);
-      } else {
+        gangCrew = ns.gang.getMemberNames();
+      } else if (!requestTerrorism) {
         //or do that Terrorism
         requestTerrorism = true;
         logger(ns, 'INFO: Terrorise!!', 0);
@@ -118,10 +119,10 @@ export async function main(ns) {
       memberEquipment += memberInfo.augmentations; //add the member's augments
       let neededEquipment = allEquipment.filter(item => !memberEquipment.includes(item)); //remove everythign the member has from the master list
       //remove all items that are hacking and chr only.
-      neededEquipment = neededEquipment.filter(item => ns.equipmentStats(item).agi ||
-                                                          ns.equipmentStats(item).def ||
-                                                          ns.equipmentStats(item).dex ||
-                                                          ns.equipmentStats(item).str)
+      neededEquipment = neededEquipment.filter(item => ns.gang.getEquipmentStats(item).agi ||
+                                                          ns.gang.getEquipmentStats(item).def ||
+                                                          ns.gang.getEquipmentStats(item).dex ||
+                                                          ns.gang.getEquipmentStats(item).str)
 
       let purchasedEquiment = false;
       let numberofpurchases = 0;
