@@ -116,6 +116,8 @@ export async function main(ns) {
   let sleepTime = baseDelay;
   let actualNumOfBatches = 0;
   let trackedScripts = [];
+  let usableThreads = estThreads;
+  let usableScripts = maxScripts;
 
   logger(ns, 'INFO: Starting Main Loop');
   //Main loop
@@ -125,7 +127,7 @@ export async function main(ns) {
     // to take threads and scripts from the control cycle.
 
     /** PID/Scripts/Threads Control Section */
-    inactiveScripts = trackedScripts.filter(pid => !pid.isActive);
+    let inactiveScripts = trackedScripts.filter(pid => !pid.isActive);
     let releasedThreads = 0;
     inactiveScripts.forEach(pid => releasedThreads += pid.threads);
     usableThreads += releasedThreads;
@@ -135,8 +137,8 @@ export async function main(ns) {
 
     //logging
     let cycleBatchMessage = 'Cycle #: ' + cycle + ' Batch #: ' + batch + '.  ';
-    let scriptsMessage = 'Deployed/Available Scripts: ' + activePids + '/' + usableScripts + '.  ';
-    let threadsMessage = 'Deployed/Available Threads: ' + activeThreads + '/' + usableThreads + '. ';
+    let scriptsMessage = 'Deployed/Available Scripts: ' + maxScripts - usableScripts + '/' + maxScripts + '.  ';
+    let threadsMessage = 'Deployed/Available Threads: ' + estThreads - usableThreads + '/' + estThreads + '. ';
     logger(ns,  'INFO: ' + cycleBatchMessage + scriptsMessage + threadsMessage, 0);
 
     /** Interive deployment handling */

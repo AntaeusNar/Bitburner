@@ -445,7 +445,7 @@ export class Script {
     return result;
   }
 
-  toJSON {
+  toJSON() {
     return {
       pid: this.pid,
       threads: this.threads,
