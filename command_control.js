@@ -120,6 +120,9 @@ export async function main(ns) {
   logger(ns, 'INFO: Starting Main Loop');
   //Main loop
   while (true) {
+    // TODO: let the release of PIDS return threads and script back to the control cycle
+    // use reserved calc (number of batches as dictated by best target times number of vectors & scripts)
+    // to take threads and scripts from the control cycle.
 
     /** PID/Scripts/Threads Control Section */
     pids = pids.filter(pid => ns.getRunningScript(pid) != null);
@@ -154,8 +157,8 @@ export async function main(ns) {
         let newScripts = results.pids.length;
         let newThreads = 0;
         newPids.forEach(pid => newThreads += ns.getRunningScript(pid).threads);
-        usableScripts -= newScripts;
-        usableThreads -= newThreads;
+        usableScripts -= newScripts*actualNumOfBatches;
+        usableThreads -= newThreads*actualNumOfBatches;
         pids.push(...newPids);
 
 
