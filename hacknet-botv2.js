@@ -22,6 +22,10 @@ export async function main(ns) {
 			}
 		}
 		actionList.push(new NewNodeAction(ns, 1));
+    	let neglist = actionList.filter(action => action.prodIncrease < 0);
+		if (neglist.length > 0) {
+			throw new Error('Have negative production increases in actions.  Most likley BitNode HackNetNodeMoneyBitNode is wrong.');
+		}
 		actionList = actionList.filter(action => action.payBackTime() < paybackLimit);
 		if (actionList.length > 0) {
 			actionList = actionList.filter(action => action.cost < budget);
@@ -31,8 +35,7 @@ export async function main(ns) {
 				sleepMilliseconds = Math.max(actionList[0].payBackTime()*1000, sleepMilliseconds);
 			}
 			await ns.sleep(sleepMilliseconds);
-		}
-		else {
+		} else {
 			ns.tprint(`All Hacknet Nodes are fully productive.`);
 			break;
 		}
@@ -45,7 +48,7 @@ class Action {
 		MaxRam: 64,
 		MaxCores: 16,
 		MoneyGainPerLevel: 1.5,
-		HackNetNodeMoneyBitNode: 0.25
+		HackNetNodeMoneyBitNode: 1/Math.pow(1.02, 4), /** <= Needs to be adjusted for every bitnode -> https://github.com/danielyxie/bitburner/blob/dev/src/BitNode/BitNode.tsx*/
 	}
 	sys;
 	nodeIndex;
