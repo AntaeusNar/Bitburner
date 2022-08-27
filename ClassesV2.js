@@ -429,3 +429,27 @@ export class ServerFactory {
     return server;
   }//end of create
 }//end of server Factory
+
+/** Script class */
+export class Script {
+  constructor(ns, pid){
+    let results = ns.getRunningScript(pid);
+    this.ns = ns;
+    this.pid = pid;
+    this.threads = results.threads
+  }
+
+  get isActive() {
+    let result = this.ns.getRunningScript(this.pid);
+    if (result) {result = true} else {result = false}
+    return result;
+  }
+
+  toJSON {
+    return {
+      pid: this.pid,
+      threads: this.threads,
+      isActive: this.isActive,
+    }
+  }
+}
