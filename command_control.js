@@ -126,6 +126,8 @@ export async function main(ns) {
     // use reserved calc (number of batches as dictated by best target times number of vectors & scripts)
     // to take threads and scripts from the control cycle.
 
+    //BUG: this will not work the way we want yet...
+
     /** PID/Scripts/Threads Control Section */
     let inactiveScripts = trackedScripts.filter(pid => !pid.isActive);
     let releasedThreads = 0;
