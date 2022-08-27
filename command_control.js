@@ -11,7 +11,7 @@
   * @param {NS} ns
   */
 import {logger, getNeededRam, multiscan, fileDump, getRoot, truncateNumber, deployVectors} from 'lib.js';
-import {TargetServer, ServerFactory} from 'ClassesV2.js';
+import {TargetServer, ServerFactory, Script} from 'ClassesV2.js';
 import {baseDelay, maxScripts} from 'options.js';
 export async function main(ns) {
 
@@ -115,7 +115,7 @@ export async function main(ns) {
   let batch = 1;
   let sleepTime = baseDelay;
   let actualNumOfBatches = 0;
-  let pids = [];
+  let trackedScripts = [];
 
   logger(ns, 'INFO: Starting Main Loop');
   //Main loop
@@ -125,12 +125,13 @@ export async function main(ns) {
     // to take threads and scripts from the control cycle.
 
     /** PID/Scripts/Threads Control Section */
-    pids = pids.filter(pid => ns.getRunningScript(pid) != null);
-    let activePids = pids.length;
-    let usableScripts = Math.max(maxScripts - activePids, 0);
-    let activeThreads = 0;
-    pids.forEach(pid => activeThreads += ns.getRunningScript(pid).threads);
-    let usableThreads = Math.max(estThreads - activeThreads, 0);
+    inactiveScripts = trackedScripts.filter(pid => !pid.isActive);
+    let releasedThreads = 0;
+    inactiveScripts.forEach(pid => releasedThreads += pid.threads);
+    usableThreads += releasedThreads;
+    let releasedScripts = inactiveScripts.length;
+    usableScripts += releasedScripts;
+    trackedScripts = trackedScripts.filter(pid => !inactiveScripts.includes(pid));
 
     //logging
     let cycleBatchMessage = 'Cycle #: ' + cycle + ' Batch #: ' + batch + '.  ';
@@ -153,14 +154,12 @@ export async function main(ns) {
           setBreak = true;
         } else {setBreak = false;}
         //PIDS/Scripts/Threads update
-        let newPids = results.pids;
+        results.pids.forEach(pid => trackedScripts.push(new Script(pid)));
         let newScripts = results.pids.length;
         let newThreads = 0;
         newPids.forEach(pid => newThreads += ns.getRunningScript(pid).threads);
         usableScripts -= newScripts*actualNumOfBatches;
         usableThreads -= newThreads*actualNumOfBatches;
-        pids.push(...newPids);
-
 
         /**Main Control Loop timing prep */
         if (i == 0) {
