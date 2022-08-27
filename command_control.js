@@ -162,11 +162,14 @@ export async function main(ns) {
         usableThreads -= newThreads*actualNumOfBatches;
 
         /**Main Control Loop timing prep */
-        if (i == 0) {
+        if (i == 0 && results.successful) {
           let maxNumBatches = Math.max(1, Math.min(estThreads/results.vectors.totalVectors, maxScripts/4));
           let theoryTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
           actualNumOfBatches = Math.floor(results.batchTime/theoryTime);
           sleepTime = Math.ceil(results.batchTime/actualNumOfBatches);
+        } else if (i == 0 && !results.successful){
+          actualNumOfBatches = 1;
+          sleepTime = currentTarget.batchTime;
         }
 
         //logging
