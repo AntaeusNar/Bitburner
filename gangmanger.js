@@ -33,10 +33,7 @@ export async function main(ns) {
   let allEquipment = ns.gang.getEquipmentNames();
   let budgetPercentage = budgetPercentageLimit;
   let vigJust = false;
-  let requestWarfare = false;
-  let requestTerrorism = false;
-  let requestPrep = false;
-  let requestExit = false;
+  let warfare = false;
 
   /** Main Control Loop */
 	while (true) {
@@ -48,54 +45,23 @@ export async function main(ns) {
     delete otherGangs[gangInfo.faction];
     let activeWarfare = gangInfo.territoryWarfareEngaged;
 
+    //Try to recrute a new member
+    if (ns.gang.canRecruitMember()) {
+      let number = Math.floor(Math.random()*1000);
+      let name = "Fish" + number;
+      ns.gang.recruitMember(name);
+      gangCrew = ns.gang.getMemberNames();
+    }
+
     /** Control Options */
     //Tasks are Terrorism, Territory Warfare, Vigilante Justice or crime.
     //Vigilante Justice will be an override (if needed all do)
-    
-    // Gang size
-    if (gangCrew.length == 12) {
-      //Active Terrorism
-      if (requestTerrorism) { //there are 12, don't need this anymore
-        requestTerrorism = false;
-        logger(ns, 'INFO: Stopping Terrorism.', 0);
-      }
-      //Gang Warefare
-      let maxPower = 0;
-      Object.keys(otherGangs).forEach(key => {
-        maxPower = Math.max(maxPower, otherGangs[key].power);
-      });
-      if (gangInfo.power >= maxPower && gangInfo.territory < 1 && !requestWarfare){ //12, strong, and need territory
-        requestWarfare = true;
-        requestPrep = true;
-        logger(ns, 'INFO: Full gang, strong gang, requesting to go to war.', 0);
-      } else if (gangInfo.territory >= 1 && requestWarfare) { //already own everything
-        requestWarfare = false;
-        requestPrep = false;
-        requestExit = true;
-        logger(ns, 'INFO: We have everyone, we own everything, stopping warfare and exiting.', 0);
-      } else {//12, not strong enough, need territory
-        requestWarfare = false;
-        requestPrep = true;
-        logger(ns, 'INFO: Full Crew, getting ready to fight! Need/Have ' + Math.ceil(maxPower) + '/' + Math.floor(gangInfo.power), 0);
-      }
-    } else { //less then 12
-      if (requestWarfare) {//less then 12 and active warfare
-        requestWarfare = false;
-        requestPrep = false;
-        logger(ns, 'WARNING: Man down. Stopping Warfare.', 0);
-      }
-      //Try to recrute a new member
-      if (ns.gang.canRecruitMember()) {
-        let number = Math.floor(Math.random()*1000);
-        let name = "Fish" + number;
-        ns.gang.recruitMember(name);
-        gangCrew = ns.gang.getMemberNames();
-      } else if (!requestTerrorism) {
-        //or do that Terrorism
-        requestTerrorism = true;
-        logger(ns, 'INFO: Terrorise!!', 0);
-      }
-    }
+
+    let arrTasks = []; //blank available tasks
+    arrTasks.push('Crime'); //add crime option
+    if (gangCrew.length < 12) {arrTasks.push('Terrorism');} // add Terrorism if less then 12 gang members
+    if (gangInfo.territory < 1) {arrTasks.push('Territory Warfare');}//add Warfare if we dont have 100% terriory
+
 
     //Wanted Level
     if (!vigJust && gangInfo.wantedPenalty < .5 && gangInfo.wantedLevel > 2) {
@@ -106,19 +72,14 @@ export async function main(ns) {
       logger(ns, 'INFO: Commit those Crimes!', 0);
     }
 
-    let budget = ns.getServerMoneyAvailable('home')*budgetPercentage;
-
-    /** Gang Member Control sub loop */
     for (let member of gangCrew) {
-
-      //possible ascention
+      //try to ascend
       tryToAscend(ns, member);
-
-      //Basic memberInfo
+      //get member info
       let memberInfo = ns.gang.getMemberInformation(member);
-
       /** Puchase Equipment */
       //Collect equipment info
+      let budget = ns.getServerMoneyAvailable('home')*budgetPercentage;
       let memberEquipment = memberInfo.upgrades; //get a member's equipment
       memberEquipment += memberInfo.augmentations; //add the member's augments
       let neededEquipment = allEquipment.filter(item => !memberEquipment.includes(item)); //remove everythign the member has from the master list
@@ -144,50 +105,47 @@ export async function main(ns) {
         logger(ns, "Purchased " + numberofpurchases + " item(s) for " + member, 0);
       }
 
-      // Asign Work
-      if (vigJust) { //Check and deal with wanted penaltiy
+      // Assign work
+      if (vigJust) {
         ns.gang.setMemberTask(member, 'Vigilante Justice');
-      } else { //regulare optiations
-        if (memberInfo.str < 50) { //make sure the dude is strong enough
+      } else {
+        if (memberInfo.str < 50) {
           ns.gang.setMemberTask(member, 'Train Combat');
-        } else {//member is go to go
-          if ((requestPrep || requestWarfare) && memberInfo.str > 150) {
-            ns.gang.setMemberTask(member, 'Territory Warfare');
-          } else {
-            if (requestTerrorism && memberInfo.str > 150){
-              ns.gang.setMemberTask(member, 'Terrorism');
-            } else {
-              if (memberInfo.str < 50) {
-                ns.gang.setMemberTask(member, "Mug People");
-              }
-              else if (memberInfo.str < 150) {
-                ns.gang.setMemberTask(member, "Strongarm Civilians");
-              }
-              else if (memberInfo.str < 400) {
-                ns.gang.setMemberTask(member, "Traffick Illegal Arms");
-              }
-              else {
-                ns.gang.setMemberTask(member, "Human Trafficking");
-              }
+        } else {
+          let task = arrTasks[Math.floor(Math.random()*arrTasks.length)];
+          if (task == 'Crime') {
+            if (memberInfo.str < 50) {
+              ns.gang.setMemberTask(member, "Mug People");
             }
+            else if (memberInfo.str < 150) {
+              ns.gang.setMemberTask(member, "Strongarm Civilians");
+            }
+            else if (memberInfo.str < 400) {
+              ns.gang.setMemberTask(member, "Traffick Illegal Arms");
+            }
+            else {
+              ns.gang.setMemberTask(member, "Human Trafficking");
+            }
+          } else {
+            ns.gang.setMemberTask(member, task);
           }
         }
       }
-      await ns.sleep(1);
-    }//end of member loop
 
+    }//end of gangcrew loop
+
+    // Gang Warfare
+    let maxPower = 0;
+    Object.keys(otherGangs).forEach(key => {
+      maxPower = Math.max(maxPower, otherGangs[key].power);
+    });
     //Warfare Update
-    if (!activeWarfare && requestWarfare) {
+    if (!activeWarfare && warfare) {
       ns.gang.setTerritoryWarfare(true);
-    } else if (activeWarfare && !requestWarfare) {
+    } else if (activeWarfare && !warfare) {
       ns.gang.setTerritoryWarfare(false);
     }
-
-    //exit update
-    if (requestExit){
-      logger(ns, 'INFO: Exit Requested, Exiting.....', 0);
-      ns.exit();
-    }
+    
     await ns.sleep(10*1000);
 	}
 }
