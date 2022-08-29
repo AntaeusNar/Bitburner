@@ -12,7 +12,7 @@
   */
 import {logger, getNeededRam, multiscan, fileDump, getRoot, truncateNumber, deployVectors} from 'lib.js';
 import {TargetServer, ServerFactory, Script} from 'ClassesV2.js';
-import {baseDelay, maxScripts} from 'options.js';
+import {baseDelay, maxScripts, budgetPercentageLimit} from 'options.js';
 export async function main(ns) {
 
   //Initial Launch
@@ -204,7 +204,7 @@ export async function main(ns) {
       // TODO: try to purchase new tools if needed.
       // TODO: add in the eval and purchase of persnal servers
       let setReSpawn = false;
-      if (ns.singularity.upgradeHomeRam()) {
+      if (ns.getServerMoneyAvailable('home')* budgetPercentageLimit > ns.singularity.getUpgradeHomeRamCost() && ns.singularity.upgradeHomeRam()) {
         setReSpawn = true;
         logger(ns, 'INFO: Upgraded Home Ram, requesting respawn,')
       }
