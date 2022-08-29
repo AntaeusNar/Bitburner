@@ -1,12 +1,13 @@
-/** @param {NS} ns **/
+import {budgetPercentage, paybackTimeLimit} from 'options.js';
 
+/** @param {NS} ns **/
 export async function main(ns) {
 
 	ns.disableLog('sleep');
 	ns.disableLog('getServerMoneyAvailable')
-	var paybackLimit = 1 * 60 * 60;
+	var paybackLimit = paybackTimeLimit;
 	var sleepMilliseconds = 1*1000;
-	var budgetPercentage = 0.9;
+	var budgetPercentage = budgetPercentage;
 
 	while (true) {
 		var budget = ns.getServerMoneyAvailable('home')*budgetPercentage;
