@@ -49,6 +49,9 @@ export async function main(ns) {
     let activeWarfare = gangInfo.territoryWarfareEngaged;
 
     /** Control Options */
+    //Tasks are Terrorism, Territory Warfare, Vigilante Justice or crime.
+    //Vigilante Justice will be an override (if needed all do)
+    
     // Gang size
     if (gangCrew.length == 12) {
       //Active Terrorism
