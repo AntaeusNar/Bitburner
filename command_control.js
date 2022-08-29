@@ -116,6 +116,8 @@ export async function main(ns) {
   let sleepTime = baseDelay;
   let actualNumOfBatches = 0;
   let trackedScripts = [];
+  let usableScripts = 0;
+  let usableThreads = 0;
 
   logger(ns, 'INFO: Starting Main Loop');
   //Main loop
@@ -123,18 +125,25 @@ export async function main(ns) {
 
     /** PID/Scripts/Threads Tracking Reconciliation */
     //uses the running tracker of active scripts to see how many of the threads/scripts are in use at the start each batch
-    trackedScripts = trackedScripts.filter(pid => pid.isActive);
-    let inUseThreads = 0;
-    let inUseScripts = trackedScripts.length;
-    trackedScripts.forEach( pid => inUseThreads += pid.threads)
-    usableThreads = estThreads - inUseThreads;
-    usableScripts = maxScripts - inUseScripts;
+    if (cycle == 1 && batch == 1) {//should run on first batch/cycle only
+      usableScripts = maxScripts;
+      usableThreads = estThreads;
+    } else {
+      trackedScripts = trackedScripts.filter(pid => pid.isActive);
+      let inUseThreads = 0;
+      let inUseScripts = trackedScripts.length;
+      trackedScripts.forEach( pid => inUseThreads += pid.threads)
+      usableThreads = estThreads - inUseThreads;
+      usableScripts = maxScripts - inUseScripts;
+    }
 
     //logging
     let cycleBatchMessage = 'Cycle #: ' + cycle + ' Batch #: ' + batch + '.  ';
-    let scriptsMessage = 'Deployed/Available Scripts: ' + maxScripts - usableScripts + '/' + maxScripts + '.  ';
-    let threadsMessage = 'Deployed/Available Threads: ' + estThreads - usableThreads + '/' + estThreads + '. ';
-    logger(ns,  'INFO: ' + cycleBatchMessage + scriptsMessage + threadsMessage, 0);
+    let deployedScripts = maxScripts - usableScripts;
+    let deployedThreads = estThreads - usableThreads;
+    let scriptsMessage = 'Deployed/Available Scripts: ' + deployedScripts + '/' + maxScripts + '.  ';
+    let threadsMessage = 'Deployed/Available Threads: ' + deployedThreads + '/' + estThreads + '. ';
+    logger(ns,  'INFO: ' + cycleBatchMessage + threadsMessage + scriptsMessage, 0);
 
     /** Interive deployment handling */
     let i = 0;
@@ -156,10 +165,11 @@ export async function main(ns) {
         /** PID/Scripts/Threads Tracking Update Section */
         //adds the newly deployed PIDS to the running tracker, reduces the number of usable scripts/threads by actually Deployed
         //or in the case of the first cycle, how many are needed to be set aside to complete cycle deployment
-        results.pids.forEach(pid => trackedScripts.push(new Script(pid)));
+        let newPids = []
+        results.pids.forEach(pid => newPids.push(new Script(ns, pid)));
         let newScripts = results.pids.length;
         let newThreads = 0;
-        newPids.forEach(pid => newThreads += ns.getRunningScript(pid).threads);
+        newPids.forEach(pid => newThreads += pid.threads);
         if (cycle == 1) { //in first cycle, reserve out the rest of the needed scripts/thread to complete the batch
           usableScripts -= newScripts*(actualNumOfBatches - batch);
           usableThreads -= newThreads*(actualNumOfBatches - batch);
@@ -167,6 +177,7 @@ export async function main(ns) {
           usableScripts -= newScripts;
           usableThreads -= newThreads
         }
+        newPids.forEach(pid => trackedScripts.push(pid));
 
         /**Main Control Loop timing prep */
         if (i == 0 && results.successful) {
@@ -224,7 +235,7 @@ export async function main(ns) {
       if (setReSpawn){
         logger(ns, 'INFO: Respawn Requested, killing controlled scripts and respawning, please standby...')
         //kill all controled scripts
-        pids.forEach(pid => ns.kill(pid));
+        trackedScripts.forEach(script => ns.kill(script.pid));
         //respawn self
         ns.spawn('command_control.js');
       }

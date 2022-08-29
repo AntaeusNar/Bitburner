@@ -433,16 +433,19 @@ export class ServerFactory {
 /** Script class */
 export class Script {
   constructor(ns, pid){
-    let results = ns.getRunningScript(pid);
     this.ns = ns;
     this.pid = pid;
-    this.threads = results.threads
+    this.threads;
   }
 
   get isActive() {
     let result = this.ns.getRunningScript(this.pid);
     if (result) {result = true} else {result = false}
     return result;
+  }
+
+  get threads() {
+    return this.ns.getRunningScript(this.pid).threads;
   }
 
   toJSON() {
