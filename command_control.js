@@ -172,7 +172,7 @@ export async function main(ns) {
           actualNumOfBatches = 1;
           sleepTime = currentTarget.batchTime;
         }
-        
+
         /** PID/Scripts/Threads Tracking Update Section */
         //adds the newly deployed PIDS to the running tracker, reduces the number of usable scripts/threads by actually Deployed
         //or in the case of the first cycle, how many are needed to be set aside to complete cycle deployment
@@ -182,8 +182,8 @@ export async function main(ns) {
         let newThreads = 0;
         newPids.forEach(pid => newThreads += pid.threads);
         if (cycle == 1) { //in first cycle, reserve out the rest of the needed scripts/thread to complete the batch
-          usableScripts -= newScripts*(actualNumOfBatches - batch);
-          usableThreads -= newThreads*(actualNumOfBatches - batch);
+          usableScripts -= Math.min(newScripts*(actualNumOfBatches - batch), usableScripts);
+          usableThreads -= Math.min(newThreads*(actualNumOfBatches - batch), usableThreads);
         } else {
           usableScripts -= newScripts;
           usableThreads -= newThreads
@@ -240,9 +240,14 @@ export async function main(ns) {
         ns.spawn('command_control.js');
       }
 
-      /** Main Control Loop timing handling */
+      /** Main Control Loop timing handling  && Logging*/
+      deployedScripts = maxScripts - usableScripts;
+      deployedThreads = estThreads - usableThreads;
+      scriptsMessage = 'Deployed or Reserved/Available Scripts: ' + deployedScripts + '/' + maxScripts + '.  ';
+      threadsMessage = 'Deployed or Reserved/Available Threads: ' + deployedThreads + '/' + estThreads + '.  ';
       let waitTime = new Date(sleepTime).toISOString().substr(11,12);
-      logger(ns, 'INFO: Waiting: ' + waitTime + ' # of Batches in cycle: ' + actualNumOfBatches, 0);
+      let timeMessage = 'Waiting: ' + waitTime + ' # of Batches in cycle: ' + actualNumOfBatches + '.  ';
+      logger(ns, 'INFO: ' + timeMessage + threadsMessage + scriptsMessage, 0);
       batch++;
       if (batch >= actualNumOfBatches) {
         cycle++;
