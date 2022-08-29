@@ -182,8 +182,8 @@ export async function main(ns) {
         let newThreads = 0;
         newPids.forEach(pid => newThreads += pid.threads);
         if (cycle == 1) { //in first cycle, reserve out the rest of the needed scripts/thread to complete the batch
-          usableScripts -= Math.min(newScripts*(actualNumOfBatches - batch), usableScripts);
-          usableThreads -= Math.min(newThreads*(actualNumOfBatches - batch), usableThreads);
+          usableScripts -= Math.min(newScripts*(1 + actualNumOfBatches - batch), usableScripts);
+          usableThreads -= Math.min(newThreads*(1 + actualNumOfBatches - batch), usableThreads);
         } else {
           usableScripts -= newScripts;
           usableThreads -= newThreads
