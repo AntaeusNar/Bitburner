@@ -59,7 +59,8 @@ export async function main(ns) {
 
     let arrTasks = []; //blank available tasks
     arrTasks.push('Crime'); //add crime option
-    if (gangCrew.length < 12) {arrTasks.push('Terrorism');} // add Terrorism if less then 12 gang members
+    arrTasks.push('Terrorism'); //add Terrorism as addition option
+    if (gangCrew.length < 12) {arrTasks.push('Terrorism'); arrTask.push('Crime');} // add Terrorism if less then 12 gang members
     if (gangInfo.territory < 1) {arrTasks.push('Territory Warfare');}//add Warfare if we dont have 100% terriory
 
 
@@ -145,7 +146,7 @@ export async function main(ns) {
     } else if (activeWarfare && !warfare) {
       ns.gang.setTerritoryWarfare(false);
     }
-    
+
     await ns.sleep(10*1000);
 	}
 }
