@@ -111,7 +111,7 @@ export class InactiveTarget {
     return truncateNumber(evalPercentTakePerHack(this.ns, this, this.ns.getPlayer()));
   }
 
-  //EVAL ONLY: returns best case.
+  //EVAL ONLY: returns best case in sec.
   get idealWeakenTime() {
     return evalWeakenTime(this, this.ns.getPlayer());
   }
@@ -142,8 +142,9 @@ export class InactiveTarget {
     }
   }
 
+  //time in milliseconds
   get batchTime() {
-    return this.idealWeakenTime+baseDelay*5;
+    return this.idealWeakenTime*1000+baseDelay*5;
   }
 
   get cycleThreads() {
