@@ -162,6 +162,17 @@ export async function main(ns) {
           setBreak = true;
         } else {setBreak = false;}
 
+        /**Main Control Loop timing prep */
+        if (i == 0 && results.successful) {
+          let maxNumBatches = Math.max(1, Math.min(estThreads/results.vectors.totalVectors, maxScripts/4));
+          let theoryTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
+          actualNumOfBatches = Math.floor(results.batchTime/theoryTime);
+          sleepTime = Math.ceil(results.batchTime/actualNumOfBatches);
+        } else if (i == 0 && !results.successful){
+          actualNumOfBatches = 1;
+          sleepTime = currentTarget.batchTime;
+        }
+        
         /** PID/Scripts/Threads Tracking Update Section */
         //adds the newly deployed PIDS to the running tracker, reduces the number of usable scripts/threads by actually Deployed
         //or in the case of the first cycle, how many are needed to be set aside to complete cycle deployment
@@ -178,17 +189,6 @@ export async function main(ns) {
           usableThreads -= newThreads
         }
         newPids.forEach(pid => trackedScripts.push(pid));
-
-        /**Main Control Loop timing prep */
-        if (i == 0 && results.successful) {
-          let maxNumBatches = Math.max(1, Math.min(estThreads/results.vectors.totalVectors, maxScripts/4));
-          let theoryTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
-          actualNumOfBatches = Math.floor(results.batchTime/theoryTime);
-          sleepTime = Math.ceil(results.batchTime/actualNumOfBatches);
-        } else if (i == 0 && !results.successful){
-          actualNumOfBatches = 1;
-          sleepTime = currentTarget.batchTime;
-        }
 
         //logging
         let message = 'Target: ' + currentTarget.hostname + ' @ ' + currentTarget.takePercent*100 + '%' +
