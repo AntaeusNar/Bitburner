@@ -116,26 +116,19 @@ export async function main(ns) {
   let sleepTime = baseDelay;
   let actualNumOfBatches = 0;
   let trackedScripts = [];
-  let usableThreads = estThreads;
-  let usableScripts = maxScripts;
 
   logger(ns, 'INFO: Starting Main Loop');
   //Main loop
   while (true) {
-    // TODO: let the release of PIDS return threads and script back to the control cycle
-    // use reserved calc (number of batches as dictated by best target times number of vectors & scripts)
-    // to take threads and scripts from the control cycle.
 
-    //BUG: this will not work the way we want yet...
-
-    /** PID/Scripts/Threads Control Section */
-    let inactiveScripts = trackedScripts.filter(pid => !pid.isActive);
-    let releasedThreads = 0;
-    inactiveScripts.forEach(pid => releasedThreads += pid.threads);
-    usableThreads += releasedThreads;
-    let releasedScripts = inactiveScripts.length;
-    usableScripts += releasedScripts;
-    trackedScripts = trackedScripts.filter(pid => !inactiveScripts.includes(pid));
+    /** PID/Scripts/Threads Tracking Reconciliation */
+    //uses the running tracker of active scripts to see how many of the threads/scripts are in use at the start each batch
+    trackedScripts = trackedScripts.filter(pid => pid.isActive);
+    let inUseThreads = 0;
+    let inUseScripts = trackedScripts.length;
+    trackedScripts.forEach( pid => inUseThreads += pid.threads)
+    usableThreads = estThreads - inUseThreads;
+    usableScripts = maxScripts - inUseScripts;
 
     //logging
     let cycleBatchMessage = 'Cycle #: ' + cycle + ' Batch #: ' + batch + '.  ';
@@ -150,6 +143,8 @@ export async function main(ns) {
     while (i < inventory.targets.length &&
       usableThreads > 0 &&
       usableScripts > 0) {
+        /** Main Iterive Deployment Section */
+        //Inside of each batch, selects a target and attempts to deploy vectors as scripts and threads against the target across the drone network
         let currentTarget = inventory.targets[i];
         let cycleBatch = cycle + '/'+ batch;
         let results = deployVectors(ns, currentTarget, inventory.drones, usableThreads, usableScripts, files, cycleBatch);
@@ -157,13 +152,21 @@ export async function main(ns) {
           logger(ns, 'WARNING: Vector deployment against ' + currentTarget.hostname + ' incomplete, stopping deployments.', 0);
           setBreak = true;
         } else {setBreak = false;}
-        //PIDS/Scripts/Threads update
+
+        /** PID/Scripts/Threads Tracking Update Section */
+        //adds the newly deployed PIDS to the running tracker, reduces the number of usable scripts/threads by actually Deployed
+        //or in the case of the first cycle, how many are needed to be set aside to complete cycle deployment
         results.pids.forEach(pid => trackedScripts.push(new Script(pid)));
         let newScripts = results.pids.length;
         let newThreads = 0;
         newPids.forEach(pid => newThreads += ns.getRunningScript(pid).threads);
-        usableScripts -= newScripts*actualNumOfBatches;
-        usableThreads -= newThreads*actualNumOfBatches;
+        if (cycle == 1) { //in first cycle, reserve out the rest of the needed scripts/thread to complete the batch
+          usableScripts -= newScripts*(actualNumOfBatches - batch);
+          usableThreads -= newThreads*(actualNumOfBatches - batch);
+        } else {
+          usableScripts -= newScripts;
+          usableThreads -= newThreads
+        }
 
         /**Main Control Loop timing prep */
         if (i == 0 && results.successful) {
