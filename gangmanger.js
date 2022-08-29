@@ -72,7 +72,7 @@ export async function main(ns) {
       } else {//12, not strong enough, need territory
         requestWarfare = false;
         requestPrep = true;
-        logger(ns, 'INFO: Full Crew, getting ready to fight!', 0);
+        logger(ns, 'INFO: Full Crew, getting ready to fight! Need/Have ' + Math.ceil(maxPower) + '/' + Math.floor(gangInfo.power), 0);
       }
     } else { //less then 12
       if (requestWarfare) {//less then 12 and active warfare
