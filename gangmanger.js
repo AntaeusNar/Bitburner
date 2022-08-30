@@ -140,6 +140,9 @@ export async function main(ns) {
     Object.keys(otherGangs).forEach(key => {
       maxPower = Math.max(maxPower, otherGangs[key].power);
     });
+    if (gangInfo.power > maxPower && gangInfo.territory < 1) {
+      warfare = true;
+    }
     //Warfare Update
     if (!activeWarfare && warfare) {
       ns.gang.setTerritoryWarfare(true);
