@@ -1,4 +1,5 @@
 import {baseDelay} from 'options.js';
+
 /** Checks for existance of file on the spesified or home server
   * @param {NS} ns
   * @param {string} file - File Name
