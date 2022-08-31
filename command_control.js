@@ -138,7 +138,7 @@ export async function main(ns) {
     }
 
     //logging
-    let cycleBatchMessage = 'Cycle #: ' + cycle + ' Batch #: ' + batch + '.  ';
+    let cycleBatchMessage = 'Start Cycle #: ' + cycle + ' Batch #: ' + batch + '.  ';
     let deployedScripts = maxScripts - usableScripts;
     let deployedThreads = estThreads - usableThreads;
     let scriptsMessage = 'Deployed/Available Scripts: ' + deployedScripts + '/' + maxScripts + '.  ';
@@ -202,11 +202,6 @@ export async function main(ns) {
         await ns.sleep(1);
       }//end of iterive deployment handling
 
-      if (usableThreads <= 0) {
-        logger(ns, 'INFO: Ran out of threads.', 0);
-      } else if (usableScripts <= 0) {
-        logger(ns, 'INFO: Ran out of Scipts', 0);
-      }
 
       // TODO: switch everything around when just needing to gain exp.
 
