@@ -275,8 +275,8 @@ export class TargetServer extends InactiveTarget {
     */
   static betterThanNextLast(targets) {
     for (let i = 0; i+1 < targets.length; i++) {
-      targets[i].betterThanNext = truncateNumber(targets[i].basePriority/targets[i+1].basePriority);
-      targets[i].betterThanLast = truncateNumber(targets[i].basePriority/targets[targets.length-1].basePriority);
+      targets[i].betterThanNext = truncateNumber(targets[i].basePriority/Math.max(targets[i+1].basePriority, .001));
+      targets[i].betterThanLast = truncateNumber(targets[i].basePriority/Math.max(targets[targets.length-1].basePriority, 001));
     }
   }//end of betterThanNextLast
 
