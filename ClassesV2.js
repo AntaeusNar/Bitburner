@@ -364,6 +364,7 @@ export class TargetServer extends InactiveTarget {
     } else { //if we still have threads, scripts, and targets, and have loop up and back to here, check the next one
       //logger(ns, 'INFO: Calculating take for next Target.');
       indexOfTarget++;
+
       await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget);
     }
   }// end of adjustTake
@@ -375,33 +376,102 @@ export class ServerFactory {
 
   /** creates the servers
     * @param {NS} ns
-    * @param {string} hostname
-    * @param {string} serverType
+    * @param {array} serverList
+    * @param {array} files
     * @param {number} [neededRam=0] - ram per thread
     */
-  create = (ns, hostname, serverType, neededRam=0) => {
-    //Check for valid hostname
-    if (typeof(hostname) !== 'string' || !ns.serverExists(hostname)) {
-      throw new Error(hostname + ' is not a valid string or a valid hostname.');
-    }
-    //check for valid serverType
-    if (!serverType || typeof(serverType) != 'string' ||
-      !(serverType == 'Drone' || serverType == 'Target' || serverType == 'InactiveDrone' || serverType == 'InactiveTarget')) {
-        throw new Error('Not a valid server type.')
-    }
-
-    let server;
-
-    if (serverType == 'Target') {
-      server = new TargetServer(ns, hostname);
-    } else if (serverType == 'InactiveTarget') {
-      server = new InactiveTarget(ns, hostname);
-    } else if (serverType == 'Drone') {
-      server = new DroneServer(ns, hostname);
-    } else if (serverType == 'InactiveDrone') {
-      server = new InactiveDrone(ns, hostname);
+  create = (ns, serverList, files, neededRam=0) => {
+    let inventory = {
+      estThreads: 0,
+      targets: [],
+      drones: [],
+      inactiveTargets: [],
+      inactiveDrones: [],
+      others:[],
     }
 
+    for (let hostname of serverList) {
+      //Check for valid hostname
+      if (typeof(hostname) !== 'string' || !ns.serverExists(hostname)) {
+        throw new Error(hostname + ' is not a valid string or a valid hostname.');
+      }
+      let built = false;
+      /**Target and inactive target builds */
+      if (getRoot(ns, hostname) &&
+        ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel() &&
+        ns.getServerMaxMoney(hostname) > 0 &&
+        hostname != 'home' &&) {
+          inventory.targets.push(commonProps(ns, new TargetServer(ns, hostname), 'Target'));
+          built = true;
+        } else if (ns.getServerMaxMoney(serverhostname) > 0 && serverhostname != 'home'){
+          server = commonProps(ns, new Inac)
+          inventory.inactiveTargets.push(commonProps(ns, new InactiveTarget(ns, hostanme), 'InactiveTarget'));
+          built = true;
+        }
+        /* Drones and InactiveDrones builds */
+        if ((ns.getServerMaxRam(serverhostname) > 0 && getRoot(ns, serverhostname)) || serverhostname == 'home') {
+          inventory.drones.push(commonProps(ns, new Drone(ns, hostname, neededRam), 'Drone', neededRam));
+          built = true;
+        } else if (ns.getServerMaxRam(serverhostname) > 0) {
+          inventory.inactiveDrones.push(commonProps(ns, new InactiveDrone(ns, hostname, neededRam), 'InactiveDrone', neededRam);
+          built = true;
+        }
+        /** others */
+        if (!built) {
+          inventory.others.push(hostname);
+        }
+
+    }
+
+    //additional drone prep
+    for (let drone of inventory.drones) {
+      if(drone.hostname != 'home'){
+        await ns.scp(files, drone.hostname, 'home');
+        ns.killall(drone.hostname);
+      }
+    }
+
+    //sorts
+    inventory.targets.sort(function(a,b) {
+      return b.basePriority - a.basePriority;
+    });
+    inventory.drones.sort(function(a,b) {
+      return b.maxRam - a.maxRam;
+    });
+    inventory.inactiveDrones.sort(function(a,b) {
+      return b.numberOfPortsRequired - a.numberOfPortsRequired;
+    });
+    inventory.inactiveTargets.sort(function(a, b) {
+      return b.requiredHackingSkill - a.requiredHackingSkill;
+    });
+
+    //calc ratio between each target and the next and last targets
+    TargetServer.betterThanNextLast(inventory.targets);
+    //collect the estimated number of available threads
+    const inventory.estThreads = inventory.drones.reduce((accumulator, drone) => {
+      return accumulator + drone.threads;
+    }, 0);
+
+    // status message
+    let bestTarget = inventory.targets[0];
+    let bestDrone = inventory.drones[0];
+    let targetMessage = 'Best target is ' + bestTarget.hostname + ' with a basic priority of ' + bestTarget.basePriority + '.  ';
+    let droneMessage = 'Best drone is ' + bestDrone.hostname + ' with ' + truncateNumber(bestDrone.threads/inventory.estThreads*100, 2) + '% of threads.  ' + bestDrone.threads + '/' + inventory.estThreads;
+    let message = targetMessage + droneMessage;
+    logger(ns, message);
+
+    await fileDump(ns, inventory);
+
+
+    //Targets ratio adjustments
+    logger(ns, 'INFO: Starting adjustments, standby....');
+    await TargetServer.adjustTake(ns, inventory.targets, inventory.estThreads);
+    await fileDump(ns, inventory, 'adjusteddump.txt');
+
+    return inventory
+  }//end of create
+
+  commonProps(ns, server, serverType, neededRam=0) {
     /** Common to all properties */
     server.hostname = hostname;
     server.serverType = serverType;
@@ -426,9 +496,9 @@ export class ServerFactory {
     } else {
       server.init();
     }
-
     return server;
-  }//end of create
+  }// end of commonProps
+
 }//end of server Factory
 
 /** Script class */

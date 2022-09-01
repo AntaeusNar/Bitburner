@@ -11,7 +11,7 @@
   * @param {NS} ns
   */
 import {logger, getNeededRam, multiscan, fileDump, getRoot, truncateNumber, deployVectors} from 'lib.js';
-import {TargetServer, ServerFactory, Script} from 'ClassesV2.js';
+import {ServerFactory, Script} from 'ClassesV2.js';
 import {baseDelay, maxScripts, budgetPercentageLimit} from 'options.js';
 export async function main(ns) {
 
@@ -33,80 +33,14 @@ export async function main(ns) {
 
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
-  let inventory = {
-    targets: [],
-    drones: [],
-    inactiveTargets: [],
-    inactiveDrones: [],
-  };
   const serverFactory = new ServerFactory();
-  for (let i = 0; i < serverList.length; i++) {
-    let serverhostname = serverList[i];
-    logger(ns, 'INFO: Building ' + serverhostname, 0);
-    if (ns.getServerRequiredHackingLevel(serverhostname) <= ns.getHackingLevel() &&
-      ns.getServerMaxMoney(serverhostname) > 0 &&
-      serverhostname != 'home' &&
-      getRoot(ns, serverhostname)){
-        inventory.targets.push(serverFactory.create(ns, serverhostname, 'Target'));
-    } else if (ns.getServerMaxMoney(serverhostname) > 0 && serverhostname != 'home') {
-      inventory.inactiveTargets.push(serverFactory.create(ns, serverhostname, 'InactiveTarget'));
-    }
-    if (ns.getServerMaxRam(serverhostname) > 0 && getRoot(ns, serverhostname) || serverhostname == 'home') {
-      inventory.drones.push(serverFactory.create(ns, serverhostname, 'Drone', neededRam));
-    } else if (ns.getServerMaxRam(serverhostname) > 0) {
-      inventory.inactiveDrones.push(serverFactory.create(ns, serverhostname, 'InactiveDrone', neededRam));
-    }
-  }
-
-  //additional drone prep
-  for (let drone of inventory.drones) {
-    if(drone.hostname != 'home'){
-      await ns.scp(files, drone.hostname, 'home');
-      ns.killall(drone.hostname);
-    }
-  }
-
-  //sorts
-  inventory.targets.sort(function(a,b) {
-    return b.basePriority - a.basePriority;
-  });
-  inventory.drones.sort(function(a,b) {
-    return b.maxRam - a.maxRam;
-  });
-  inventory.inactiveDrones.sort(function(a,b) {
-    return b.numberOfPortsRequired - a.numberOfPortsRequired;
-  });
-  inventory.inactiveTargets.sort(function(a, b) {
-    return b.requiredHackingSkill - a.requiredHackingSkill;
-  });
-
-  //calc ratio between each target and the next and last targets
-  TargetServer.betterThanNextLast(inventory.targets);
-  //collect the estimated number of available threads
-  const estThreads = inventory.drones.reduce((accumulator, drone) => {
-    return accumulator + drone.threads;
-  }, 0);
-
-  // status message
-  let bestTarget = inventory.targets[0];
-  let bestDrone = inventory.drones[0];
-  let targetMessage = 'Best target is ' + bestTarget.hostname + ' with a basic priority of ' + bestTarget.basePriority + '.  ';
-  let droneMessage = 'Best drone is ' + bestDrone.hostname + ' with ' + truncateNumber(bestDrone.threads/estThreads*100, 2) + '% of threads.  ' + bestDrone.threads + '/' + estThreads;
-  let message = targetMessage + droneMessage;
-  logger(ns, message);
-
-  await fileDump(ns, inventory);
-
-
-  //Targets ratio adjustments
-  logger(ns, 'INFO: Starting adjustments, standby....');
-  await TargetServer.adjustTake(ns, inventory.targets, estThreads);
-  await fileDump(ns, inventory, 'adjusteddump.txt');
+  let inventory = serverFactory(ns, serverList, files, neededRam);
 
   if (ns.args[0]) {
     logger(ns, 'WARNING: Requested test run only, exiting');
     throw '';
   }
+
   /** Main Control loop
     * Deploy drone scripts on drones against targets
     */
@@ -125,24 +59,23 @@ export async function main(ns) {
 
     /** PID/Scripts/Threads Tracking Reconciliation */
     //uses the running tracker of active scripts to see how many of the threads/scripts are in use at the start each batch
-    if (cycle == 1 && batch == 1) {//should run on first batch/cycle only
       usableScripts = maxScripts;
-      usableThreads = estThreads;
+      usableThreads = inventory.estThreads;
     } else {
       trackedScripts = trackedScripts.filter(pid => pid.isActive);
       let inUseThreads = 0;
       let inUseScripts = trackedScripts.length;
       trackedScripts.forEach( pid => inUseThreads += pid.threads)
-      usableThreads = estThreads - inUseThreads;
+      usableThreads = inventory.estThreads - inUseThreads;
       usableScripts = maxScripts - inUseScripts;
     }
 
     //logging
     let cycleBatchMessage = 'Start Cycle #: ' + cycle + ' Batch #: ' + batch + '.  ';
     let deployedScripts = maxScripts - usableScripts;
-    let deployedThreads = estThreads - usableThreads;
+    let deployedThreads = inventory.estThreads - usableThreads;
     let scriptsMessage = 'Deployed/Available Scripts: ' + deployedScripts + '/' + maxScripts + '.  ';
-    let threadsMessage = 'Deployed/Available Threads: ' + deployedThreads + '/' + estThreads + '. ';
+    let threadsMessage = 'Deployed/Available Threads: ' + deployedThreads + '/' + inventory.estThreads + '. ';
     logger(ns,  'INFO: ' + cycleBatchMessage + threadsMessage + scriptsMessage, 0);
 
     /** Interive deployment handling */
@@ -164,7 +97,7 @@ export async function main(ns) {
 
         /**Main Control Loop timing prep */
         if (i == 0 && results.successful) {
-          let maxNumBatches = Math.max(1, Math.min(estThreads/results.vectors.totalVectors, maxScripts/4));
+          let maxNumBatches = Math.max(1, Math.min(inventory.estThreads/results.vectors.totalVectors, maxScripts/4));
           let theoryTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
           actualNumOfBatches = Math.floor(results.batchTime/theoryTime);
           sleepTime = Math.ceil(results.batchTime/actualNumOfBatches);
