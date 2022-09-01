@@ -442,10 +442,10 @@ export class ServerFactory {
       return b.maxRam - a.maxRam;
     });
     inventory.inactiveDrones.sort(function(a,b) {
-      return b.numberOfPortsRequired - a.numberOfPortsRequired;
+      return a.numberOfPortsRequired - b.numberOfPortsRequired;
     });
     inventory.inactiveTargets.sort(function(a, b) {
-      return b.requiredHackingSkill - a.requiredHackingSkill;
+      return a.requiredHackingSkill - b.requiredHackingSkill;
     });
 
     //calc ratio between each target and the next and last targets
