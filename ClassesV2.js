@@ -404,7 +404,7 @@ export class ServerFactory {
           inventory.targets.push(this.commonProps(ns, new TargetServer(ns, hostname), hostname, 'Target'));
           built = true;
         } else if (ns.getServerMaxMoney(hostname) > 0 && hostname != 'home'){
-          inventory.inactiveTargets.push(this.commonProps(ns, new InactiveTarget(ns, hostanme), hostanme, 'InactiveTarget'));
+          inventory.inactiveTargets.push(this.commonProps(ns, new InactiveTarget(ns, hostname), hostname, 'InactiveTarget'));
           built = true;
         }
         /* Drones and InactiveDrones builds */
