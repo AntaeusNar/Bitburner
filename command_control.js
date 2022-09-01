@@ -10,7 +10,7 @@
   * Recursivly scans the network, evals targets and drones, deploys (W)GWHW batchs on drone agianst targets
   * @param {NS} ns
   */
-import {logger, getNeededRam, multiscan, fileDump, getRoot, truncateNumber, deployVectors} from 'lib.js';
+import {logger, getNeededRam, multiscan, deployVectors} from 'lib.js';
 import {ServerFactory, Script} from 'ClassesV2.js';
 import {baseDelay, maxScripts, budgetPercentageLimit} from 'options.js';
 export async function main(ns) {
@@ -34,7 +34,7 @@ export async function main(ns) {
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
   const serverFactory = new ServerFactory();
-  let inventory = serverFactory(ns, serverList, files, neededRam);
+  let inventory = await serverFactory.create(ns, serverList, files, neededRam);
 
   if (ns.args[0]) {
     logger(ns, 'WARNING: Requested test run only, exiting');
@@ -189,7 +189,7 @@ export async function main(ns) {
         usableScripts = 0;
         usableThreads = 0;
         serverList = multiscan(ns, 'home');
-        inventory = serverFactory(ns, serverList, files, neededRam);
+        inventory = await serverFactory.create(ns, serverList, files, neededRam);
       }
   }//end of main control loop
 } //end of Main Program

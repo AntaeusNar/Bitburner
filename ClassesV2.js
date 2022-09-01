@@ -1,4 +1,4 @@
-import {can, getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime, evalPercentTakePerHack, truncateNumber} from 'lib.js';
+import {can, getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime, evalPercentTakePerHack, truncateNumber, fileDump} from 'lib.js';
 import {baseDelay, maxScripts} from 'options.js';
 
 /** InactiveDrone server class */
@@ -276,7 +276,7 @@ export class TargetServer extends InactiveTarget {
   static betterThanNextLast(targets) {
     for (let i = 0; i+1 < targets.length; i++) {
       targets[i].betterThanNext = truncateNumber(targets[i].basePriority/Math.max(targets[i+1].basePriority, .001));
-      targets[i].betterThanLast = truncateNumber(targets[i].basePriority/Math.max(targets[targets.length-1].basePriority, 001));
+      targets[i].betterThanLast = truncateNumber(targets[i].basePriority/Math.max(targets[targets.length-1].basePriority, .001));
     }
   }//end of betterThanNextLast
 
@@ -380,7 +380,7 @@ export class ServerFactory {
     * @param {array} files
     * @param {number} [neededRam=0] - ram per thread
     */
-  create = (ns, serverList, files, neededRam=0) => {
+  async create(ns, serverList, files, neededRam=0){
     let inventory = {
       estThreads: 0,
       targets: [],
@@ -400,20 +400,19 @@ export class ServerFactory {
       if (getRoot(ns, hostname) &&
         ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel() &&
         ns.getServerMaxMoney(hostname) > 0 &&
-        hostname != 'home' &&) {
-          inventory.targets.push(commonProps(ns, new TargetServer(ns, hostname), 'Target'));
+        hostname != 'home') {
+          inventory.targets.push(this.commonProps(ns, new TargetServer(ns, hostname), hostname, 'Target'));
           built = true;
-        } else if (ns.getServerMaxMoney(serverhostname) > 0 && serverhostname != 'home'){
-          server = commonProps(ns, new Inac)
-          inventory.inactiveTargets.push(commonProps(ns, new InactiveTarget(ns, hostanme), 'InactiveTarget'));
+        } else if (ns.getServerMaxMoney(hostname) > 0 && hostname != 'home'){
+          inventory.inactiveTargets.push(this.commonProps(ns, new InactiveTarget(ns, hostanme), hostanme, 'InactiveTarget'));
           built = true;
         }
         /* Drones and InactiveDrones builds */
-        if ((ns.getServerMaxRam(serverhostname) > 0 && getRoot(ns, serverhostname)) || serverhostname == 'home') {
-          inventory.drones.push(commonProps(ns, new Drone(ns, hostname, neededRam), 'Drone', neededRam));
+        if ((ns.getServerMaxRam(hostname) > 0 && getRoot(ns, hostname)) || hostname == 'home') {
+          inventory.drones.push(this.commonProps(ns, new DroneServer(ns, hostname, neededRam), hostname, 'Drone', neededRam));
           built = true;
-        } else if (ns.getServerMaxRam(serverhostname) > 0) {
-          inventory.inactiveDrones.push(commonProps(ns, new InactiveDrone(ns, hostname, neededRam), 'InactiveDrone', neededRam);
+        } else if (ns.getServerMaxRam(hostname) > 0) {
+          inventory.inactiveDrones.push(this.commonProps(ns, new InactiveDrone(ns, hostname, neededRam), hostname, 'InactiveDrone', neededRam));
           built = true;
         }
         /** others */
@@ -446,9 +445,12 @@ export class ServerFactory {
     });
 
     //calc ratio between each target and the next and last targets
-    TargetServer.betterThanNextLast(inventory.targets);
+    if (inventory.targets.length > 1) {
+      TargetServer.betterThanNextLast(inventory.targets);
+    }
+
     //collect the estimated number of available threads
-    const inventory.estThreads = inventory.drones.reduce((accumulator, drone) => {
+    inventory.estThreads = inventory.drones.reduce((accumulator, drone) => {
       return accumulator + drone.threads;
     }, 0);
 
@@ -471,7 +473,7 @@ export class ServerFactory {
     return inventory
   }//end of create
 
-  commonProps(ns, server, serverType, neededRam=0) {
+  commonProps(ns, server, hostname, serverType, neededRam=0) {
     /** Common to all properties */
     server.hostname = hostname;
     server.serverType = serverType;
