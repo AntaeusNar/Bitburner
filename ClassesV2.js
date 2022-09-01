@@ -417,6 +417,10 @@ export class ServerFactory {
         }
         /** others */
         if (!built) {
+          if (hostname == 'w0r1d_d43m0n' && ns.gerServerRequiredHackingLevel(hostname) > ns.getHackingLevel()) {
+            logger(ns, 'Can backdoor w0r1ld_d43m0n');
+            ns.exit();
+          }
           inventory.others.push(hostname);
         }
 
