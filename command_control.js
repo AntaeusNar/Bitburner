@@ -52,6 +52,7 @@ export async function main(ns) {
   let trackedScripts = [];
   let usableScripts = 0;
   let usableThreads = 0;
+  let setRestart = false;
 
   logger(ns, 'INFO: Starting Main Loop');
   //Main loop
@@ -59,6 +60,7 @@ export async function main(ns) {
 
     /** PID/Scripts/Threads Tracking Reconciliation */
     //uses the running tracker of active scripts to see how many of the threads/scripts are in use at the start each batch
+    if ((cycle == 1 && batch == 1) || setRestart) {//should run on first batch/cycle only or restart
       usableScripts = maxScripts;
       usableThreads = inventory.estThreads;
     } else {
@@ -144,42 +146,50 @@ export async function main(ns) {
       /**Upgrade Control Section */
       // TODO: try to purchase new tools if needed.
       // TODO: add in the eval and purchase of persnal servers
-      let setReSpawn = false;
+      setRestart = false;
       if (ns.getServerMoneyAvailable('home')* budgetPercentageLimit > ns.singularity.getUpgradeHomeRamCost() && ns.singularity.upgradeHomeRam()) {
-        setReSpawn = true;
-        logger(ns, 'INFO: Upgraded Home Ram, requesting respawn,')
+        setRestart = true;
+        logger(ns, 'INFO: Upgraded Home Ram, requesting restart,')
       }
       if (inventory.inactiveDrones.length > 0 && inventory.inactiveDrones[0].hasAdminRights) {
-        setReSpawn = true;
-        logger(ns, 'INFO: New Drone Available, requesting respawn.')
+        setRestart = true;
+        logger(ns, 'INFO: New Drone Available, requesting restart.')
       }
       if (inventory.inactiveTargets.length > 0 && inventory.inactiveTargets[0].hasAdminRights && inventory.inactiveTargets[0].requiredHackingSkill <= ns.getHackingLevel()){
-        setReSpawn = true;
-        logger(ns, 'INFO: New Drone Available, requesting respawn.')
-      }
-
-      //respawn self
-      if (setReSpawn){
-        logger(ns, 'INFO: Respawn Requested, killing controlled scripts and respawning, please standby...')
-        //kill all controled scripts
-        trackedScripts.forEach(script => ns.kill(script.pid));
-        //respawn self
-        ns.spawn('command_control.js');
+        setRestart = true;
+        logger(ns, 'INFO: New Target Available, requesting restart.')
       }
 
       /** Main Control Loop timing handling  && Logging*/
       deployedScripts = maxScripts - usableScripts;
-      deployedThreads = estThreads - usableThreads;
+      deployedThreads = inventory.estThreads - usableThreads;
       scriptsMessage = 'Deployed or Reserved/Available Scripts: ' + deployedScripts + '/' + maxScripts + '.  ';
-      threadsMessage = 'Deployed or Reserved/Available Threads: ' + deployedThreads + '/' + estThreads + '.  ';
+      threadsMessage = 'Deployed or Reserved/Available Threads: ' + deployedThreads + '/' + inventory.estThreads + '.  ';
       let waitTime = new Date(sleepTime).toISOString().substr(11,12);
       let timeMessage = 'Waiting: ' + waitTime + ' # of Batches in cycle: ' + actualNumOfBatches + '.  ';
       logger(ns, 'INFO: ' + timeMessage + threadsMessage + scriptsMessage, 0);
       batch++;
+
       if (batch >= actualNumOfBatches) {
         cycle++;
         batch = 1;
       }
       await ns.sleep(sleepTime);
+
+      //respawn self
+      if (setRestart){
+        logger(ns, 'INFO: Restart Requested, killing controlled scripts and restarting, please standby...')
+        //kill all controled scripts
+        trackedScripts.forEach(script => ns.kill(script.pid));
+        //resetting initalization
+        //loop initalization
+        sleepTime = baseDelay;
+        actualNumOfBatches = 0;
+        trackedScripts = [];
+        usableScripts = 0;
+        usableThreads = 0;
+        serverList = multiscan(ns, 'home');
+        inventory = serverFactory(ns, serverList, files, neededRam);
+      }
   }//end of main control loop
 } //end of Main Program
