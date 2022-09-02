@@ -144,7 +144,7 @@ export class InactiveTarget {
 
   //time in milliseconds
   get batchTime() {
-    return this.idealWeakenTime*1000+baseDelay*5;
+    return truncateNumber(this.idealWeakenTime*1000+baseDelay*5, 0, 'ceil');
   }
 
   get cycleThreads() {
@@ -232,8 +232,6 @@ export class TargetServer extends InactiveTarget {
     return truncateNumber((this.moneyMax*this.takePercent)/this.actualVectorsPerBatch/(this.batchTime/1000));
   }
 
-
-
   init() {
     logger(this.ns, 'Initialized TargetServer ' + this.hostname, 0);
     this.isHackable;
@@ -257,6 +255,7 @@ export class TargetServer extends InactiveTarget {
       takePercent: this.takePercent,
       batchTime: this.batchTime,
       idealVectorsPerBatch: this.idealVectorsPerBatch,
+      realVectorsPerBatch: this.realVectorsPerBatch(10000).totalVectors,
       batchesPerCycle: this.batchesPerCycle,
       cycleThreads: this.cycleThreads,
       betterThanNext: this.betterThanNext,
