@@ -108,7 +108,7 @@ export class InactiveTarget {
 
   //EVAL ONLY: returns best case.
   get percentPerSingleHack() {
-    return truncateNumber(evalPercentTakePerHack(this.ns, this, this.ns.getPlayer()));
+    return truncateNumber(evalPercentTakePerHack(this.ns, this, this.ns.getPlayer()), 7);
   }
 
   //EVAL ONLY: returns best case in sec.
@@ -131,7 +131,7 @@ export class InactiveTarget {
   }
 
   get takePercent() {
-    return Math.min(1,truncateNumber(this._takePercent));
+    return Math.min(1,truncateNumber(this._takePercent, 7));
   }
 
   set takePercent(take) {
