@@ -449,9 +449,9 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 	}// end of (W) threads
 
 	// GW threads
-	if (vectors.growThreads > 0 && (target.isPrimedStr && usableScripts > 0)) {//if we need to grow and target strength is primed
+	if (vectors.growThreads > 0 && target.isPrimedStr && usableScripts > 0) {//if we need to grow and target strength is primed
 		//Deploy the growWeakens first
-		let gwlocalResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.growWeakens, stageThreeDelay, cycleBatch)
+		let gwlocalResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.growWeakens, stageThreeDelay, cycleBatch);
 		if (!gwlocalResults.successful) {
 			logger(ns, 'WARNING: Could not deploy all growWeaken()s agianst ' + target.hostname, 0);
 			successful = false;
@@ -462,14 +462,13 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		pids.push(...gwlocalResults.pids);
 
 		//Deploy the grows
-		let glocalResults = macroDeploy(ns, drones, growFile, target.hostname, vectors.growThreads, stageTwoDelay, cycleBatch)
 		if (vectors.growThreads > 0 && successful && usableScripts > 0) {
+			let glocalResults = macroDeploy(ns, drones, growFile, target.hostname, vectors.growThreads, stageTwoDelay, cycleBatch);
 			if (!glocalResults.successful) {
 				logger(ns, 'WARNING: Could not deploy all Grow()s against ' + target.hostname, 0);
 				successful = false;
 			} else {
 				successful = true;
-
 				if (vectors.shouldPrimeMoney) { //if deploying all of the growThreads should get the target's money primed, set  flag
 					target.isPrimedMoney = true;
 				}
@@ -493,16 +492,19 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		pids.push(...hwlocalResults.pids);
 
 		//Deploy the hacks
-		let hlocalResults = macroDeploy(ns, drones, hackFile, target.hostname, vectors.hackThreads, stageFourDelay, cycleBatch)
-		if (!hlocalResults.successful) {
-			logger(ns, 'WARNING: Could not deploy all Hack()s agianst ' + target.hostname, 0);
-			successful = false;
-		} else {
-			successful = true;
+		if (successful) {
+			let hlocalResults = macroDeploy(ns, drones, hackFile, target.hostname, vectors.hackThreads, stageFourDelay, cycleBatch)
+			if (!hlocalResults.successful) {
+				logger(ns, 'WARNING: Could not deploy all Hack()s agianst ' + target.hostname, 0);
+				successful = false;
+			} else {
+				successful = true;
+			}
+			usableScripts -= hlocalResults.deployedScripts;
+			pids.push(...hlocalResults.pids);
 		}
-		usableScripts -= hlocalResults.deployedScripts;
-		pids.push(...hlocalResults.pids);
 	}
+
 
 	//Error handling
 	if (pids.includes(0)) {
