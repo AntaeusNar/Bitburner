@@ -127,7 +127,7 @@ export class InactiveTarget {
 
   //EVAL ONLY: returns best case.
   get batchesPerCycle() {
-    return truncateNumber(this.idealWeakenTime + (baseDelay*3/1000)/baseDelay, 0, 'floor');
+    return truncateNumber(this.batchTime/baseDelay, 0, 'floor');
   }
 
   get takePercent() {
@@ -148,7 +148,7 @@ export class InactiveTarget {
   }
 
   get cycleThreads() {
-    return truncateNumber(this.batchesPerCycle*this.batchTime/baseDelay*this.idealVectorsPerBatch, 0, 'ceil');
+    return truncateNumber(this.batchesPerCycle*this.idealVectorsPerBatch, 0, 'ceil');
   }
 
   //$/threads/sec/batch at lowest take and ideal conditions
@@ -251,23 +251,24 @@ export class TargetServer extends InactiveTarget {
   toJSON() {
     return {
       hostname: this.hostname,
+      adjustedPriority: this.adjustedPriority,
+      basePriority: this.basePriority,
+      percentPerSingleHack: this.percentPerSingleHack,
+      takePercent: this.takePercent,
+      batchTime: this.batchTime,
+      idealVectorsPerBatch: this.idealVectorsPerBatch,
+      batchesPerCycle: this.batchesPerCycle,
+      cycleThreads: this.cycleThreads,
+      betterThanNext: this.betterThanNext,
+      betterThanLast: this.betterThanLast,
+      isPrimedStr: this.isPrimedStr,
+      isPrimedMoney: this.isPrimedMoney,
       serverType: this.serverType,
       numberOfPortsRequired: this.numberOfPortsRequired,
       requiredHackingSkill: this.requiredHackingSkill,
       isHackable: this.isHackable,
       minDifficulty: this.minDifficulty,
       moneyMax: this.moneyMax,
-      basePriority: this.basePriority,
-      adjustedPriority: this.adjustedPriority,
-      percentPerSingleHack: this.percentPerSingleHack,
-      evalWeakenTime: this.evalWeakenTime,
-      takePercent: this.takePercent,
-      idealVectorsPerBatch: this.idealVectorsPerBatch,
-      betterThanNext: this.betterThanNext,
-      betterThanLast: this.betterThanLast,
-      isPrimedStr: this.isPrimedStr,
-      isPrimedMoney: this.isPrimedMoney,
-      cycleThreads: this.cycleThreads,
     }
   }
 
