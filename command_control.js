@@ -116,13 +116,10 @@ export async function main(ns) {
         let newScripts = results.pids.length;
         let newThreads = 0;
         newPids.forEach(pid => newThreads += pid.threads);
-        if (cycle == 1) { //in first cycle, reserve out the rest of the needed scripts/thread to complete the batch
-          usableScripts -= Math.min(newScripts*(1 + actualNumOfBatches - batch), usableScripts);
-          usableThreads -= Math.min(newThreads*(1 + actualNumOfBatches - batch), usableThreads);
-        } else {
-          usableScripts -= newScripts;
-          usableThreads -= newThreads
-        }
+        //reserve out enough threads and scripts to complete the cycle
+        usableScripts -= Math.min(newScripts*(1 + actualNumOfBatches - batch), usableScripts);
+        usableThreads -= Math.min(newThreads*(1 + actualNumOfBatches - batch), usableThreads);
+
         newPids.forEach(pid => trackedScripts.push(pid));
 
         //logging
