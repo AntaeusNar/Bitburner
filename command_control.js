@@ -175,7 +175,7 @@ export async function main(ns) {
       logger(ns, 'INFO: ' + timeMessage + threadsMessage + scriptsMessage, 0);
       batch++;
 
-      if (batch >= actualNumOfBatches) {
+      if (batch > actualNumOfBatches) {
         cycle++;
         batch = 1;
       }
