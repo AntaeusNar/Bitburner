@@ -151,9 +151,10 @@ export class InactiveTarget {
     return truncateNumber(this.batchesPerCycle*this.batchTime/baseDelay*this.idealVectorsPerBatch, 0, 'ceil');
   }
 
+  //$/threads/sec/batch at lowest take and ideal conditions
   get basePriority() {
-    //$/threads/sec at lowest take and ideal conditions
-    return truncateNumber(this.moneyMax*this.percentPerSingleHack/this.idealVectorsPerBatch/this.batchTime);
+
+    return truncateNumber((this.moneyMax*this.percentPerSingleHack)/this.idealVectorsPerBatch/(this.batchTime/1000));
   }
 
   init() {
@@ -226,9 +227,9 @@ export class TargetServer extends InactiveTarget {
     return evalVectorsPerBatch(this.ns, this, this.ns.getPlayer());
   }
 
-  //$/threads/sec at take and ideal conditions
+  //$/threads/sec/batch at take and ideal conditions
   get adjustedPriority() {
-    return truncateNumber(this.moneyMax*this.takePercent/this.actualVectorsPerBatch/this.batchTime);
+    return truncateNumber((this.moneyMax*this.takePercent)/this.actualVectorsPerBatch/(this.batchTime/1000));
   }
 
 
