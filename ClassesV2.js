@@ -503,6 +503,15 @@ export class ServerFactory {
     } else {
       server.init();
     }
+
+    /** Error Checking */
+    if (serverType == 'Target') {
+      if (server.idealVectorsPerBatch > server.realVectorsPerBatch(1000).totalVectors){
+        let message = server.hostname + ' vector prediction error. Ideal: ' + server.idealVectorsPerBatch + ' Actual: ' + server.realVectorsPerBatch(1000).totalVectors +
+                        ' Please check bitnode level info and core bonus info.';
+        throw new Error(message);
+      }
+    }
     return server;
   }// end of commonProps
 
