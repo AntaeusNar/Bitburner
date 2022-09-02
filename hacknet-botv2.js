@@ -49,7 +49,7 @@ class Action {
 		MaxRam: 64,
 		MaxCores: 16,
 		MoneyGainPerLevel: 1.5,
-		HackNetNodeMoneyBitNode: 1/Math.pow(1.02, 4), /** <= Needs to be adjusted for every bitnode -> https://github.com/danielyxie/bitburner/blob/dev/src/BitNode/BitNode.tsx*/
+		HackNetNodeMoneyBitNode: 1/Math.pow(1.02, 5), /** <= Needs to be adjusted for every bitnode -> https://github.com/danielyxie/bitburner/blob/dev/src/BitNode/BitNode.tsx*/
 	}
 	sys;
 	nodeIndex;
