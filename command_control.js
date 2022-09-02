@@ -104,8 +104,8 @@ export async function main(ns) {
           actualNumOfBatches = Math.floor(results.batchTime/theoryTime);
           sleepTime = Math.ceil(results.batchTime/actualNumOfBatches);
         } else if (i == 0 && !results.successful){
-          actualNumOfBatches = 1;
-          sleepTime = currentTarget.batchTime;
+          logger(ns, 'WARNING: Primary Target deployments unsuccessful.  Allowing cleanup to happen.');
+          sleepTime = Math.max(currentTarget.batchTime/5, baseDelay*4);
         }
 
         /** PID/Scripts/Threads Tracking Update Section */
