@@ -509,12 +509,7 @@ export class ServerFactory {
       if (server.idealVectorsPerBatch > server.realVectorsPerBatch(1000).totalVectors){
         let message = server.hostname + ' vector prediction error. Ideal: ' + server.idealVectorsPerBatch + ' Actual: ' + server.realVectorsPerBatch(1000).totalVectors +
                         ' Please check bitnode level info and core bonus info.';
-        if (!ns.args[0]) {
-          throw new Error(message);
-        } else {
-          logger(ns, 'WARNING: ' + message);
-        }
-
+        logger(ns, 'WARNING: ' + message);
       }
     }
     return server;
