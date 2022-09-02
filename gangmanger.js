@@ -60,7 +60,7 @@ export async function main(ns) {
     let arrTasks = []; //blank available tasks
     arrTasks.push('Crime'); //add crime option
     arrTasks.push('Terrorism'); //add Terrorism as addition option
-    if (gangCrew.length < 12) {arrTasks.push('Terrorism'); arrTask.push('Crime');} // add Terrorism if less then 12 gang members
+    if (gangCrew.length < 12) {arrTasks.push('Terrorism'); arrTasks.push('Crime');} // add Terrorism if less then 12 gang members
     if (gangInfo.territory < 1) {arrTasks.push('Territory Warfare');}//add Warfare if we dont have 100% terriory
 
 
