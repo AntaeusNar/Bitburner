@@ -85,8 +85,8 @@ export async function main(ns) {
     let setBreak = false;
 
     while (i < inventory.targets.length &&
-      usableThreads > 0 &&
-      usableScripts > 0) {
+      usableThreads > inventory.targets[i].idealVectorsPerBatch &&
+      usableScripts > 4) {
         /** Main Iterive Deployment Section */
         //Inside of each batch, selects a target and attempts to deploy vectors as scripts and threads against the target across the drone network
         let currentTarget = inventory.targets[i];
