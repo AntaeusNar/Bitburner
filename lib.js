@@ -433,7 +433,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		* (W)GWHW from vectors
 		*/
 	// (W) threads
-	if (vectors.primeWeaken > 0 && usableScripts > 0) { //if we need to prime the strength
+	if (vectors.primeWeaken > 0 && usableScripts > 5) { //if we need to prime the strength
 		let pwlocalResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.primeWeaken, 0 , cycleBatch)
 		if (!pwlocalResults.successful) {
 			logger(ns, 'WARNING: Could not deploy all Primary Weaken()s against ' + target.hostname, 0);
@@ -449,7 +449,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 	}// end of (W) threads
 
 	// GW threads
-	if (vectors.growThreads > 0 && target.isPrimedStr && usableScripts > 0) {//if we need to grow and target strength is primed
+	if (vectors.growThreads > 0 && target.isPrimedStr && usableScripts > 4) {//if we need to grow and target strength is primed
 		//Deploy the growWeakens first
 		let gwlocalResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.growWeakens, stageThreeDelay, cycleBatch);
 		if (!gwlocalResults.successful) {
@@ -462,7 +462,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 		pids.push(...gwlocalResults.pids);
 
 		//Deploy the grows
-		if (vectors.growThreads > 0 && successful && usableScripts > 0) {
+		if (vectors.growThreads > 0 && successful && usableScripts > 3) {
 			let glocalResults = macroDeploy(ns, drones, growFile, target.hostname, vectors.growThreads, stageTwoDelay, cycleBatch);
 			if (!glocalResults.successful) {
 				logger(ns, 'WARNING: Could not deploy all Grow()s against ' + target.hostname, 0);
@@ -479,7 +479,7 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 	}//end of GW Threads
 
 	// HW threads
-	if (vectors.hackThreads > 0 && target.isPrimedMoney && usableScripts) {
+	if (vectors.hackThreads > 0 && target.isPrimedMoney && successful && usableScripts > 2) {
 		//deploy the hackWeakens first
 		let hwlocalResults = macroDeploy(ns, drones, weakenFile, target.hostname, vectors.hackWeakens, stageFiveDelay, cycleBatch)
 		if (!hwlocalResults.successful) {
