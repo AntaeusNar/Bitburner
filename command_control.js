@@ -149,7 +149,7 @@ export async function main(ns) {
       setRestart = false;
       if (ns.getServerMoneyAvailable('home')* budgetPercentageLimit > ns.singularity.getUpgradeHomeRamCost() && ns.singularity.upgradeHomeRam()) {
         setRestart = true;
-        logger(ns, 'INFO: Upgraded Home Ram, requesting restart,')
+        logger(ns, 'INFO: Upgraded Home Ram, requesting restart.')
       }
       if (inventory.inactiveDrones.length > 0 && inventory.inactiveDrones[0].hasAdminRights) {
         setRestart = true;
@@ -158,6 +158,11 @@ export async function main(ns) {
       if (inventory.inactiveTargets.length > 0 && inventory.inactiveTargets[0].hasAdminRights && inventory.inactiveTargets[0].requiredHackingSkill <= ns.getHackingLevel()){
         setRestart = true;
         logger(ns, 'INFO: New Target Available, requesting restart.')
+      }
+      if (inventory.other.includes('w0r1d_d43m0n') && ns.getServerRequiredHackingLevel('w0r1d_d43m0n') <= ns.getHackingLevel()) {
+        logger(ns, 'INFO: w0r1d_d43m0n is available, Shutting Down');
+        trackedScripts.forEach(script => ns.kill(script.pid));
+        ns.exit();
       }
 
       /** Main Control Loop timing handling  && Logging*/
@@ -174,7 +179,6 @@ export async function main(ns) {
         cycle++;
         batch = 1;
       }
-      await ns.sleep(sleepTime);
 
       //respawn self
       if (setRestart){
@@ -190,6 +194,8 @@ export async function main(ns) {
         usableThreads = 0;
         serverList = multiscan(ns, 'home');
         inventory = await serverFactory.create(ns, serverList, files, neededRam);
+      } else {
+        await ns.sleep(sleepTime);
       }
   }//end of main control loop
 } //end of Main Program
