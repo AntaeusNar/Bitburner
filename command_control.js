@@ -36,7 +36,7 @@ export async function main(ns) {
   const serverFactory = new ServerFactory();
   let inventory = await serverFactory.create(ns, serverList, files, neededRam);
 
-  if (ns.args[0] == True) {
+  if (ns.args[0] == true) {
     logger(ns, 'WARNING: Requested test run only, exiting');
     ns.exit();
   }
@@ -159,7 +159,7 @@ export async function main(ns) {
         setRestart = true;
         logger(ns, 'INFO: New Target Available, requesting restart.')
       }
-      if (inventory.other.includes('w0r1d_d43m0n') && ns.getServerRequiredHackingLevel('w0r1d_d43m0n') <= ns.getHackingLevel()) {
+      if (inventory.others.length > 0 && inventory.others.includes('w0r1d_d43m0n') && ns.getServerRequiredHackingLevel('w0r1d_d43m0n') <= ns.getHackingLevel()) {
         logger(ns, 'INFO: w0r1d_d43m0n is available, Shutting Down');
         trackedScripts.forEach(script => ns.kill(script.pid));
         ns.exit();
