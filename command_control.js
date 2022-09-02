@@ -36,9 +36,9 @@ export async function main(ns) {
   const serverFactory = new ServerFactory();
   let inventory = await serverFactory.create(ns, serverList, files, neededRam);
 
-  if (ns.args[0]) {
+  if (ns.args[0] == True) {
     logger(ns, 'WARNING: Requested test run only, exiting');
-    throw '';
+    ns.exit();
   }
 
   /** Main Control loop
