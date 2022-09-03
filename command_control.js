@@ -105,7 +105,11 @@ export async function main(ns) {
           sleepTime = Math.ceil(results.batchTime/actualNumOfBatches);
         } else if (i == 0 && !results.successful){
           logger(ns, 'WARNING: Primary Target deployments unsuccessful.  Allowing cleanup to happen.');
-          sleepTime = currentTarget.batchTime;
+          if (results.vectors.primeWeaken > inventory.estThreads *.75) {
+            sleepTime = currentTarget.batchTime;
+          } else {
+            sleepTime = currentTarget.batchTime/4;
+          }
         }
 
         /** PID/Scripts/Threads Tracking Update Section */
