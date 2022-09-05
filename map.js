@@ -7,6 +7,7 @@
 */
 
 import {multiscan, backdoorTo} from 'lib.js';
+import {serverOfIntrest} from 'options.js';
 
 // Switches (Change constants to change design of Tree)
 const controlSymbolTypeColor = true; // True = Colored Root Access Symbols / False = Asscii Art

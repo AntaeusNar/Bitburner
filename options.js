@@ -8,4 +8,5 @@ export const bitNodeMultipliers = { //bitNodeMultipliers ->placeholder for bitno
   ServerGrowthRate: 1/Math.pow(1.02, 6),
   ScriptHackMoney: 1/Math.pow(1.02, 6),
   HackNetNodeMoneyBitNode: 1/Math.pow(1.02, 6),
-}
+};
+export const serverOfIntrest = ['CSEC', 'avmnite-02h', 'I.I.I.I', 'run4theh111z', 'w0r1d_d43m0n'];
