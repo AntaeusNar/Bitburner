@@ -1,4 +1,4 @@
-import {baseDelay} from 'options.js';
+import {baseDelay, bitNodeMultipliers} from 'options.js';
 
 /** Checks for existance of file on the spesified or home server
   * @param {NS} ns
@@ -205,9 +205,6 @@ export function truncateNumber(number, decimal = 3, type = 'round'){
 export function evalPercentTakePerHack(ns, server, player) {
 	/** Setup */
 	let playerHackingSkill = Math.max(server.requiredHackingSkill, player.skills.hacking);
-	let bitNodeMultipliers = {
-		ScriptHackMoney: 1
-	};
 	let difficultyMult = (100 - server.minDifficulty) / 100;
 	//calculatePercentPerThread
 	let skillMult = (playerHackingSkill - (server.requiredHackingSkill -1)) / playerHackingSkill;
@@ -235,12 +232,6 @@ export function evalVectorsPerBatch(ns, server, player) {
 	const hackRate = .002;
 	//in order to eval even if the players hacking level is too low
 	let playerHackingSkill = Math.max(server.requiredHackingSkill, player.skills.hacking);
-	//placeholder for bitnode info -> https://github.com/danielyxie/bitburner/blob/dev/src/BitNode/BitNode.tsx
-	// TODO: replace or upgrade with a check to get actual.
-	let bitNodeMultipliers = {
-		ScriptHackMoney: 1,
-		ServerGrowthRate: 1/Math.pow(1.02, 5),
-	}
 
 	/** Grow Threads -> https://github.com/danielyxie/bitburner/blob/dev/src/Server/ServerHelpers.ts*/
   let growth = server.moneyMax/Math.max(1, (server.moneyMax * (1-server.takePercent)));
