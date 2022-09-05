@@ -7,7 +7,7 @@
 */
 
 import {multiscan, backdoorTo} from 'lib.js';
-import {serverOfIntrest} from 'options.js';
+import {serverOfIntrest, colors} from 'options.js';
 
 // Switches (Change constants to change design of Tree)
 const controlSymbolTypeColor = true; // True = Colored Root Access Symbols / False = Asscii Art
@@ -44,8 +44,17 @@ export async function main(ns) {
 		ns.tprint("      (de)activated by changing the constants at the beginning of the script")
 		ns.tprint("*********************************************************************************************************************");
 	} else {
-		ScanServer("home", seenList, 0, "");
 		let serverList = multiscan(_ns);
+		let nexthack = 100000000000000;
+		for (let server of serverList) {
+			server = _ns.getServer(server);
+			if(server.requiredHackingSkill > _ns.getHackingLevel() && server.requiredHackingSkill < nexthack){
+				nexthack = server.requiredHackingSkill;
+			}
+
+		}
+		ScanServer("home", seenList, 0, "", nexthack);
+
 		serverOfIntrest.forEach(server => {
 			server = _ns.getServer(server);
 			if(serverList.includes(server.hostname) && !server.backdoorInstalled && server.hasAdminRights && server.requiredHackingSkill <= _ns.getHackingLevel()) {
@@ -55,7 +64,7 @@ export async function main(ns) {
 	}
 }
 
-function ScanServer(serverName, seenList, indent, prefix) {
+function ScanServer(serverName, seenList, indent, prefix, nexthack) {
 	if (seenList.includes(serverName)) return;
 	seenList.push(serverName);
 
@@ -67,12 +76,12 @@ function ScanServer(serverName, seenList, indent, prefix) {
 		var newServer = serverList[i];
 		if (seenList.includes(newServer)) continue;
 		if (i != serverList.length - 1) {
-			PrintServerInfo(newServer, indent, prefix + "├─")
-			ScanServer(newServer, seenList, indent + 1, prefix + "│    ");
+			PrintServerInfo(newServer, indent, prefix + "├─", nexthack)
+			ScanServer(newServer, seenList, indent + 1, prefix + "│    ", nexthack);
 		}
 		else {
-			PrintServerInfo(newServer, indent, prefix + "└─")
-			ScanServer(newServer, seenList, indent + 1, prefix + "     ");
+			PrintServerInfo(newServer, indent, prefix + "└─", nexthack)
+			ScanServer(newServer, seenList, indent + 1, prefix + "     ", nexthack);
 		}
 	}
 }
@@ -92,7 +101,7 @@ function ChildCount(serverName) {
 	return count;
 }
 
-function PrintServerInfo(serverName, indent, prefix) {
+function PrintServerInfo(serverName, indent, prefix, nexthack) {
 	var indentString = prefix;
 	var serverinfo = _ns.getServer(serverName); //Interface of requested server
 	// Definition of Root Access Symbols
@@ -104,6 +113,8 @@ function PrintServerInfo(serverName, indent, prefix) {
 	var serverHackingLevel = serverinfo.requiredHackingSkill;
 	var serverMinSecLevel = serverinfo.minDifficulty;
 	var serverPortLevel = serverinfo.numOpenPortsRequired;
+	var serverMaxRam = serverinfo.maxRam ;
+	var serverMaxRamIndicator = ' ' + serverMaxRam + 'GB';
 	var canHackIndicator = "";
 	var backdoorIndicator = "";
 	var portReqIndicator = "";
@@ -131,7 +142,19 @@ function PrintServerInfo(serverName, indent, prefix) {
 	if (controlMaxMoneyIndicator) {
 		maxMoneyIndicator = " [Max Money" + _ns.nFormat(serverinfo.moneyMax, "($ 0.00a)") + "] ";
 	}
-	_ns.tprint(indentString + hacked + backdoorIndicator + serverName + " (" + serverHackingLevel + portReqIndicator + serverMinSecLevel + ")" + maxMoneyIndicator + canHackIndicator + hasContractIndicator);
+	let statusColor = '';
+	if(_ns.getHackingLevel() < serverHackingLevel || HackablePortsPlayer() < serverPortLevel){
+		statusColor = colors.magenta;
+	}
+	let serverColor = '';
+	if (serverOfIntrest.includes(serverinfo.hostname)) {
+		serverColor = colors.cyan;
+	}
+	if(serverinfo.requiredHackingSkill == nexthack) {
+		serverColor = colors.white;
+	}
+
+	_ns.tprint(indentString + hacked + backdoorIndicator + serverColor + serverName + colors.reset + statusColor + " (" + serverHackingLevel + portReqIndicator + serverMinSecLevel + serverMaxRamIndicator +")" + maxMoneyIndicator + colors.reset + canHackIndicator + hasContractIndicator);
 }
 
 function HackablePortsPlayer() {
