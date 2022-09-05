@@ -10,6 +10,37 @@ export function can(ns, file, serverName='home') {
 	return ns.fileExists(file, serverName);
 }
 
+/** args helper
+	* @param {NS} ns
+	* @param {array} args the passed arguments
+	* @returns {Args}
+	*/
+export function argsHelper(ns, args) {
+	let valid = true;
+	let help = false;
+	let dryrun = false;
+	for (let arg of args) {
+		if(valid && !arg.startsWith('-')) {valid = false};
+		if(valid && (arg === '-h' || arg === '-help' || arg ==='-?')) {
+			help = true;
+		} else if(valid && (arg === '-t' || arg === '-test' || arg === '-dr' || arg === '-dryrun')) {
+			dryrun = true;
+		}
+	}
+	if(!valid){
+		logger(ns, 'Arguments are invalid, need to be prefixed with "-".');
+		ns.exit();
+	} else {
+		result = {
+			valid: valid,
+			help: help,
+			dryrun: dryrun,
+			args: args,
+		}
+		return result;
+	}
+
+}
 /**Outputs stuff to file as a troublshooting step using JSON.strinify and write
 	* @param {NS} ns
 	* @param {data} data
