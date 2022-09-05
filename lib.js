@@ -22,6 +22,34 @@ export async function fileDump(ns, data, filename='dumpfile.txt') {
 	await ns.write(filename, JSON.stringify(data, null, '\t'), 'w');
 }
 
+/**
+ * Pathto finds the path of servers between a source and destination.
+ *
+ * @param {NS} ns
+ * @param {String} dest the hostname to try to find a path to
+ * @param {String} src the hostname to start at
+ * @param {Array} tosrc used for internal recursion
+ * @param {Set} seen used for internal recursion
+ * @returns {Array} the path from src to dest, or null if no path exists
+ */
+function pathto(ns, dest, src = ns.getHostname(), tosrc = [src], seen = new Set()) {
+	seen.add(src);
+	if (dest == src) return tosrc;
+
+	for (const peer of ns.scan(src)) {
+		if (seen.has(peer)) continue;
+		tosrc.push(peer);
+		var path = pathto(ns, dest, peer, tosrc, seen);
+		if (path != null) return path;
+		// No path via this peer.
+		tosrc.pop();
+	}
+
+	// No path from this src
+	return null;
+}
+
+
 /** Given a server object, will attempt to gain root
 * @param {ns} ns
 * @param {string} hostname
