@@ -32,7 +32,7 @@ export async function fileDump(ns, data, filename='dumpfile.txt') {
  * @param {Set} seen used for internal recursion
  * @returns {Array} the path from src to dest, or null if no path exists
  */
-function pathto(ns, dest, src = ns.getHostname(), tosrc = [src], seen = new Set()) {
+export function pathto(ns, dest, src = ns.getHostname(), tosrc = [src], seen = new Set()) {
 	seen.add(src);
 	if (dest == src) return tosrc;
 
@@ -47,6 +47,23 @@ function pathto(ns, dest, src = ns.getHostname(), tosrc = [src], seen = new Set(
 
 	// No path from this src
 	return null;
+}
+
+/**
+	* BackdoorTo takes a destination and returns a copy/pastable string to get backdoor on that destination
+	* @param {NS} ns
+	* @param {String} dest the hostanme of the destination
+	* @returns {String} the command string
+	*/
+export function backdoorTo(ns, dest) {
+	let path = pathto(ns, dest);
+	path.shift();
+	for (let i = 0; i < path.length;  i++) {
+		path[i] = 'connect ' + path[i];
+	}
+	path.push('backdoor');
+	let pathString = path.join(';');
+	return pathString;
 }
 
 
