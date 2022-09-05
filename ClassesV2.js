@@ -398,6 +398,7 @@ export class ServerFactory {
       }
       if (hostname == 'w0r1d_d43m0n' && ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel()) {
         logger(ns, 'Can backdoor w0r1d_d43m0n');
+        ns.exec('map.js');
         ns.exit();
       }
       let built = false;
