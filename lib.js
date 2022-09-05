@@ -59,9 +59,9 @@ export function backdoorTo(ns, dest) {
 	let path = pathto(ns, dest);
 	path.shift();
 	for (let i = 0; i < path.length;  i++) {
-		path[i] = 'connect ' + path[i];
+		path[i] = ' connect ' + path[i];
 	}
-	path.push('backdoor');
+	path.push(' backdoor');
 	let pathString = path.join(';');
 	return pathString;
 }
