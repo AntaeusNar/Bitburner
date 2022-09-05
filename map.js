@@ -6,6 +6,8 @@
 - Information if Server is hackable now checks also required Server ports against player capability
 */
 
+import {multiscan, backdoorTo} from 'lib.js';
+
 // Switches (Change constants to change design of Tree)
 const controlSymbolTypeColor = true; // True = Colored Root Access Symbols / False = Asscii Art
 const controlPortsRequiredIndicator = true; // True = Required Ports will be shown after Server Hacking Level Requirement / False = Hidden
@@ -15,6 +17,7 @@ const controlMaxMoneyIndicator = true; // True = Show Max Money of Server / Fals
 var _ns;
 export async function main(ns) {
 	var seenList = [];
+	const serverOfIntrest = ['CSEC', 'avmnite-02h', 'I.I.I.I', 'run4theh111z', 'w0r1d_d43m0n']
 	_ns = ns;
 	let input = ns.args[0];
 
@@ -42,6 +45,12 @@ export async function main(ns) {
 		ns.tprint("*********************************************************************************************************************");
 	} else {
 		ScanServer("home", seenList, 0, "");
+		let serverList = multiscan(_ns);
+		serverOfIntrest.forEach(server => {
+			server = _ns.getServer(server);
+			if(serverList.includes(server.hostname) && !server.backdoorInstalled && server.hasAdminRights && server.requiredHackingSkill <= _ns.getHackingLevel()) {
+				_ns.tprint(backdoorTo(_ns, server.hostname));
+			}});
 		ns.tprint("Note: Add -h to function call to open help");
 	}
 }
