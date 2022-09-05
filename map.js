@@ -49,7 +49,7 @@ export async function main(ns) {
 		serverOfIntrest.forEach(server => {
 			server = _ns.getServer(server);
 			if(serverList.includes(server.hostname) && !server.backdoorInstalled && server.hasAdminRights && server.requiredHackingSkill <= _ns.getHackingLevel()) {
-				_ns.tprint(backdoorTo(_ns, server.hostname));
+				_ns.tprint('COPY TO TERMINAL: ' + backdoorTo(_ns, server.hostname));
 			}});
 		ns.tprint("Note: Add -h to function call to open help");
 	}
