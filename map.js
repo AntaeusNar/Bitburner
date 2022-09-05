@@ -18,7 +18,6 @@ const controlMaxMoneyIndicator = true; // True = Show Max Money of Server / Fals
 var _ns;
 export async function main(ns) {
 	var seenList = [];
-	const serverOfIntrest = ['CSEC', 'avmnite-02h', 'I.I.I.I', 'run4theh111z', 'w0r1d_d43m0n']
 	_ns = ns;
 	let input = ns.args[0];
 
