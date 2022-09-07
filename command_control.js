@@ -185,6 +185,8 @@ export async function main(ns) {
       if (setRestart){
         logger(ns, 'INFO: Restart Requested, killing controlled scripts and restarting, please standby...')
         //kill all controled scripts
+        // OPTIMIZE: When this run, killing all scripts is good in the early and late stages of a bitnode
+        //but in the mid streach leads to very low $/s due to the rate of change in hacking level vs targets
         trackedScripts.forEach(script => ns.kill(script.pid));
         //resetting initalization
         //loop initalization
