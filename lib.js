@@ -1,6 +1,6 @@
 import {baseDelay, bitNodeMultipliers} from 'options.js';
 
-/** Checks for existance of file on the spesified or home server
+/** Checks for existence of file on the specified or home server
   * @param {NS} ns
   * @param {string} file - File Name
   * @param {string} [serverName=home] - hostname of server
@@ -41,7 +41,7 @@ export function argsHelper(ns, args) {
 	}
 
 }
-/**Outputs stuff to file as a troublshooting step using JSON.strinify and write
+/**Outputs stuff to file as a troubleshooting step using JSON.stringify and write
 	* @param {NS} ns
 	* @param {data} data
 	* @param {sting} [filename='dumpfile.txt']
