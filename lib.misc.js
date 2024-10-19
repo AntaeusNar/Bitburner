@@ -60,3 +60,22 @@ export class Logger {
         this.ns.tprint(message);
     }
 }
+
+/** Given an array of files, will return the maximum ram requirement
+ * @param {NS} ns
+ * @param {String[]} files - list of file names
+ * @return {number} max needed ram
+ */
+export function maxNeededRam(ns, files) {
+	let needRam = 0;
+	for (let file of files) {
+    if (can(ns, file)) {
+      if (ns.getScriptRam(file) > needRam) {
+  			needRam = ns.getScriptRam(file);
+  		}
+    } else {
+      ns.tprintf('WARNING: File %s not found on home, the ram calculation will be wrong.', file);
+    }
+	}
+	return needRam;
+}
