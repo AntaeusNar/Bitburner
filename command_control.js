@@ -7,7 +7,7 @@
 
 
 /** Main Program
-  * Recursivly scans the network, evals targets and drones, deploys (W)GWHW batchs on drone agianst targets
+  * Recursively scans the network, evals targets and drones, deploys (W)GWHW batches on drone against targets
   * @param {NS} ns
   */
 import {logger, getNeededRam, multiscan, deployVectors} from 'lib.js';
@@ -24,12 +24,12 @@ export async function main(ns) {
   logger(ns, 'INFO: needed ram is ' + neededRam +'GB.');
 
 
-  //Recursivly Scan the network
+  //Recursively Scan the network
   logger(ns, 'INFO: Scanning Network for Servers.');
   let serverList = multiscan(ns, 'home');
   logger(ns, ns.vsprintf('INFO: Found %d Servers on network.', serverList.length));
 
-  // TODO: add in the ability to autopurcase access to the darkweb and port openers
+  // TODO: add in the ability to auto-purchase access to the darkweb and port openers
 
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
@@ -44,7 +44,7 @@ export async function main(ns) {
   /** Main Control loop
     * Deploy drone scripts on drones against targets
     */
-  //loop initalization
+  //loop initialization
   let cycle = 1;
   let batch = 1;
   let sleepTime = baseDelay;
@@ -80,14 +80,14 @@ export async function main(ns) {
     let threadsMessage = 'Deployed/Available Threads: ' + deployedThreads + '/' + inventory.estThreads + '. ';
     logger(ns,  'INFO: ' + cycleBatchMessage + threadsMessage + scriptsMessage, 0);
 
-    /** Interive deployment handling */
+    /** Iterative deployment handling */
     let i = 0;
     let setBreak = false;
 
     while (i < inventory.targets.length &&
       usableThreads > inventory.targets[i].idealVectorsPerBatch &&
       usableScripts > 4) {
-        /** Main Iterive Deployment Section */
+        /** Main Iterative Deployment Section */
         //Inside of each batch, selects a target and attempts to deploy vectors as scripts and threads against the target across the drone network
         let currentTarget = inventory.targets[i];
         let cycleBatch = cycle + '/'+ batch;
@@ -136,7 +136,7 @@ export async function main(ns) {
         if (setBreak) {break;};
         i++;
         await ns.sleep(1);
-      }//end of iterive deployment handling
+      }//end of iterative deployment handling
 
       // TODO: switch everything around when just needing to gain exp.
 
@@ -146,7 +146,7 @@ export async function main(ns) {
 
       /**Upgrade Control Section */
       // TODO: try to purchase new tools if needed.
-      // TODO: add in the eval and purchase of persnal servers
+      // TODO: add in the eval and purchase of personal servers
       setRestart = false;
       if (ns.getServerMoneyAvailable('home')* budgetPercentageLimit > ns.singularity.getUpgradeHomeRamCost() && ns.singularity.upgradeHomeRam()) {
         setRestart = true;
@@ -184,12 +184,12 @@ export async function main(ns) {
       //respawn self
       if (setRestart){
         logger(ns, 'INFO: Restart Requested, killing controlled scripts and restarting, please standby...')
-        //kill all controled scripts
+        //kill all controlled scripts
         // OPTIMIZE: When this run, killing all scripts is good in the early and late stages of a bitnode
-        //but in the mid streach leads to very low $/s due to the rate of change in hacking level vs targets
+        //but in the mid stretch leads to very low $/s due to the rate of change in hacking level vs targets
         trackedScripts.forEach(script => ns.kill(script.pid));
-        //resetting initalization
-        //loop initalization
+        //resetting initialization
+        //loop initialization
         sleepTime = baseDelay;
         actualNumOfBatches = 0;
         trackedScripts = [];
