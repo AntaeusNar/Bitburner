@@ -160,8 +160,8 @@ export function precisionRound(number, precision) {
 
 /** Given an array of files, will return the max ram requirements
   * @param {NS} ns
-  * @param {array} files - list of file names
-  * @return {number} maxium needed ram
+  * @param {string[]} files - list of file names
+  * @return {number} maximum needed ram
   */
 export function getNeededRam(ns, files) {
 	let needRam = 0;
