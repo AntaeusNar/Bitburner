@@ -79,3 +79,26 @@ export function maxNeededRam(ns, files) {
 	}
 	return needRam;
 }
+
+/** Given a server, will recursively scan until all servers are found.
+ * @param {NS} ns
+ * @param {String} [serverName=home] hostname of starting server
+ * @return {String[]} list of all found server hostnames
+ */
+export function recServerScan(ns, serverName='home') {
+
+    let serverList = [];
+
+    function scanning(serverName) {
+      let currentScan = ns.scan(serverName);
+      currentScan.forEach(serverName => {
+        if (!serverList.includes(serverName)) {
+          serverList.push(serverName);
+          scanning(serverName);
+        }
+      })
+    }
+
+    scanning(serverName);
+    return serverList;
+}
