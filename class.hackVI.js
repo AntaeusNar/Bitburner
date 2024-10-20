@@ -11,6 +11,10 @@ export class HackVI {
     constructor(ns) {
         this.ns = ns;
         this.nextUpdate = date.getTime + checkInterval;
+        this.tracker = {
+            cycle: 1,
+            batch: 1
+        }
         return this;
     }
 
@@ -46,6 +50,7 @@ export class HackVI {
                     this.getRoot(s);
                 }
                 this._serverArray.push(this.ns.getServer(s));
+                this.ns.scp(this.files, s.hostname, 'home');
             }
         }
         return this._serverArray;
@@ -77,11 +82,56 @@ export class HackVI {
         return;
     }
 
+    get currentScripts() {
+        this._currentScripts = 0;
+        for (let s in this.serverArray) {
+            this._currentScripts += this.ns.ps(s.hostname).length
+        }
+        return this._currentScripts;
+    }
+
+    get availableRam() {
+        let ramCount = 0;
+        for (let s in this.serverArray) {
+            ramCount += (s.maxRam - s.ramUsed);
+        }
+        return ramCount;
+    }
+
+    calcVectors(server, maxThreads = 10000) {
+        const weakenRate = .05;
+        const growRate = .004;
+        const hackRate = .002;
+        let vectors = {
+            Weakens: 0,
+            Grows: 0,
+            wGrows: 0,
+            Hacks: 0,
+            wHacks: 0
+        }
+
+        // Check to see if we should weaken it first
+        if (this.ns.getServerSecurityLevel(server.hostname) != server.minDifficulty) {
+            vectors.Weakens = Math.min(maxThreads, Math.ceil((this.ns.getServerSecurityLevel(server.hostname)-server.minDifficulty)/weakenRate));
+            maxThreads -= vectors.Weakens;
+        }
+
+        // Drop if out of Threads
+        if (maxThreads < 4 ) {
+            return vectors;
+        }
+
+    }
+
     run() {
 
-        // Make sure we backdoor everything
-
         // See if we can run more scripts
+        if (maxScripts <= this.currentScripts) {
+            return;
+        }
+        if (this.availableRam <= this.neededRam) {
+            return;
+        }
 
         // confirm best target
 
