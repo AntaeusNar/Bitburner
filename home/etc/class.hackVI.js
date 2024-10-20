@@ -1,7 +1,7 @@
 /** The overall Hack Virtual Intelligence (VI) */
 
 import { can, Logger, maxNeededRam, recServerScan } from "./lib.misc";
-import { maxScripts } from "../../options";
+import { maxScripts } from "../../archive/options";
 
 const logger = new Logger(ns, 7);
 const date = new Date();
