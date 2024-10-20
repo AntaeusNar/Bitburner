@@ -121,6 +121,12 @@ export class HackVI {
             return vectors;
         }
 
+        // Calc Grow + weaken after grows
+        let growthMultiplier = 0;
+        if (server.moneyMax == server.moneyAvailable) {
+            growthMultiplier = server.moneyMax/(Math.max(1, (server.moneyMax * (1 - server.takePercent))))
+        }
+
     }
 
     run() {
