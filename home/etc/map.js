@@ -4,12 +4,13 @@
 - Added colored Symbols, Backdoor indicator, Required Ports for Hack and Maximum Server Money
 - Switches for added information (Change constants at the beginning of code to (de)-activate them individually)
 - Information if Server is hackable now checks also required Server ports against player capability 
+- 
 */
 
 // Switches (Change constants to change design of Tree)
-const controlSymbolTypeColor = true; // True = Colored Root Access Symbols / False = Asscii Art
+const controlSymbolTypeColor = true; // True = Colored Root Access Symbols / False = ASCII Art
 const controlPortsRequiredIndicator = true; // True = Required Ports will be shown after Server Hacking Level Requirement / False = Hidden
-const controlBackdoorIndicator = true; // True = Backdoor Indecator active / False = Hidden
+const controlBackdoorIndicator = true; // True = Backdoor Indicator active / False = Hidden
 const controlMaxMoneyIndicator = true; // True = Show Max Money of Server / False = Hidden
 
 var _ns;
@@ -25,17 +26,14 @@ export async function main(ns) {
 		ns.tprint('Mapping: "Root access", [Backdoor], "Server name", ("Server Level", [Required Ports]), [Max. Money Server], [Hacking possible]');
 		if (controlSymbolTypeColor) {
 			ns.tprint("- \u2705 = Root access / \u274C = No root access ");
-			ns.tprint("- [Optional] Backdoor: [BD] = Backdoor installed / [x] = No Backdoor");
-			ns.tprint("- [Optional] Port Info: Variable behind Servername (Required Hacking Level - Required Server Ports)");
-			ns.tprint('- If "!!!!!!" at the end is shown, your hacking and port hacking level is above the');
-			ns.tprint('  requirements of the server but you dont have root access yet.');
 		} else {
 			ns.tprint("- ██ = Root access / [ ] = No root access ");
-			ns.tprint("- [Optional] Backdoor: [BD] = Backdoor installed / [NO BD] = No Backdoor");
-			ns.tprint("- [Optional] Port Info: Variable behind Servername (Required Hacking Level - Required Server Ports)");
-			ns.tprint('- "!!!!!!" at the end indicates, that your hacking and port hacking level is above the');
-			ns.tprint('  requirements of the server but you dont have root access yet.');
 		}
+		ns.tprint("- [Optional] Backdoor: [BD] = Backdoor installed / [NO BD] = No Backdoor");
+		ns.tprint("- [Optional] Port Info: Variable behind Servername (Required Hacking Level - Required Server Ports)");
+		ns.tprint('- "!!!!!!" at the end indicates, that your hacking and port hacking level is above the');
+		ns.tprint("  requirements of the server but you don't have root access yet.");
+		ns.tprint("  You can add an alias for this command as `alias map='path/map.js'`.");
 		ns.tprint("");
 		ns.tprint("Note: Colored Symbols, Required Server Ports, Backdoor Indicator and Max. Money can be ");
 		ns.tprint("      (de)activated by changing the constants at the beginning of the script")
