@@ -1,0 +1,6 @@
+{
+    "bitburner.fileWatcher.enable": true,
+    "bitburner.scriptRoot": "./live/",
+    "bitburner.authToken": "GPb+5fDTsCRbJ++c4WbrqeiyEHzGkQpcCpdiT3s1VfZWJEswtR17PKcG7+kkS3TA",
+    "bitburner.showPushSuccessNotification": true
+}
