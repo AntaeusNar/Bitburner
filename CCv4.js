@@ -21,6 +21,7 @@ export async function main(ns) {
 
     // Main Control Loop
     while(true) {
+        hVI.run();
 
     }
 
