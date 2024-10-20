@@ -8,7 +8,8 @@ Script based on: https://www.reddit.com/r/Bitburner/comments/rmpgn5/map_code/ by
 - Information if Server is hackable now checks also required Server ports against player capability
 */
 
-import { tryGetRoot } from "./lib.misc";
+import { recServerScan, tryGetRoot } from "./lib.misc";
+import { serverOfInterest } from "./options";
 
 // Switches (Change constants to change design of Tree)
 const controlSymbolTypeColor = true; // True = Colored Root Access Symbols / False = ASCII Art
@@ -42,7 +43,13 @@ export async function main(ns) {
 		ns.tprint("      (de)activated by changing the constants at the beginning of the script")
 		ns.tprint("*********************************************************************************************************************");
 	} else {
+		let serverList = recServerScan(_ns);
+		for (let server of serverList) {
+			server = _ns.getServer(server);
+			tryGetRoot(_ns, server);
+		}
 		ScanServer("home", seenList, 0, "");
+		
 		ns.tprint("Note: Add -h to function call to open help");
 	}
 }
@@ -87,7 +94,6 @@ function ChildCount(serverName) {
 function PrintServerInfo(serverName, indent, prefix) {
 	var indentString = prefix;
 	var serverinfo = _ns.getServer(serverName); //Interface of requested server
-	tryGetRoot(_ns, serverinfo);
 	// Definition of Root Access Symbols
 	if (controlSymbolTypeColor) {
 		var hacked = (serverinfo.hasAdminRights) ? "\u2705" : "\u274C";
@@ -101,7 +107,7 @@ function PrintServerInfo(serverName, indent, prefix) {
 	var portReqIndicator = "";
 	var maxMoneyIndicator = "";
 
-	if (_ns.getHackingLevel() >= serverHackingLevel && HackablePortsPlayer() >= serverPortLevel && !serverinfo.hasAdminRights) {
+	if (_ns.getHackingLevel() >= serverHackingLevel) {
 		canHackIndicator = "  >> !!!!!!!!!  CAN HACK  !!!!!!!!!"
 	}
 	// Definition of Backdoor Symbols
@@ -112,7 +118,7 @@ function PrintServerInfo(serverName, indent, prefix) {
 	}
 	// Definition of required Port Level indicator
 	if (controlPortsRequiredIndicator) {
-		portReqIndicator = " P" + serverPortLevel;
+		portReqIndicator = " P:" + serverPortLevel + "/" + serverinfo.openPortCount;
 	}
 	// Definition of Maximum Money Indicator
 	if (controlMaxMoneyIndicator) {
