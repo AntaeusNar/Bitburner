@@ -1,6 +1,6 @@
 /** Command and Control v4 */
 
-import { HackVI } from "./class.hackVI";
+import { HackVI } from "./etc/class.hackVI";
 import { Logger } from "./lib.misc";
 
 
