@@ -1,10 +1,11 @@
-/* Script based on: https://www.reddit.com/r/Bitburner/comments/rmpgn5/map_code/ by u/Ravery-net
+/* This script based on: https://github.com/Chrisch3n/BitburnerScripts/blob/main/map.js by u/Chrisch3n
+20241020
+Script based on: https://www.reddit.com/r/Bitburner/comments/rmpgn5/map_code/ by u/Ravery-net
 2022-02-03
 - Added Help menu
 - Added colored Symbols, Backdoor indicator, Required Ports for Hack and Maximum Server Money
 - Switches for added information (Change constants at the beginning of code to (de)-activate them individually)
-- Information if Server is hackable now checks also required Server ports against player capability 
-- 
+- Information if Server is hackable now checks also required Server ports against player capability
 */
 
 // Switches (Change constants to change design of Tree)
