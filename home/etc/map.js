@@ -8,6 +8,8 @@ Script based on: https://www.reddit.com/r/Bitburner/comments/rmpgn5/map_code/ by
 - Information if Server is hackable now checks also required Server ports against player capability
 */
 
+import { tryGetRoot } from "./lib.misc";
+
 // Switches (Change constants to change design of Tree)
 const controlSymbolTypeColor = true; // True = Colored Root Access Symbols / False = ASCII Art
 const controlPortsRequiredIndicator = true; // True = Required Ports will be shown after Server Hacking Level Requirement / False = Hidden
@@ -85,6 +87,7 @@ function ChildCount(serverName) {
 function PrintServerInfo(serverName, indent, prefix) {
 	var indentString = prefix;
 	var serverinfo = _ns.getServer(serverName); //Interface of requested server
+	tryGetRoot(_ns, serverinfo);
 	// Definition of Root Access Symbols
 	if (controlSymbolTypeColor) {
 		var hacked = (serverinfo.hasAdminRights) ? "\u2705" : "\u274C";

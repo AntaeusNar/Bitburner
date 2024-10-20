@@ -1,7 +1,7 @@
 /** The overall Hack Virtual Intelligence (VI) */
 
-import { can, Logger, maxNeededRam, recServerScan } from "./lib.misc";
-import { maxScripts } from "../../archive/options";
+import { can, Logger, maxNeededRam, recServerScan, tryGetRoot } from "./lib.misc";
+import { maxScripts } from "./options";
 
 const logger = new Logger(ns, 7);
 const date = new Date();
@@ -65,21 +65,7 @@ export class HackVI {
     }
 
     getRoot(server) {
-        if (server.hostname == 'home') {
-            return;
-        }
-        if (server.numOpenPortsRequired > server.openPortCount) {
-            if (can(this.ns, 'brutessh.exe')) { this.ns.brutessh(server.hostname)}
-            if (can(this.ns, 'ftpcrack.exe')) { this.ns.ftpcrack(server.hostname)}
-            if (can(this.ns, 'relaysmtp.exe')) { this.ns.relaysmtp(server.hostname)}
-            if (can(this.ns, 'httpworm.exe')) { this.ns.httpworm(server.hostname)}
-            if (can(this.ns, 'sqlinject.exe')) { this.ns.sqlinject(server.hostname)}
-            if (server.numOpenPortsRequired > server.openPortCount) {
-                return;
-            }
-        }
-        this.ns.nuke(server.hostname);
-        return;
+        return tryGetRoot(this.ns, server);
     }
 
     get currentScripts() {

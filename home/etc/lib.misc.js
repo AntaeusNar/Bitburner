@@ -112,3 +112,25 @@ export function recServerScan(ns, serverName='home') {
 export function can(ns, file, serverName='home') {
 	return ns.fileExists(file, serverName);
 }
+
+/** Tries to get Root given a Server
+ * @param {NS} _ns
+ * @param {Server} server
+ */
+export function tryGetRoot(_ns, server) {
+    if (server.hasAdminRights) {
+        return;
+    }
+    if (server.numOpenPortsRequired > server.openPortCount) {
+        if (can(_ns, 'brutessh.exe')) { _ns.brutessh(server.hostname)}
+        if (can(_ns, 'ftpcrack.exe')) { _ns.ftpcrack(server.hostname)}
+        if (can(_ns, 'relaysmtp.exe')) { _ns.relaysmtp(server.hostname)}
+        if (can(_ns, 'httpworm.exe')) { _ns.httpworm(server.hostname)}
+        if (can(_ns, 'sqlinject.exe')) { _ns.sqlinject(server.hostname)}
+    }
+    if (server.numOpenPortsRequired > server.openPortCount) {
+        return;
+    }
+    _ns.nuke(server.hostname);
+    return;
+}
