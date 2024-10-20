@@ -8,7 +8,7 @@ Script based on: https://www.reddit.com/r/Bitburner/comments/rmpgn5/map_code/ by
 - Information if Server is hackable now checks also required Server ports against player capability
 */
 
-import { recServerScan, tryGetRoot } from "./lib.misc";
+import { backdoorTo, recServerScan, tryGetRoot } from "./lib.misc";
 import { serverOfInterest } from "./options";
 
 // Switches (Change constants to change design of Tree)
@@ -49,7 +49,18 @@ export async function main(ns) {
 			tryGetRoot(_ns, server);
 		}
 		ScanServer("home", seenList, 0, "");
-		
+
+		serverOfInterest.forEach(server => {
+			try {
+				server = _ns.getServer(server);
+				if (serverList.includes(server.hostname) && !server.backdoorInstalled && server.hasAdminRights && server.requiredHackingSkill <= _ns.getHackingLevel()) {
+					_ns.tprint('COPY TO TERMINAL: ' + backdoorTo(_ns, server.hostname));
+				}
+			} catch {
+				// Nothing happens, move on?
+			}
+
+		});
 		ns.tprint("Note: Add -h to function call to open help");
 	}
 }
