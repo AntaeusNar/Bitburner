@@ -6,8 +6,8 @@
 - Information if Server is hackable now checks also required Server ports against player capability
 */
 
-import {multiscan, backdoorTo} from 'lib.js';
-import {serverOfIntrest, colors} from 'options.js';
+import {multiscan, backdoorTo} from './lib.js';
+import {serverOfIntrest, colors} from './options.js';
 
 // Switches (Change constants to change design of Tree)
 const controlSymbolTypeColor = true; // True = Colored Root Access Symbols / False = Asscii Art

@@ -10,9 +10,9 @@
   * Recursively scans the network, evals targets and drones, deploys (W)GWHW batches on drone against targets
   * @param {NS} ns
   */
-import {logger, getNeededRam, multiscan, deployVectors} from 'lib.js';
-import {ServerFactory, Script} from 'ClassesV2.js';
-import {baseDelay, maxScripts, budgetPercentageLimit} from 'options.js';
+import {logger, getNeededRam, multiscan, deployVectors} from './lib.js';
+import {ServerFactory, Script} from './ClassesV2.js';
+import {baseDelay, maxScripts, budgetPercentageLimit} from './options.js';
 export async function main(ns) {
 
   //Initial Launch

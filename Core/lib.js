@@ -1,4 +1,4 @@
-import {baseDelay, bitNodeMultipliers} from 'options.js';
+import {baseDelay, bitNodeMultipliers} from './options.js';
 
 /** Checks for existence of file on the specified or home server
   * @param {NS} ns
