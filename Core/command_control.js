@@ -19,7 +19,7 @@ export async function main(ns) {
   logger(ns, 'Launching Command and Control.')
   ns.disableLog('ALL');
   //ns.enableLog('exec');
-  let files = ['lt-weaken.js', 'lt-grow.js', 'lt-hack.js'];
+  let files = ['./lt-weaken.js', './lt-grow.js', './lt-hack.js'];
   let neededRam = getNeededRam(ns, files);
   logger(ns, 'INFO: needed ram is ' + neededRam +'GB.');
 

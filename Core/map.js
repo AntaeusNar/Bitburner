@@ -7,7 +7,7 @@
 */
 
 import {multiscan, backdoorTo} from './lib.js';
-import {serverOfIntrest, colors} from './options.js';
+import {serverOfInterest, colors} from './options.js';
 
 // Switches (Change constants to change design of Tree)
 const controlSymbolTypeColor = true; // True = Colored Root Access Symbols / False = Asscii Art
@@ -55,8 +55,14 @@ export async function main(ns) {
 		}
 		ScanServer("home", seenList, 0, "", nexthack);
 
-		serverOfIntrest.forEach(server => {
-			server = _ns.getServer(server);
+		serverOfInterest.forEach(server => {
+      try {
+			  server = _ns.getServer(server);
+      }
+      catch (error) {
+        _ns.tprint(error);
+      }
+
 			if(serverList.includes(server.hostname) && !server.backdoorInstalled && server.hasAdminRights && server.requiredHackingSkill <= _ns.getHackingLevel()) {
 				_ns.tprint('COPY TO TERMINAL: ' + backdoorTo(_ns, server.hostname));
 			}});
@@ -147,7 +153,7 @@ function PrintServerInfo(serverName, indent, prefix, nexthack) {
 		statusColor = colors.magenta;
 	}
 	let serverColor = '';
-	if (serverOfIntrest.includes(serverinfo.hostname)) {
+	if (serverOfInterest.includes(serverinfo.hostname)) {
 		serverColor = colors.cyan;
 	}
 	if(serverinfo.requiredHackingSkill == nexthack) {
