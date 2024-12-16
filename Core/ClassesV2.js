@@ -1,4 +1,4 @@
-import {can, getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime, evalPercentTakePerHack, truncateNumber, fileDump} from 'lib.js';
+import {can, getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime, evalPercentTakePerHack, truncateNumber, fileDump} from './lib.js';
 import {baseDelay, maxScripts} from './options.js';
 
 /** InactiveDrone server class */

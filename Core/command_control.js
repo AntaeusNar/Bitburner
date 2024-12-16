@@ -27,7 +27,7 @@ export async function main(ns) {
   //Recursively Scan the network
   logger(ns, 'INFO: Scanning Network for Servers.');
   let serverList = multiscan(ns, 'home');
-  logger(ns, ns.vsprintf('INFO: Found %d Servers on network.', serverList.length));
+  logger(ns, ns.sprintf('INFO: Found %d Servers on network.', serverList.length));
 
   // TODO: add in the ability to auto-purchase access to the darkweb and port openers
 
@@ -148,10 +148,12 @@ export async function main(ns) {
       // TODO: try to purchase new tools if needed.
       // TODO: add in the eval and purchase of personal servers
       setRestart = false;
+      /** Limit Ram!!! adds  64gb+
       if (ns.getServerMoneyAvailable('home')* budgetPercentageLimit > ns.singularity.getUpgradeHomeRamCost() && ns.singularity.upgradeHomeRam()) {
         setRestart = true;
         logger(ns, 'INFO: Upgraded Home Ram, requesting restart.')
       }
+      */
       if (inventory.inactiveDrones.length > 0 && inventory.inactiveDrones[0].hasAdminRights) {
         setRestart = true;
         logger(ns, 'INFO: New Drone Available, requesting restart.')
