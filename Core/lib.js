@@ -188,8 +188,8 @@ export function multiscan(ns, serverName='home') {
     let currentScan = ns.scan(serverName);
     currentScan.forEach(serverName => {
       if (!serverList.includes(serverName)) {
-        serverList.push(ns, serverName);
-		getRoot(serverName);
+        serverList.push(serverName);
+		getRoot(ns, serverName);
         scanning(serverName);
       }
     })
