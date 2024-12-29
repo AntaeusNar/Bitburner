@@ -149,7 +149,7 @@ function PrintServerInfo(serverName, indent, prefix, nexthack) {
 		maxMoneyIndicator = " [Max Money" + _ns.nFormat(serverinfo.moneyMax, "($ 0.00a)") + "] ";
 	}
 	let statusColor = '';
-	if(_ns.getHackingLevel() < serverHackingLevel || HackablePortsPlayer() < serverPortLevel){
+	if(_ns.getHackingLevel() < serverHackingLevel){
 		statusColor = colors.magenta;
 	}
 	let serverColor = '';

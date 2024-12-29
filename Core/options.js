@@ -9,7 +9,7 @@ export const bitNodeMultipliers = { //bitNodeMultipliers ->placeholder for bitno
   ScriptHackMoney: 1/Math.pow(1.02, 6),
   HackNetNodeMoneyBitNode: 1/Math.pow(1.02, 6),
 };
-export const serverOfInterest = ['CSEC', 'avmnite-02h', 'I.I.I.I', 'run4theh111z', 'w0r1d_d43m0n'];
+export const serverOfInterest = ['CSEC', 'avmnite-02h', 'I.I.I.I', 'run4theh111z', 'The-Cave', 'w0r1d_d43m0n'];
 export const colors = {
 		black: "\u001b[30m",
 		red: "\u001b[31m",

@@ -177,7 +177,7 @@ export function getNeededRam(ns, files) {
 	return needRam;
 }
 
-/** Given a server, will recursivly scan until all servers are found
+/** Given a server, will recursively scan until all servers are found
   * @param {NS} ns
   * @param {string} [serverName=home] - hostname of starting server
   * @return {array} list of all found server hostnames
@@ -189,6 +189,7 @@ export function multiscan(ns, serverName='home') {
     currentScan.forEach(serverName => {
       if (!serverList.includes(serverName)) {
         serverList.push(serverName);
+		getRoot(ns, serverName);
         scanning(serverName);
       }
     })

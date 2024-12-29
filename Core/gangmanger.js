@@ -1,5 +1,5 @@
-import {logger} from 'lib.js';
-import {budgetPercentageLimit} from 'options.js'
+import {logger} from './lib.js';
+import {budgetPercentageLimit} from './options.js'
 
 /** attempts to ascend member
 	* @param {NS} ns
