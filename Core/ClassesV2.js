@@ -434,7 +434,10 @@ export class ServerFactory {
     for (let drone of inventory.drones) {
       if(drone.hostname != 'home'){
         await ns.scp(files, drone.hostname, 'home');
-        ns.killall(drone.hostname);
+        let running_scripts = ns.ps(drone.hostname);
+        for (let script of running_scripts) {
+          ns.kill(script.pid)
+        }
       }
     }
 
