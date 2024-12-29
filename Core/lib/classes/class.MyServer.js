@@ -1,4 +1,4 @@
-import { getRoot } from "./lib";
+import { getRoot } from "../../lib";
 
 /** the MyServer class 
  * getServer in Bitburner does not return the actual object, and since it is a TypeScript interface
