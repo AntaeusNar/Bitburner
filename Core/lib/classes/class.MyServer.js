@@ -13,10 +13,11 @@ export class MyServer {
      * @param {NS} ns
      * @param {string} hostname
      */
-    constructor(ns, hostname) {
+    constructor(ns, hostname, neededRam=1.75) {
         //Shared between both the ns documentation AND the getServer interface
         this.hostname = hostname;
         this.maxRam = ns.getServerMaxRam(hostname);
+        this.ramMax = this.maxRam;
 
         //ns documentation version
         this.minSecurity = ns.getServerMinSecurityLevel(hostname);
@@ -31,6 +32,8 @@ export class MyServer {
         this.requiredHackingSkill = this.requiredHackingLevel;
         this.numOpenPortsRequired = this.numPortsRequired;
         this.moneyMax = this.maxMoney;
+
+        this.neededRam = neededRam;
 
         this.ns = ns;
     }
@@ -52,6 +55,10 @@ export class MyServer {
     }
     get usedRam() {
         return this.ramUsed;
+    }
+
+    get ramAvailable() {
+        return this.maxRam - this.usedRam;
     }
 
     // getServer then ns doc (current server security level)
@@ -90,6 +97,17 @@ export class MyServer {
     // ns doc only
     get ls() {
         return this.ns.ls(hostname);
+    }
+
+    get neededRam() {
+        return this._neededRam;
+    }
+    set neededRam(neededRam) {
+        this._neededRam = neededRam;
+    }
+
+    get maxNumThreads() {
+        return Math.floor(this.ramMax/this.neededRam + .5);
     }
 
 }
