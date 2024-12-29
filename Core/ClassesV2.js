@@ -1,4 +1,6 @@
-import {can, getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime, evalPercentTakePerHack, truncateNumber, fileDump} from './lib.js';
+import {getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime, evalPercentTakePerHack, truncateNumber} from './lib.js';
+
+//import {can, fileDump} from './lib.js;
 import {baseDelay, maxScripts} from './options.js';
 
 /** InactiveDrone server class */
@@ -468,13 +470,13 @@ export class ServerFactory {
     let message = targetMessage + droneMessage;
     logger(ns, message);
 
-    await fileDump(ns, inventory);
+    //await fileDump(ns, inventory);
 
 
     //Targets ratio adjustments
     logger(ns, 'INFO: Starting adjustments, standby....');
     await TargetServer.adjustTake(ns, inventory.targets, inventory.estThreads);
-    await fileDump(ns, inventory, 'adjusteddump.txt');
+    //await fileDump(ns, inventory, 'adjusteddump.txt');
 
     return inventory
   }//end of create
