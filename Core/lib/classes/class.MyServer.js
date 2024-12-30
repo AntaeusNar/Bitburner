@@ -1,99 +1,172 @@
 import { getRoot } from "../../lib";
 
-/** the MyServer class 
- * getServer in Bitburner does not return the actual object, and since it is a TypeScript interface
- * modifying the base object is also ...not possible? or at least I don't know how to 20241229
- *
- * this class then is what we are using to create actual objects that we can do more with
- * generate both the ns version and the getServer version - not sure why they don't match but they don't
-*/
 /**
- * note about the naming: everything should be unified as
- * itemStatus - ei ramMax, ramUsed, ramAvailable
+ * Represents a server in Bitburner.
+ *
+ * This class is used to create actual objects that represent servers, providing useful
+ * methods and properties for interacting with the server in a more manageable way.
+ * It generates both the NS version and the getServer version, which do not seem to match
+ * but are unified through this class.
+ *
+ * @class MyServer
  */
 export class MyServer {
 
-    /** Creates a MyServer from hostname
-     * @param {NS} ns
-     * @param {string} hostname
-     * @param {number} [neededRam=1.75]
+    /**
+     * Creates a MyServer instance from a given hostname.
+     *
+     * @param {NS} ns - The Bitburner NS object used for NS interaction.
+     * @param {string} hostname - The hostname of the server to represent.
+     * @param {number} [neededRam=1.75] - The amount of RAM required for operations on the server (default is 1.75).
      */
     constructor(ns, hostname, neededRam=1.75) {
+        /** @type {string} */
         this.hostname = hostname;
+
+        /** @type {number} */
         this.ramMax = ns.getServerMaxRam(hostname);
+
+        /** @type {number} */
         this.ramNeeded = neededRam;
+
+        /** @type {number} */
         this.moneyMax = ns.getServerMaxMoney(hostname);
+
+        /** @type {number} */
         this.securityMin = ns.getServerMinSecurityLevel(hostname);
+
+        /** @type {number} */
         this.growthMultiplier = ns.getServerGrowth(hostname);
+
+        /** @type {number} */
         this.hackRequired = ns.getServerRequiredHackingLevel(hostname);
+
+        /** @type {number} */
         this.portRequired = ns.getServerNumPortsRequired(hostname);
 
+        /** @type {NS} */
         this.ns = ns;
     }
 
+    /**
+     * Gets the root access status of the server.
+     *
+     * @returns {boolean} Returns true if the server has root access.
+     */
     get root() {
         return getRoot(this.ns, this.hostname);
     }
 
+    /**
+     * Gets the amount of RAM currently used by the server.
+     *
+     * @returns {number} The amount of RAM used on the server.
+     */
     get ramUsed() {
         return this.ns.getServerUsedRam(this.hostname);
     }
 
+    /**
+     * Gets the available RAM on the server (max RAM - used RAM).
+     *
+     * @returns {number} The available RAM on the server.
+     */
     get ramAvailable() {
-        return this.maxRam - this.usedRam;
+        return this.ramMax - this.ramUsed;
     }
 
+    /**
+     * Gets the current security level of the server.
+     *
+     * @returns {number} The current security level of the server.
+     */
     get securityCurrent() {
         return this.ns.getServerSecurityLevel(this.hostname);
     }
 
+    /**
+     * Checks if the server's security is at its minimum (primed for hacking).
+     *
+     * @returns {boolean} True if the server's security is at its minimum level.
+     */
     get securityIsPrimed() {
-        if (this.securityCurrent == this.securityMin) {
-            return true;
-        }
-        return false;
+        return this.securityCurrent === this.securityMin;
     }
 
+    /**
+     * Gets the available money on the server.
+     *
+     * @returns {number} The amount of money available on the server.
+     */
     get moneyAvailable() {
         return this.ns.getServerMoneyAvailable(this.hostname);
     }
 
+    /**
+     * Checks if the server's money is at its maximum (primed for hacking).
+     *
+     * @returns {boolean} True if the server's money is at its maximum.
+     */
     get moneyIsPrimed() {
-        if (this.moneyAvailable == this.moneyMax) {
-            return true;
-        }
-        return false;
+        return this.moneyAvailable === this.moneyMax;
     }
 
-    // ns doc only
+    /**
+     * Gets the time it takes to grow the server's money.
+     *
+     * @returns {number} The time required for the grow operation.
+     * @see {NS.getGrowTime}
+     */
     get growTime() {
         return this.ns.getGrowTime(this.hostname);
     }
 
-    // ns doc only
+    /**
+     * Gets the time it takes to hack the server.
+     *
+     * @returns {number} The time required for the hack operation.
+     * @see {NS.getHackTime}
+     */
     get hackTime() {
         return this.ns.getHackTime(this.hostname);
     }
 
-    // ns doc only
+    /**
+     * Gets the time it takes to weaken the server's security.
+     *
+     * @returns {number} The time required for the weaken operation.
+     * @see {NS.getWeakenTime}
+     */
     get weakenTime() {
         return this.ns.getWeakenTime(this.hostname);
     }
 
-    // ns doc only
+    /**
+     * Gets the list of processes running on the server.
+     *
+     * @returns {Array<Object>} List of processes running on the server.
+     * @see {NS.ps}
+     */
     get ps() {
         return this.ns.ps(this.hostname);
     }
 
-    // ns doc only
+    /**
+     * Gets the list of files on the server.
+     *
+     * @returns {Array<string>} List of file paths on the server.
+     * @see {NS.ls}
+     */
     get ls() {
-        return this.ns.ls(hostname);
+        return this.ns.ls(this.hostname);
     }
 
+    /**
+     * Gets the maximum number of threads that can be run based on available RAM and required RAM.
+     *
+     * @returns {number} The maximum number of threads that can be run.
+     */
     get maxNumThreads() {
-        return Math.floor(this.ramMax/this.neededRam + .5);
+        return Math.floor(this.ramMax / this.ramNeeded + 0.5);
     }
-
-
-
 }
