@@ -198,7 +198,7 @@ export function multiscan(ns, serverName='home') {
   return serverList;
 }
 
-/**calculate Inteligence bonus
+/**calculate Intelligence bonus
 	* ->https://github.com/danielyxie/bitburner/blob/dev/src/PersonObjects/formulas/intelligence.ts
 	* @param {number} intelligence
 	* @param {number} weight
