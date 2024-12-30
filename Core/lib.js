@@ -98,7 +98,7 @@ export function backdoorTo(ns, dest) {
 }
 
 
-/** Given a server object, will attempt to gain root
+/** Given a server hostname, will attempt to gain root
 * @param {ns} ns
 * @param {string} hostname
 * @returns {boolean} result
