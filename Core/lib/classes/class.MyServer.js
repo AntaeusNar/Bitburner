@@ -7,71 +7,62 @@ import { getRoot } from "../../lib";
  * this class then is what we are using to create actual objects that we can do more with
  * generate both the ns version and the getServer version - not sure why they don't match but they don't
 */
+/**
+ * note about the naming: everything should be unified as
+ * itemStatus - ei ramMax, ramUsed, ramAvailable
+ */
 export class MyServer {
 
     /** Creates a MyServer from hostname
      * @param {NS} ns
      * @param {string} hostname
+     * @param {number} [neededRam=1.75]
      */
     constructor(ns, hostname, neededRam=1.75) {
-        //Shared between both the ns documentation AND the getServer interface
         this.hostname = hostname;
-        this.maxRam = ns.getServerMaxRam(hostname);
-        this.ramMax = this.maxRam;
-
-        //ns documentation version
-        this.minSecurity = ns.getServerMinSecurityLevel(hostname);
-        this.growth = ns.getServerGrowth(hostname);
-        this.requiredHackingLevel = ns.getServerRequiredHackingLevel(hostname);
-        this.numPortsRequired = ns.getServerNumPortsRequired(hostname);
-        this.maxMoney = ns.getServerMaxMoney(hostname);
-
-        //getServer interface documentation alias
-        this.minDifficulty = this.minSecurity;
-        this.serverGrowth = this.growth;
-        this.requiredHackingSkill = this.requiredHackingLevel;
-        this.numOpenPortsRequired = this.numPortsRequired;
-        this.moneyMax = this.maxMoney;
-
-        this.neededRam = neededRam;
+        this.ramMax = ns.getServerMaxRam(hostname);
+        this.ramNeeded = neededRam;
+        this.moneyMax = ns.getServerMaxMoney(hostname);
+        this.securityMin = ns.getServerMinSecurityLevel(hostname);
+        this.growthMultiplier = ns.getServerGrowth(hostname);
+        this.hackRequired = ns.getServerRequiredHackingLevel(hostname);
+        this.portRequired = ns.getServerNumPortsRequired(hostname);
 
         this.ns = ns;
     }
 
-    // getServer then ns doc (nuke)
-    get hasAdminRights() {
-        return getRoot(this.ns, this.hostname);
-    }
-    get hasRootAccess() {
-        return getRoot(this.ns, this.hostname);
-    }
-    get nuke() {
+    get root() {
         return getRoot(this.ns, this.hostname);
     }
 
-    // getServer then ns doc (ram being used)
     get ramUsed() {
         return this.ns.getServerUsedRam(this.hostname);
-    }
-    get usedRam() {
-        return this.ramUsed;
     }
 
     get ramAvailable() {
         return this.maxRam - this.usedRam;
     }
 
-    // getServer then ns doc (current server security level)
-    get hackDifficulty() {
+    get securityCurrent() {
         return this.ns.getServerSecurityLevel(this.hostname);
     }
-    get securityLevel() {
-        return this.hackDifficulty;
+
+    get securityIsPrimed() {
+        if (this.securityCurrent == this.securityMin) {
+            return true;
+        }
+        return false;
     }
 
-    // getServer and ns (current money on server)
     get moneyAvailable() {
         return this.ns.getServerMoneyAvailable(this.hostname);
+    }
+
+    get moneyIsPrimed() {
+        if (this.moneyAvailable == this.moneyMax) {
+            return true;
+        }
+        return false;
     }
 
     // ns doc only
@@ -99,15 +90,10 @@ export class MyServer {
         return this.ns.ls(hostname);
     }
 
-    get neededRam() {
-        return this._neededRam;
-    }
-    set neededRam(neededRam) {
-        this._neededRam = neededRam;
-    }
-
     get maxNumThreads() {
         return Math.floor(this.ramMax/this.neededRam + .5);
     }
+
+
 
 }
