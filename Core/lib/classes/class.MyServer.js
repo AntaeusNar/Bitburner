@@ -169,33 +169,4 @@ export class MyServer {
     get maxNumThreads() {
         return Math.floor(this.ramMax / this.ramNeeded + 0.5);
     }
-
-    /**
-     * Gets the amount of money stolen per second per thread
-     * IF server is at moneyMax and securityMin
-     * @returns {number} Money per Second per Thread
-     */
-    get priority() {
-        if (this.moneyMax == 0 || this.hackRequired > this.ns.getHackingLevel()) {
-            return 0;
-        }
-
-        /**
-         * Returns the percentage of money that will be stolen from a server if
-         * it is successfully hacked (returns the decimal form, not the actual percent value)
-         * @returns {number} Percent of money stolen per thread as decimal
-         */
-        function calculatePercentMoneyHacked() {
-            // Place Holder
-            // TODO: make this dynamic
-            const ScriptHackMoney = 1/Math.pow(1.02, 6)
-            const balanceFactor = 240;
-            const difficultyMult = (100 - this.securityMin) / 100;
-            const skillMult = (this.ns.getHackingLevel() - (this.hackRequired - 1)) / this.ns.getHackingLevel();
-            const percentMoneyHacked =
-                (difficultyMult * skillMult * this.ns.getHackingMultipliers().money * ScriptHackMoney) / balanceFactor;
-
-            return Math.min(1, Math.max(percentMoneyHacked, 0));
-        }
-    }
 }

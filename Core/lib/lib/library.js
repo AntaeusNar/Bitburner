@@ -19,3 +19,24 @@ export function getRoot(ns, hostname) {
         }
     return result;
 }
+
+    /**
+ * Clamps the value on a lower and an upper bound
+ * @param {number} value Value to clamp
+ * @param {number} min Lower bound, defaults to negative Number.MAX_VALUE
+ * @param {number} max Upper bound, defaults to Number.MAX_VALUE
+ * @returns {number} Clamped value
+ */
+export function clampNumber(value, min = -Number.MAX_VALUE, max = Number.MAX_VALUE) {
+    return Math.max(Math.min(value, max), min);
+}
+
+/**calculate Intelligence bonus
+* ->https://github.com/danielyxie/bitburner/blob/dev/src/PersonObjects/formulas/intelligence.ts
+* @param {number} intelligence
+* @param {number} weight
+* @return {number}
+*/
+export function calculateIntelligenceBonus(intelligence, weight) {
+    return 1 + (weight * Math.pow(intelligence, 0.8))/600;
+}
