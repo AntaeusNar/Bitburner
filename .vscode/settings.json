@@ -3,5 +3,14 @@
     "bitburner.scriptRoot": "./Core/",
     "bitburner.authToken": "GPb+5fDTsCRbJ++c4WbrqeiyEHzGkQpcCpdiT3s1VfZWJEswtR17PKcG7+kkS3TA",
     "bitburner.showPushSuccessNotification": true,
-    "bitburner.showFileWatcherEnabledNotification": false
+    "bitburner.showFileWatcherEnabledNotification": false,
+    "cSpell.words": [
+        "Augs",
+        "Bitburner",
+        "Bladeburner",
+        "Hacknet",
+        "Mults",
+        "Softcap",
+        "Staneks"
+    ]
 }
