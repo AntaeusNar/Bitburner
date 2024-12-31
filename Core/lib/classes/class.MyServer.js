@@ -1,4 +1,4 @@
-import { getRoot } from "../lib/library.js";
+import { calcHackChance, calcPercentMoneyHacked, calculateSingleBatchThreads, calculateSingleBatchTime, getRoot } from "../lib/library.js";
 
 /**
  * Represents a server in Bitburner.
@@ -174,6 +174,26 @@ export class MyServer {
      */
     get ls() {
         return this.ns.ls(this.hostname);
+    }
+
+    get priority() {
+        let chance = calcHackChance(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().chance);
+        let percent = calcPercentMoneyHacked(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().money);
+        let maxTime = calculateSingleBatchTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
+        let threads = calculateSingleBatchThreads(
+            this.hackRequired,
+            this.securityMin,
+            this.ns.getHackingLevel,
+            this.ns.getHackingMultipliers().chance,
+            this.ns.getHackingMultipliers().money,
+            this.growthMultiplier,
+            this.ns.getHackingMultipliers().growth,
+            this.moneyMax,
+            0,
+            100
+        ).reduce((a, c) => a + c);
+
+        return (chance * percent * this.moneyMax) / maxTime / threads;
     }
 
 }

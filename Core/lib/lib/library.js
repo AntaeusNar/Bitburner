@@ -351,8 +351,8 @@ export function calculateSingleBatchTime(serverRequiredHackingSkill, serverSecur
  * @param {number} playerGrowthMultiplier ns.getHackingMultipliers().growth
  * @param {number} targetMoney How much to grow the server TO; ns.getServerMaxMoney(hostname) is ideal
  * @param {number} startingMoney How much to grow the server FROM; 0 is ideal
- * @param {number} [targetHackPercent = 100] percent of maxMoney to hack
- * @param {number} [cores = 1] Number of cores used on attacking server
+ * @param {number} [targetHackPercent=100] percent of maxMoney to hack
+ * @param {number} [cores=1] Number of cores used on attacking server
  * @returns object containing the threads as GWgHWh
  */
 export function calculateSingleBatchThreads(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingChance, playerHackingMultiplier, serverGrowthMultiplier, playerGrowthMultiplier, targetMoney, startingMoney, targetHackPercent = 100 ,cores = 1) {
