@@ -1,8 +1,8 @@
 {
-    "bitburner.fileWatcher.enable": true,
-    "bitburner.scriptRoot": "./Core/",
-    "bitburner.authToken": "GPb+5fDTsCRbJ++c4WbrqeiyEHzGkQpcCpdiT3s1VfZWJEswtR17PKcG7+kkS3TA",
-    "bitburner.showPushSuccessNotification": true,
+    "bitburner.fileWatcher.enable": false,
+    "bitburner.scriptRoot": "",
+    "bitburner.authToken": "",
+    "bitburner.showPushSuccessNotification": false,
     "bitburner.showFileWatcherEnabledNotification": false,
     "cSpell.words": [
         "Augs",
