@@ -176,14 +176,19 @@ export class MyServer {
         return this.ns.ls(this.hostname);
     }
 
-    get priority() {
-        let chance = calcHackChance(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().chance);
-        let percent = calcPercentMoneyHacked(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().money);
-        let maxTime = calculateSingleBatchTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
-        let threads = calculateSingleBatchThreads(
+
+    /**
+     * Gets the threads needed for a single batch vs server at ideal conditions
+     * @returns Object containing threads as GWgHWh or null
+     */
+    get batchThreads() {
+        let threads = {}
+        if (this.hackRequired > this.ns.getHackingLevel()) return null;
+        if (this.moneyMax == 0) return null;
+        threads = calculateSingleBatchThreads(
             this.hackRequired,
             this.securityMin,
-            this.ns.getHackingLevel,
+            this.ns.getHackingLevel(),
             this.ns.getHackingMultipliers().chance,
             this.ns.getHackingMultipliers().money,
             this.growthMultiplier,
@@ -192,9 +197,42 @@ export class MyServer {
             0,
             100
         )
-        let threadCount = Object.values(threads).reduce((a,c) => a + c);
+        return threads;
+    }
 
-        return (chance * percent * this.moneyMax) / maxTime / threadCount;
+    /**
+     * Get the timing of a single batch of threads
+     * @returns Object with timing as GWgHWh
+     */
+    get batchTiming() {
+        let threadTiming = {}
+        if (this.hackRequired > this.ns.getHackingLevel()) return null;
+        if (this.moneyMax == 0) return null;
+        threadTiming = calculateSingleBatchTiming(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
+        return threadTiming;
+    }
+
+    /**
+     * Gets the priority as $/Sec/Thread
+     * @returns $/Sec/Thread
+     */
+    get priority() {
+        if (this.hackRequired > this.ns.getHackingLevel) return 0;
+        if (this.moneyMax == 0) return 0;
+        let chance = calcHackChance(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().chance);
+        let percent = calcPercentMoneyHacked(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().money);
+        let timings = this.batchTiming;
+        let threadCount = Object.values(this.batchThreads).reduce((a,c) => a + c);
+        let maxTime = -Infinity;
+        for (const key of Object.keys(timings)) {
+            if (timings[key] > maxTime) {
+                maxTime = timings[key];
+            }
+        }
+        let _priority = (chance * percent * this.moneyMax) / maxTime / threadCount;
+        if (isNaN(_priority)) _priority = 0;
+
+        return _priority;
     }
 
 }

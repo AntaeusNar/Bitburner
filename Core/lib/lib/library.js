@@ -201,7 +201,7 @@ export function calcGrowThreads(serverGrowthMultiplier, serverSecurity, playerGr
 export function calcPercentMoneyHacked(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingMultiplier) {
     const hackDifficulty = serverSecurity ?? 100;
     if (hackDifficulty >= 100) return 0;
-    const requiredHackingSkill = serverRequiredHackingSkill ?? 1e9;
+    const requiredHackingSkill = serverRequiredHackingSkill;
     // Adjust if needed for balancing. This is the divisor for the final calculation
     const balanceFactor = 240;
 
@@ -244,7 +244,9 @@ export function calcHackChance(serverRequiredHackingSkill, serverSecurity, playe
  * @returns
  */
 export function calcHackThreads(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingChance, playerHackingMultiplier, targetHackPercent = 100) {
-    return targetHackPercent / (calcPercentMoneyHacked(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingMultiplier) * calcHackChance(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingChance));
+  let percent = calcPercentMoneyHacked(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingMultiplier);
+  let chance = calcHackChance(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingChance);
+  return targetHackPercent / (percent * chance);
 }
 
 /**
@@ -325,18 +327,24 @@ export function calculateWeakenTime(serverRequiredHackingSkill, serverSecurity, 
 }
 
 /**
- * Returns the total time of one single batch
+ * Returns the timing of a single batch
  * @param {number} serverRequiredHackingSkill ns.getServerRequiredHackingLevel
  * @param {number} serverSecurity ns.getServerMinSecurityLevel for ideal
  * @param {number} playerHackingSkillLevel ns.getHackingLevel
  * @param {number} playerSpeedMultiplier ns.getHackingMultipliers().speed
- * @returns
+ * @returns Object with timing as GWgHWh
  */
-export function calculateSingleBatchTime(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerSpeedMultiplier) {
+export function calculateSingleBatchTiming(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerSpeedMultiplier) {
     let growTime = calculateGrowTime(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerSpeedMultiplier);
     let hackTime = calculateHackingTime(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerSpeedMultiplier);
     let weakenTime = calculateWeakenTime(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerSpeedMultiplier);
-    return Math.max(growTime, weakenTime + base_delay, hackTime + base_delay*2, weakenTime + base_delay * 3)
+    let timing = {
+      G: growTime,
+      Wg: weakenTime + base_delay,
+      H: hackTime + base_delay * 2,
+      Wh: weakenTime + base_delay * 3
+    }
+    return timing;
 }
 
 
