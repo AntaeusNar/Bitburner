@@ -149,11 +149,11 @@ export function calcGrowThreads(serverGrowthMultiplier, serverSecurity, playerGr
 
     const k = calcServerGrowthLog(serverGrowthMultiplier, serverSecurity, playerGrowthMultiplier, cores, 1);
 
-    const guess = (targetMoney - startingMoney) / (1 + (targetMoney * (1 / 16) + startMoney * (15 / 16)) * k);
+    const guess = (targetMoney - startingMoney) / (1 + (targetMoney * (1 / 16) + startingMoney * (15 / 16)) * k);
     let x = guess;
     let diff;
     do {
-      const ox = startMoney + x;
+      const ox = startingMoney + x;
       // Have to use division instead of multiplication by inverse, because
       // if targetMoney is MIN_VALUE then inverting gives Infinity
       const newx = (x - ox * Math.log(ox / targetMoney)) / (1 + ox * k);
@@ -169,7 +169,7 @@ export function calcGrowThreads(serverGrowthMultiplier, serverSecurity, playerGr
     if (ccycle - x > 0.999999) {
       // Rounding-error path: It's possible that we slightly overshot the integer value due to
       // rounding error, and more specifically precision issues with log and the size difference of
-      // startMoney vs. x. See if a smaller integer works. Most of the time, x was not close enough
+      // startingMoney vs. x. See if a smaller integer works. Most of the time, x was not close enough
       // that we need to try.
       const fcycle = ccycle - 1;
       if (targetMoney <= (startingMoney + fcycle) * Math.exp(k * fcycle)) {
@@ -201,7 +201,7 @@ export function calcGrowThreads(serverGrowthMultiplier, serverSecurity, playerGr
 export function calcPercentMoneyHacked(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingMultiplier) {
     const hackDifficulty = serverSecurity ?? 100;
     if (hackDifficulty >= 100) return 0;
-    const requiredHackingSkill = serverRequiredHackingSkill ?? 1e9;
+    const requiredHackingSkill = serverRequiredHackingSkill;
     // Adjust if needed for balancing. This is the divisor for the final calculation
     const balanceFactor = 240;
 
@@ -244,7 +244,9 @@ export function calcHackChance(serverRequiredHackingSkill, serverSecurity, playe
  * @returns
  */
 export function calcHackThreads(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingChance, playerHackingMultiplier, targetHackPercent = 100) {
-    return targetHackPercent / (calcPercentMoneyHacked(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingMultiplier) * calcHackChance(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingChance));
+  let percent = calcPercentMoneyHacked(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingMultiplier);
+  let chance = calcHackChance(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingChance);
+  return targetHackPercent / (percent * chance);
 }
 
 /**
@@ -325,18 +327,24 @@ export function calculateWeakenTime(serverRequiredHackingSkill, serverSecurity, 
 }
 
 /**
- * Returns the total time of one single batch
+ * Returns the timing of a single batch
  * @param {number} serverRequiredHackingSkill ns.getServerRequiredHackingLevel
  * @param {number} serverSecurity ns.getServerMinSecurityLevel for ideal
  * @param {number} playerHackingSkillLevel ns.getHackingLevel
  * @param {number} playerSpeedMultiplier ns.getHackingMultipliers().speed
- * @returns
+ * @returns Object with timing as GWgHWh
  */
-export function calculateSingleBatchTime(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerSpeedMultiplier) {
+export function calculateSingleBatchTiming(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerSpeedMultiplier) {
     let growTime = calculateGrowTime(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerSpeedMultiplier);
     let hackTime = calculateHackingTime(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerSpeedMultiplier);
     let weakenTime = calculateWeakenTime(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerSpeedMultiplier);
-    return Math.max(growTime, weakenTime + base_delay, hackTime + base_delay*2, weakenTime + base_delay * 3)
+    let timing = {
+      G: growTime,
+      Wg: weakenTime + base_delay,
+      H: hackTime + base_delay * 2,
+      Wh: weakenTime + base_delay * 3
+    }
+    return timing;
 }
 
 
@@ -351,20 +359,20 @@ export function calculateSingleBatchTime(serverRequiredHackingSkill, serverSecur
  * @param {number} playerGrowthMultiplier ns.getHackingMultipliers().growth
  * @param {number} targetMoney How much to grow the server TO; ns.getServerMaxMoney(hostname) is ideal
  * @param {number} startingMoney How much to grow the server FROM; 0 is ideal
- * @param {number} [targetHackPercent = 100] percent of maxMoney to hack
- * @param {number} [cores = 1] Number of cores used on attacking server
+ * @param {number} [targetHackPercent=100] percent of maxMoney to hack
+ * @param {number} [cores=1] Number of cores used on attacking server
  * @returns object containing the threads as GWgHWh
  */
 export function calculateSingleBatchThreads(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingChance, playerHackingMultiplier, serverGrowthMultiplier, playerGrowthMultiplier, targetMoney, startingMoney, targetHackPercent = 100 ,cores = 1) {
-    let growthThreads = calcGrowThreads(serverGrowthMultiplier, serverSecurity, playerGrowthMultiplier, targetMoney, startingMoney);
-    let growWeakenThreads = calcWeakenThreads(growthThreads * 0.002, cores);
-    let hackThreads = calcHackThreads(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingChance, playerHackingMultiplier, targetHackPercent);
-    let hackWeakenThreads = calcWeakenThreads(hackThreads * 0.002, cores);
+  let threads = {};
+  let growthThreads = calcGrowThreads(serverGrowthMultiplier, serverSecurity, playerGrowthMultiplier, targetMoney, startingMoney);
+  let growWeakenThreads = calcWeakenThreads(growthThreads * 0.002, cores);
+  let hackThreads = calcHackThreads(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingChance, playerHackingMultiplier, targetHackPercent);
+  let hackWeakenThreads = calcWeakenThreads(hackThreads * 0.002, cores);
 
-    return threads = {
-        G: growthThreads,
-        Wg: growWeakenThreads,
-        H: hackThreads,
-        Wh: hackWeakenThreads,
-    }
+  threads.G = growthThreads;
+  threads.Wg = growWeakenThreads;
+  threads.H = hackThreads;
+  threads.Wh = hackWeakenThreads;
+  return threads;
 }
