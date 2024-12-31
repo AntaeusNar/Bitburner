@@ -191,9 +191,10 @@ export class MyServer {
             this.moneyMax,
             0,
             100
-        ).reduce((a, c) => a + c);
+        )
+        let threadCount = Object.values(threads).reduce((a,c) => a + c);
 
-        return (chance * percent * this.moneyMax) / maxTime / threads;
+        return (chance * percent * this.moneyMax) / maxTime / threadCount;
     }
 
 }

@@ -17,13 +17,17 @@ export function main(ns){
     // batch controller initialization
     logger(ns, 'Initializing Batch Controller. Collecting Needed Files. Initializing network scan.')
     let batch_files = ['./lib/lt-weaken.js', './lib/lt-grow.js', './lib/lt-hack.js'];
-    let max_ram = getNeededRam(ns, batch_files);
+    let needed_ram = getNeededRam(ns, batch_files);
     let server_list = multiScan(ns, 'home');
     logger(ns, ns.sprintf('INFO: Found %d Servers on network. Building server inventory.', server_list.length));
     let server_inventory = [];
     server_list.forEach(element => {
-        server_inventory.push(new MyServer(ns, element, max_ram))
+        server_inventory.push(new MyServer(ns, element, needed_ram))
     });
+    server_inventory = server_inventory.sort((a, b) => b.priority - a.priority);
+    server_inventory.forEach(server =>
+        logger(ns, ns.sprintf('Hostname: %s, Priority: %d', server.hostname, server.priority))
+    );
     let batch_loop_info = {
         cycle: 1,
         batch: 1,
@@ -40,10 +44,7 @@ export function main(ns){
         return server_inventory.reduce((n, {ramAvailable}) => n + ramAvailable, 0);
     }
     function threadsAvailableTotal() {
-        return Math.floor((ramAvailableTotal() / max_ram));
-    }
-    function batchControl() {
-
+        return Math.floor((ramAvailableTotal() / needed_ram));
     }
 
 }
