@@ -6,7 +6,7 @@ import { ServerConstants, base_delay, currentNodeMults } from "./options";
  * @returns number formatted as USD
  */
 export function formatMoney(number) {
-  return '$ '+ number.toLocaleString('en-US');
+  return '$'+ number.toLocaleString('en-US');
 }
 
 /** Given a server hostname, will attempt to gain root
