@@ -26,28 +26,40 @@ export function main(ns){
     });
     server_inventory = server_inventory.sort((a, b) => b.priority - a.priority);
     // Uncomment for review of Priorities
-    server_inventory.forEach(server => logger(ns, ns.sprintf('Hostname: %s, Priority($/Sec/Thread): ' + formatMoney(server.priority) + ", Max Threads/Cycle: " + server.cycleMaxThreads, server.hostname)));
+    initialDataReview(ns, logger, server_inventory, needed_ram, max_scripts);
 
-    let ram = ramAvailableTotal();
-    let threads = threadsAvailableTotal();
-    logger(ns, ns.sprintf('INFO: Total Ram in network: %d Total Threads in network: %d', ram, threads));
-    let batch_loop_info = {
-        cycle: 1,
-        batch: 1,
-        sleep_time: base_delay,
-        actual_num_batches: 0,
-        script_pids: [],
-        usable_scripts: max_scripts,
-        usable_threads: threadsAvailableTotal(),
-        set_restart: false,
-    }
+}
 
-    /** Functions declared in scope to allow for lexical scoping */
-    function ramAvailableTotal() {
-        return server_inventory.reduce((n, {ramAvailable}) => n + ramAvailable, 0);
+/**
+ * Will output general initial Data based on the MyServer Class and Alice's opinions
+ * @param {NS} ns NS
+ * @param {logger} logger logger function
+ * @param {MyServer[]} server_inventory array of server class Objects
+ * @param {number} needed_ram Ram per Thread
+ * @param {number} max_scripts Max Scripts
+ */
+function initialDataReview(ns, logger, server_inventory, needed_ram, max_scripts) {
+    let maxRam = server_inventory.reduce((n, {ramMax}) => n + ramMax, 0);
+    let maxThreads = maxRam / needed_ram;
+
+    let currentThreads = 0;
+    let currentScripts = 0;
+    let hitMaxThreads = false;
+    let hitMaxScripts = false;
+
+    for (const server of server_inventory) {
+        if (currentThreads >= maxThreads && !hitMaxThreads) {
+            logger(ns, ns.sprintf("INFO: Max Threads reached.  No more Servers can be hacked.  %d scripts remaining.", max_scripts - currentScripts));
+            hitMaxThreads = true;
+        }
+        if (currentScripts >= max_scripts && !hitMaxScripts) {
+            logger(ns, "INFO: Max Scripts reached. No more Servers can be hacked.");
+            hitMaxScripts = true;
+        }
+        logger(ns, ns.sprintf('Hostname: %s, Priority($/Sec/Thread): %s, Max Threads/Cycle: %d, Min Scripts/Cycle: %d', server.hostname, formatMoney(server.priority), server.cycleMaxThreads, server.scriptsPerCycle));
+        currentThreads += server.cycleMaxThreads;
+        currentScripts += server.scriptsPerCycle;
     }
-    function threadsAvailableTotal() {
-        return Math.floor((ramAvailableTotal() / needed_ram));
-    }
+    logger(ns, ns.sprintf('INFO: Remaining Threads: %d, Remaining Scripts: %d', maxThreads - currentThreads, max_scripts - currentScripts));
 
 }
