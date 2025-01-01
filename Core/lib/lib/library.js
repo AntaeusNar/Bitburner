@@ -3,7 +3,7 @@ import { ServerConstants, base_delay, currentNodeMults } from "./options";
 /**
  * Formats a number as USD
  * @param {number} number general number
- * @returns number formatted as USD
+ * @returns {string} number formatted as USD
  */
 export function formatMoney(number) {
   return '$'+ number.toLocaleString('en-US');
