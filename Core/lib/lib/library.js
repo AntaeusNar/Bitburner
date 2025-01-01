@@ -1,5 +1,14 @@
 import { ServerConstants, base_delay, currentNodeMults } from "./options";
 
+/**
+ * Formats a number as USD
+ * @param {number} number general number
+ * @returns number formatted as USD
+ */
+export function formatMoney(number) {
+  return '$ '+ number.toLocaleString('en-US');
+}
+
 /** Given a server hostname, will attempt to gain root
 * @param {ns} ns
 * @param {string} hostname
@@ -370,9 +379,9 @@ export function calculateSingleBatchThreads(serverRequiredHackingSkill, serverSe
   let hackThreads = calcHackThreads(serverRequiredHackingSkill, serverSecurity, playerHackingSkillLevel, playerHackingChance, playerHackingMultiplier, targetHackPercent);
   let hackWeakenThreads = calcWeakenThreads(hackThreads * 0.002, cores);
 
-  threads.G = growthThreads;
-  threads.Wg = growWeakenThreads;
-  threads.H = hackThreads;
-  threads.Wh = hackWeakenThreads;
+  threads.G = Math.floor(growthThreads + .5);
+  threads.Wg = Math.floor(growWeakenThreads + .5);
+  threads.H = Math.floor(hackThreads + .5);
+  threads.Wh = Math.floor(hackWeakenThreads + .5);
   return threads;
 }

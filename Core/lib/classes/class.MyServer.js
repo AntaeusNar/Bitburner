@@ -1,4 +1,5 @@
 import { calcHackChance, calcPercentMoneyHacked, calculateSingleBatchThreads, calculateSingleBatchTiming, getRoot } from "../lib/library.js";
+import { base_delay } from "../lib/options.js";
 
 /**
  * Represents a server in Bitburner.
@@ -201,6 +202,27 @@ export class MyServer {
     }
 
     /**
+     * Gets the number of concurrent threads during one batch
+     * One batch is a complete GWgHWh deployment.  Each group of threads are delayed so the target is hit with G + delay + Wg etc.
+     * Cycle threads are counted from the start of the first G to the end of the first Wh + delay.
+     * This should then be the MAX number of threads that CAN target a single server in ideal conditions. (After the initial Weakens)
+     * @returns Cycle threads
+     */
+    get cycleThreads() {
+        let timings = this.batchTiming;
+        let threads = this.batchThreads;
+        if (timings == null || threads == null) return 0;
+        let threadCount = Object.values(threads).reduce((a,c) => a + c);
+        let maxTime = -Infinity;
+        for (const key of Object.keys(timings)) {
+            if (timings[key] > maxTime) {
+                maxTime = timings[key];
+            }
+        }
+        return Math.floor(maxTime/(base_delay*4)*threadCount + .5);
+    }
+
+    /**
      * Get the timing of a single batch of threads
      * @returns Object with timing as GWgHWh
      */
@@ -228,10 +250,12 @@ export class MyServer {
                 maxTime = timings[key];
             }
         }
+
         let threadCount = Object.values(this.batchThreads).reduce((a,c) => a + c);
+
         let _priority = (chance * percent * this.moneyMax) / maxTime / threadCount;
         if (isNaN(_priority)) _priority = 0;
-
+        //this.ns.tprint(this.hostname + " Money: " + (chance * percent * this.moneyMax) + " MaxTime: " + maxTime + " ThreadCount: " + threadCount + " Priority: " + _priority);
         return _priority;
     }
 

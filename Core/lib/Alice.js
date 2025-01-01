@@ -6,7 +6,7 @@
 /** Core Code
  * @param {NS} ns
  */
-import { getNeededRam, logger, multiScan } from "./lib/library";
+import { formatMoney, getNeededRam, logger, multiScan } from "./lib/library";
 import { MyServer } from "./classes/class.MyServer";
 import { base_delay, max_scripts } from "./lib/options";
 export function main(ns){
@@ -25,9 +25,12 @@ export function main(ns){
         server_inventory.push(new MyServer(ns, element, needed_ram))
     });
     server_inventory = server_inventory.sort((a, b) => b.priority - a.priority);
-    server_inventory.forEach(server =>
-        logger(ns, ns.sprintf('Hostname: %s, Priority: %d', server.hostname, server.priority))
-    );
+    // Uncomment for review of Priorities
+    server_inventory.forEach(server => logger(ns, ns.sprintf('Hostname: %s, Priority: ' + formatMoney(server.priority) + " /Sec/Thread. " + server.cycleThreads + " number of threads per cycle.", server.hostname)));
+
+    let ram = ramAvailableTotal();
+    let threads = threadsAvailableTotal();
+    logger(ns, ns.sprintf('INFO: Total Ram in network: %d Total Threads in network: %d', ram, threads));
     let batch_loop_info = {
         cycle: 1,
         batch: 1,
