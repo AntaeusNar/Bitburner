@@ -208,7 +208,7 @@ export class MyServer {
      * This should then be the MAX number of threads that CAN target a single server in ideal conditions. (After the initial Weakens)
      * @returns Cycle threads
      */
-    get cycleThreads() {
+    get cycleMaxThreads() {
         let timings = this.batchTiming;
         let threads = this.batchThreads;
         if (timings == null || threads == null) return 0;

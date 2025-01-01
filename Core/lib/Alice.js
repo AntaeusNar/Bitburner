@@ -26,7 +26,7 @@ export function main(ns){
     });
     server_inventory = server_inventory.sort((a, b) => b.priority - a.priority);
     // Uncomment for review of Priorities
-    server_inventory.forEach(server => logger(ns, ns.sprintf('Hostname: %s, Priority: ' + formatMoney(server.priority) + " /Sec/Thread. " + server.cycleThreads + " number of threads per cycle.", server.hostname)));
+    server_inventory.forEach(server => logger(ns, ns.sprintf('Hostname: %s, Priority: ' + formatMoney(server.priority) + " /Sec/Thread. " + server.cycleMaxThreads + " number of threads per cycle.", server.hostname)));
 
     let ram = ramAvailableTotal();
     let threads = threadsAvailableTotal();
