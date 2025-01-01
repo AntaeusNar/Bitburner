@@ -27,7 +27,7 @@ export class MyServer {
         /** @type {number} */
         this.ramMax = ns.getServerMaxRam(hostname);
 
-        /** @type {number} */
+        /** @type {number} Max Ram per Thread*/
         this.ramNeeded = neededRam;
 
         /** @type {number} */
@@ -243,6 +243,14 @@ export class MyServer {
         let threadCount = Object.values(threads).reduce((a,c) => a + c);
 
         return Math.round(this.batchesPerCycle * threadCount);
+    }
+
+    /**
+     * Gets the minimum Scripts per cycle
+     * @returns {number} Min Scripts per cycle
+     */
+    get scriptsPerCycle() {
+        return this.batchesPerCycle*4;
     }
 
     /**
