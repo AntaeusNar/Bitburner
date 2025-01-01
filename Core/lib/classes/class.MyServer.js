@@ -202,27 +202,6 @@ export class MyServer {
     }
 
     /**
-     * Gets the number of concurrent threads during one batch
-     * One batch is a complete GWgHWh deployment.  Each group of threads are delayed so the target is hit with G + delay + Wg etc.
-     * Cycle threads are counted from the start of the first G to the end of the first Wh + delay.
-     * This should then be the MAX number of threads that CAN target a single server in ideal conditions. (After the initial Weakens)
-     * @returns Cycle threads
-     */
-    get cycleMaxThreads() {
-        let timings = this.batchTiming;
-        let threads = this.batchThreads;
-        if (timings == null || threads == null) return 0;
-        let threadCount = Object.values(threads).reduce((a,c) => a + c);
-        let maxTime = -Infinity;
-        for (const key of Object.keys(timings)) {
-            if (timings[key] > maxTime) {
-                maxTime = timings[key];
-            }
-        }
-        return Math.floor(maxTime/(base_delay*4)*threadCount + .5);
-    }
-
-    /**
      * Get the timing of a single batch of threads
      * @returns Object with timing as GWgHWh
      */
@@ -232,6 +211,38 @@ export class MyServer {
         if (this.moneyMax == 0) return threadTiming;
         threadTiming = calculateSingleBatchTiming(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
         return threadTiming;
+    }
+
+    /**
+     * Get the max number of batches that can be run per cycle
+     * @returns Maximum number of batches that can be run per cycle
+     */
+    get batchesPerCycle() {
+        let timings = this.batchTiming;
+        if (timings == null) return 0;
+
+        let maxTime = -Infinity;
+        for (const key of Object.keys(timings)) {
+            if (timings[key] > maxTime) {
+                maxTime = timings[key];
+            }
+        }
+        return Math.floor(maxTime/(base_delay*4) + .5);
+    }
+
+    /**
+     * Gets the number of concurrent threads during one batch
+     * One batch is a complete GWgHWh deployment.  Each group of threads are delayed so the target is hit with G + delay + Wg etc.
+     * Cycle threads are counted from the start of the first G to the end of the first Wh + delay.
+     * This should then be the MAX number of threads that CAN target a single server in ideal conditions. (After the initial Weakens)
+     * @returns Cycle threads
+     */
+    get cycleMaxThreads() {
+        let threads = this.batchThreads;
+        if (threads == null) return 0;
+        let threadCount = Object.values(threads).reduce((a,c) => a + c);
+
+        return Math.floor(this.batchesPerCycle * threadCount + .5);
     }
 
     /**
