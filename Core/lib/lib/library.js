@@ -237,7 +237,7 @@ export function calcHackChance(serverRequiredHackingSkill, serverSecurity, playe
     const difficultyMult = (100 - hackDifficulty) / 100;
     const skillMult = clampNumber(hackFactor * playerHackingSkillLevel, 1);
     const skillChance = (skillMult - requiredHackingSkill) / skillMult;
-    // TODO: this is a hack for the intelligece bonus....
+    // TODO: this is a hack for the intelligence bonus....
     const chance = skillChance * difficultyMult * playerHackingChance * (1 + (1 * Math.pow(1, 0.8)) / 600);
     return clampNumber(chance, 0, 1);
 }
