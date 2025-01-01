@@ -146,7 +146,9 @@ function PrintServerInfo(serverName, indent, prefix, nexthack) {
 	}
 	// Definition of Maximum Money Indicator
 	if (controlMaxMoneyIndicator) {
-		maxMoneyIndicator = " [Max Money" + _ns.nFormat(serverinfo.moneyMax, "($ 0.00a)") + "] ";
+		//nFormat depreciated
+		//maxMoneyIndicator = " [Max Money" + _ns.nFormat(serverinfo.moneyMax, "($ 0.00a)") + "] ";
+		maxMoneyIndicator = " [Max Money $" + _ns.formatNumber(serverinfo.moneyMax, 2) + "]";
 	}
 	let statusColor = '';
 	if(_ns.getHackingLevel() < serverHackingLevel){

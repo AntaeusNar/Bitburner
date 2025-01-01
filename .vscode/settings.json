@@ -7,5 +7,9 @@
         "Mults",
         "Softcap",
         "Staneks"
-    ]
+    ],
+    "bitburner.fileWatcher.enable": true,
+    "bitburner.showFileWatcherEnabledNotification": true,
+    "bitburner.showPushSuccessNotification": true,
+    "bitburner.scriptRoot": "./Core/"
 }
