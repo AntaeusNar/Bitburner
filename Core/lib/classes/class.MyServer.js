@@ -227,7 +227,7 @@ export class MyServer {
                 maxTime = timings[key];
             }
         }
-        return Math.floor(maxTime/(base_delay*4) + .5);
+        return Math.round(maxTime/(base_delay*4));
     }
 
     /**
@@ -242,7 +242,7 @@ export class MyServer {
         if (threads == null) return 0;
         let threadCount = Object.values(threads).reduce((a,c) => a + c);
 
-        return Math.floor(this.batchesPerCycle * threadCount + .5);
+        return Math.round(this.batchesPerCycle * threadCount);
     }
 
     /**
