@@ -6,7 +6,8 @@
         "Hacknet",
         "Mults",
         "Softcap",
-        "Staneks"
+        "Staneks",
+        "tprint"
     ],
     "bitburner.fileWatcher.enable": true,
     "bitburner.showFileWatcherEnabledNotification": true,
