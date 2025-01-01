@@ -180,7 +180,7 @@ export class MyServer {
 
     /**
      * Gets the threads needed for a single batch vs server at ideal conditions
-     * @returns Object containing threads as GWgHWh or null
+     * @returns {object|null} Object containing threads as GWgHWh or null
      */
     get batchThreads() {
         let threads = null;
@@ -203,7 +203,7 @@ export class MyServer {
 
     /**
      * Get the timing of a single batch of threads
-     * @returns Object with timing as GWgHWh
+     * @returns {object|null} Object with timing as GWgHWh
      */
     get batchTiming() {
         let threadTiming = null;
@@ -215,7 +215,7 @@ export class MyServer {
 
     /**
      * Get the max number of batches that can be run per cycle
-     * @returns Maximum number of batches that can be run per cycle
+     * @returns {number} Maximum number of batches that can be run per cycle
      */
     get batchesPerCycle() {
         let timings = this.batchTiming;
@@ -235,7 +235,7 @@ export class MyServer {
      * One batch is a complete GWgHWh deployment.  Each group of threads are delayed so the target is hit with G + delay + Wg etc.
      * Cycle threads are counted from the start of the first G to the end of the first Wh + delay.
      * This should then be the MAX number of threads that CAN target a single server in ideal conditions. (After the initial Weakens)
-     * @returns Cycle threads
+     * @returns {number} Cycle threads
      */
     get cycleMaxThreads() {
         let threads = this.batchThreads;
@@ -255,7 +255,7 @@ export class MyServer {
 
     /**
      * Gets the priority as $/Sec/Thread
-     * @returns $/Sec/Thread
+     * @returns {number} $/Sec/Thread
      */
     get priority() {
         if (this.hackRequired > this.ns.getHackingLevel()) return 0;
