@@ -27,8 +27,8 @@ export function main(ns){
         ns.disableLog(log);
     }
 
-    // batch controller initialization
-    logger(ns, 'Initializing Batch Controller. Collecting Needed Files. Initializing network scan.');
+    // hack controller initialization
+    logger(ns, 'Initializing Hack Controller. Collecting Needed Files. Initializing network scan.');
     let hackController = new HackController(ns);
     hackController.printPriorities();
 }
