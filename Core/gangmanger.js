@@ -25,7 +25,7 @@ function tryToAscend(ns, memberName) {
 /** @param {NS} ns */
 export async function main(ns) {
 
-	/** Basic automanagement of a gang */
+	/** Basic auto-management of a gang */
 	ns.disableLog('sleep');
   ns.disableLog('getServerMoneyAvailable');
   ns.disableLog('gang.setMemberTask');
@@ -80,7 +80,8 @@ export async function main(ns) {
       let memberInfo = ns.gang.getMemberInformation(member);
       /** Puchase Equipment */
       //Collect equipment info
-      let budget = ns.getServerMoneyAvailable('home')*budgetPercentage;
+      //Hack for keeping enough money in the pot to be buying the basics after a reset.
+      let budget = ns.getServerMoneyAvailable('home')-250000000;
       let memberEquipment = memberInfo.upgrades; //get a member's equipment
       memberEquipment += memberInfo.augmentations; //add the member's augments
       let neededEquipment = allEquipment.filter(item => !memberEquipment.includes(item)); //remove everythign the member has from the master list
