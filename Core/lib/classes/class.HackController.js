@@ -1,4 +1,5 @@
-import { getNeededRam, multiScan } from "../lib/library";
+import { getNeededRam, logger, multiScan, formatMoney } from "../lib/library";
+import { max_scripts } from "../lib/options";
 import { MyServer } from "./class.MyServer";
 /**
  * Represents the hack controller ai.
@@ -13,6 +14,8 @@ export class HackController {
      * @param {NS} ns
      */
     constructor(ns) {
+
+        this.ns = ns;
 
         /** @type {string[]} Array of script files(WGH)*/
         this.batchFiles = ['./lib/lt-weaken.js', './lib/lt-grow.js', './lib/lt-hack.js'];
@@ -29,26 +32,69 @@ export class HackController {
         /** @type {MyServer[]}  Array of MyServers */
         this.serverInventory = [];
 
-        /** @type {number} Maximum Ram Controller can use */
-        this.ramMax = 0;
-
-        /** @type {number} Maximum Threads Controller can use */
-        this.threadsMax = 0;
+        this.scanFromHome();
+        this.generateInventory();
+        this.sortServersByPriority();
     }
 
     scanFromHome() {
         this.serverList = multiScan(this.ns, 'home');
         this.serverCount = this.serverList.length;
+        logger(this.ns, this.ns.sprintf('INFO: Found %d Servers on network.', this.serverCount));
     }
 
     generateInventory() {
+        logger(this.ns, this.ns.tprint("Building Server Inventory."));
         this.serverList.forEach(element => {
-            this.serverInventory.push(new MyServer(ns, element, this.ramNeeded))
+            this.serverInventory.push(new MyServer(this.ns, element, this.ramNeeded))
         });
     }
 
     sortServersByPriority() {
         if (this.serverInventory.length == 0) return null;
         this.serverInventory = this.serverInventory.sort((a, b) => b.priority - a.priority);
+    }
+
+    get ramMax() {
+        return this.serverInventory.reduce((n, {ramMax}) => n + ramMax, 0);
+    }
+
+    get threadsMax() {
+        return Math.round(this.ramMax/this.ramNeeded);
+    }
+
+    printPriorities() {
+        let maxThreads = this.threadsMax;
+
+        let countedThreads = 0;
+        let countedScripts = 0;
+        let hitMaxThreads = false;
+        let hitMaxScripts = false;
+
+        for (const server of this.serverInventory) {
+            if (countedThreads >= maxThreads && !hitMaxThreads) {
+                logger(this.ns, this.ns.sprintf("INFO: Max Threads reached.  No more Servers can be hacked.  %d scripts remaining.", max_scripts - countedScripts))
+                hitMaxThreads = true;
+            }
+            if (countedScripts >= max_scripts && !hitMaxScripts) {
+                logger(this.ns, "INFO: Max Scripts reached. No more Servers can be hacked.");
+                hitMaxScripts = true;
+            }
+            if (hitMaxScripts || hitMaxThreads) {
+                return;
+            }
+            logger(this.ns, this.ns.sprintf('Hostname: %s, Priority($/Sec/Thread): %s, Max Threads/Cycle: %d, Min Scripts/Cycle: %d', server.hostname, formatMoney(server.priority), server.cycleMaxThreads, server.scriptsPerCycle));
+            countedThreads += server.cycleMaxThreads;
+            countedScripts += server.scriptsPerCycle;
+        }
+        logger(this.ns, this.ns.sprintf('INFO: Remaining Threads: %d, Remaining Scripts: %d', maxThreads - countedThreads, max_scripts - countedScripts));
+    }
+
+    copyFiles() {
+        for (let server of this.serverInventory) {
+            if (server.hostname != 'home' && server.root) {
+                this.ns.scp(this.batchFiles, server.hostname, 'home');
+            }
+        }
     }
 }
