@@ -32,6 +32,9 @@ export class HackController {
         /** @type {MyServer[]}  Array of MyServers */
         this.serverInventory = [];
 
+        /** @type {number[]} Array of Script PIDs */
+        this.trackedScripts = [];
+
         this.scanFromHome();
         this.generateInventory();
         this.sortServersByPriority();
@@ -84,7 +87,7 @@ export class HackController {
             if (hitMaxScripts || hitMaxThreads) {
                return;
             }
-            logger(this.ns, this.ns.sprintf('Hostname: %s, Priority($/Sec/Thread): %s, Max Threads/Cycle: %d, Min Scripts/Cycle: %d', server.hostname, formatMoney(server.priority), server.cycleMaxThreads, server.scriptsPerCycle));
+            logger(this.ns, this.ns.sprintf('Hostname: %s, Priority($/Sec/Thread): %s, Max Threads/Cycle: %d, Min Scripts/Cycle: %d.', server.hostname, formatMoney(server.priority), server.cycleMaxThreads, server.scriptsPerCycle));
             countedThreads += server.cycleMaxThreads;
             countedScripts += server.scriptsPerCycle;
         }
