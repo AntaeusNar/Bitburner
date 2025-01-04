@@ -190,7 +190,7 @@ export class MyServer {
      * Gets the threads needed for a single batch vs server at ideal conditions
      * @returns {object|null} Object containing threads as GWgHWh or null
      */
-    get batchThreads() {
+    get batchIdealThreads() {
         let threads = null;
         if (this.hackRequired > this.ns.getHackingLevel()) return threads;
         if (this.moneyMax == 0) return threads;
@@ -246,7 +246,7 @@ export class MyServer {
      * @returns {number} Cycle threads
      */
     get cycleMaxThreads() {
-        let threads = this.batchThreads;
+        let threads = this.batchIdealThreads;
         if (threads == null) return 0;
         let threadCount = Object.values(threads).reduce((a,c) => a + c);
 
@@ -278,7 +278,7 @@ export class MyServer {
             }
         }
 
-        let threadCount = Object.values(this.batchThreads).reduce((a,c) => a + c);
+        let threadCount = Object.values(this.batchIdealThreads).reduce((a,c) => a + c);
 
         let _priority = (chance * percent * this.moneyMax) / maxTime / threadCount;
         if (isNaN(_priority)) _priority = 0;
