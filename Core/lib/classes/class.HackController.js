@@ -101,19 +101,4 @@ export class HackController {
             }
         }
     }
-
-    /**
-     * Deploys a single script on an attacker w/ x threads vs an target
-     * @param {string} attacker attacker hostname
-     * @param {string} script
-     * @param {string} target target hostname
-     * @param {number} threads
-     * @param {number} waitTime
-     * @param {string} cycleBatch
-     * @returns {number} PID
-     */
-    _microDeploy(attacker, script, target, threads, waitTime, cycleBatch) {
-        let result = this.ns.exec(attacker, script, target, threads, waitTime, cycleBatch);
-        return result;
-    }
 }
