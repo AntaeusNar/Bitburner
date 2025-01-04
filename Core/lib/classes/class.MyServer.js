@@ -24,9 +24,6 @@ export class MyServer {
         /** @type {string} */
         this.hostname = hostname;
 
-        /** @type {number} */
-        this.ramMax = ns.getServerMaxRam(hostname);
-
         /** @type {number} Max Ram per Thread*/
         this.ramNeeded = neededRam;
 
@@ -44,6 +41,17 @@ export class MyServer {
 
         /** @type {NS} */
         this.ns = ns;
+    }
+
+    /**
+     * Gets the max ram per server with special handling for home
+     * @returns {number} ramMax
+     */
+    get ramMax() {
+        if (this.hostname == 'home') {
+            return this.ns.getServerMaxRam(this.hostname) - 32;
+        }
+        return this.ns.getServerMaxRam(this.hostname);
     }
 
     /**
