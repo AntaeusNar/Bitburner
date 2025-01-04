@@ -77,7 +77,7 @@ export class HackController {
 
         for (const server of this.serverInventory) {
             if (countedThreads >= maxThreads && !hitMaxThreads) {
-                logger(this.ns, this.ns.sprintf("INFO: Max Threads reached.  No more Servers can be hacked.  %d scripts remaining.", max_scripts - countedScripts))
+                logger(this.ns, this.ns.sprintf("INFO: %d of %d Threads limit hit.  No more Servers can be hacked.  %d scripts remaining.", countedThreads, maxThreads, max_scripts - countedScripts))
                 hitMaxThreads = true;
             }
             if (countedScripts >= max_scripts && !hitMaxScripts) {
