@@ -22,7 +22,7 @@ export function main(ns){
         "getServerNumPortsRequired",
         "scan",
         "nuke",
-    ]
+    ];
     for (let log of disabledLogs) {
         ns.disableLog(log);
     }
