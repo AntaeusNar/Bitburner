@@ -1,3 +1,3 @@
 export function main(ns) {
-    ns.tprint(ns.getPlayer().karma + ' of -54,000.');
+    ns.tprint(Math.floor(ns.getPlayer().karma) + ' of -54,000.');
 }
