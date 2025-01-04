@@ -35,6 +35,7 @@ export class HackController {
         this.scanFromHome();
         this.generateInventory();
         this.sortServersByPriority();
+        this.copyFiles();
     }
 
     scanFromHome() {
