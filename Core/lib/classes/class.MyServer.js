@@ -1,4 +1,4 @@
-import { calcHackChance, calcPercentMoneyHacked, calculateSingleBatchThreads, calculateSingleBatchTiming, getRoot } from "../lib/library.js";
+import { calcHackChance, calcPercentMoneyHacked, calculateSingleBatchThreads, calculateSingleBatchTiming, calculateWeakenTime, calcWeakenThreads, getRoot } from "../lib/library.js";
 import { base_delay } from "../lib/options.js";
 
 /**
@@ -284,6 +284,22 @@ export class MyServer {
         if (isNaN(_priority)) _priority = 0;
         //this.ns.tprint(this.hostname + " Money: " + (chance * percent * this.moneyMax) + " MaxTime: " + maxTime + " ThreadCount: " + threadCount + " Priority: " + _priority);
         return _priority;
+    }
+
+    /**
+     * Gets the number of threads needed for the Prime weaken based on current numbers
+     * @returns {number}
+     */
+    get weakenPrimaryThreads() {
+        return calcWeakenThreads(this.securityCurrent - this.securityMin);
+    }
+
+    /**
+     * Gets the time needed for the Prime weaken based on current numbers
+     * @returns {number}
+     */
+    get weakenPrimaryTime() {
+        return calculateWeakenTime(this.hackRequired, this.securityCurrent, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
     }
 
 }
