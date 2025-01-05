@@ -271,8 +271,6 @@ export class MyServer {
     get priority() {
         if (this.hackRequired > this.ns.getHackingLevel()) return 0;
         if (this.moneyMax == 0) return 0;
-        let chance = calcHackChance(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().chance);
-        let percent = calcPercentMoneyHacked(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().money);
         let timings = this.batchTiming;
         let maxTime = -Infinity;
         for (const key of Object.keys(timings)) {
@@ -281,11 +279,8 @@ export class MyServer {
             }
         }
 
-        let threadCount = Object.values(this.batchIdealThreads).reduce((a,c) => a + c);
-
-        let _priority = (chance * percent * this.moneyMax) / maxTime / threadCount;
+        let _priority = (this.moneyMax * this.batchesPerCycle) / maxTime / this.cycleMaxThreads;
         if (isNaN(_priority)) _priority = 0;
-        //this.ns.tprint(this.hostname + " Money: " + (chance * percent * this.moneyMax) + " MaxTime: " + maxTime + " ThreadCount: " + threadCount + " Priority: " + _priority);
         return _priority;
     }
 
