@@ -41,6 +41,9 @@ export class MyServer {
 
         /** @type {NS} */
         this.ns = ns;
+
+        /** @type {boolean} */
+        this.willBePrimed = false;
     }
 
     /**

@@ -32,6 +32,12 @@ export class HackController {
         /** @type {MyServer[]}  Array of MyServers */
         this.serverInventory = [];
 
+        /** @type {number} */
+        this.scriptsUsable = max_scripts;
+
+        /** @type {number} */
+        this.threadsUsable = this.threadsMax;
+
         this.scanFromHome();
         this.generateInventory();
         this.sortServersByPriority();
