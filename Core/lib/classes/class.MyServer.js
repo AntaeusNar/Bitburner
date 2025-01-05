@@ -199,22 +199,24 @@ export class MyServer {
      * @returns {number} time in sec
      */
     get batchMaxTime() {
-            let growTime = calculateGrowTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
-            let hackTime = calculateHackingTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
-            let weakenTime = calculateWeakenTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
-            let timing = {
-              G: growTime,
-              Wg: weakenTime + base_delay,
-              H: hackTime + base_delay * 2,
-              Wh: weakenTime + base_delay * 3
+        let maxTime = -Infinity;
+        if (this.hackRequired > this.ns.getHackingLevel()) return 0;
+        if (this.moneyMax == 0 ) return 0;
+        let growTime = calculateGrowTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
+        let hackTime = calculateHackingTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
+        let weakenTime = calculateWeakenTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
+        let timing = {
+            G: growTime,
+            Wg: weakenTime + base_delay,
+            H: hackTime + base_delay * 2,
+            Wh: weakenTime + base_delay * 3
+        }
+        for (const key of Object.keys(timing)) {
+            if (timing[key] > maxTime) {
+                maxTime = timing[key];
             }
-            let maxTime = -Infinity;
-            for (const key of Object.keys(timing)) {
-                if (timing[key] > maxTime) {
-                    maxTime = timing[key];
-                }
-            }
-            return maxTime;
+        }
+        return maxTime;
     }
 
     /**
@@ -269,17 +271,7 @@ export class MyServer {
      * @returns {number} $/Sec/Thread
      */
     get priority() {
-        if (this.hackRequired > this.ns.getHackingLevel()) return 0;
-        if (this.moneyMax == 0) return 0;
-        let timings = this.batchTiming;
-        let maxTime = -Infinity;
-        for (const key of Object.keys(timings)) {
-            if (timings[key] > maxTime) {
-                maxTime = timings[key];
-            }
-        }
-
-        let _priority = (this.moneyMax * this.cycleBatches) / maxTime / this.cycleThreads;
+        let _priority = (this.moneyMax * this.cycleBatches) / this.cycleTime / this.cycleThreads;
         if (isNaN(_priority)) _priority = 0;
         return _priority;
     }
