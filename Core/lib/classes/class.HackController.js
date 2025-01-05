@@ -32,6 +32,12 @@ export class HackController {
         /** @type {MyServer[]}  Array of MyServers */
         this.serverInventory = [];
 
+        /**
+         * @type {execItem[]} Array of items to exec
+         * @see {@link execItem}
+        */
+        this.execQue = [];
+
         this.scanFromHome();
         this.generateInventory();
         this.sortServersByPriority();
@@ -101,23 +107,16 @@ export class HackController {
 
     printPrimeWeakens() {
         for (const server of this.serverInventory) {
-            logger(this.ns, this.ns.sprintf("Hostname: %s, Primary Weaken threads: %d, Primary Weaken Time: %s.", server.hostname, server.weakenPrimaryThreads, new Date(server.weakenPrimaryTime * 1000).toISOString().substring(11, 23)));
+            logger(this.ns, this.ns.sprintf("Hostname: %s, Primary Weaken threads: %d, Primary Weaken Time: %s.", server.hostname, server.weakenPrimaryThreads, new Date(server.weakenTime * 1000).toISOString().substring(11, 23)));
         }
-    }
-
-    hack() {
-
     }
 }
 
 /**
- * @typedef BatchTracker
- * @property {string} hostname
- * @property {number} growThreads
- * @property {number} growTime
- * @property {number} weakenGrowThreads
- * @property {number} weakenGrowTime
- * @property {number} hackThreads
- * @property {number} hackTime
- * @property {number} weakenHackTime
+ * @typedef execItem
+ * @property {string} script
+ * @property {number} startTime in secs from start of script
+ * @property {string} target
+ * @property {number} threads
+ * @property {string[]} args
  */
