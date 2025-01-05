@@ -1,7 +1,7 @@
 import { getNeededRam, logger, multiScan, formatMoney } from "../lib/library";
 import { max_scripts } from "../lib/options";
 import { MyServer } from "./class.MyServer";
-import { Script } from "./class.script";
+import { Script } from "./class.Script";
 /**
  * Represents the hack controller ai.
  *
