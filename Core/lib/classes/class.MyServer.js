@@ -109,15 +109,6 @@ export class MyServer {
     }
 
     /**
-     * Checks if the server's security is at its minimum (primed for hacking).
-     *
-     * @returns {boolean} True if the server's security is at its minimum level.
-     */
-    get securityIsPrimed() {
-        return this.securityCurrent === this.securityMin;
-    }
-
-    /**
      * Gets the available money on the server.
      *
      * @returns {number} The amount of money available on the server.
@@ -127,15 +118,6 @@ export class MyServer {
             return 0;
         }
         return this.ns.getServerMoneyAvailable(this.hostname);
-    }
-
-    /**
-     * Checks if the server's money is at its maximum (primed for hacking).
-     *
-     * @returns {boolean} True if the server's money is at its maximum.
-     */
-    get moneyIsPrimed() {
-        return this.moneyAvailable === this.moneyMax;
     }
 
     /**
@@ -228,7 +210,7 @@ export class MyServer {
      * Get the max number of batches that can be run per cycle
      * @returns {number} Maximum number of batches that can be run per cycle
      */
-    get batchesPerCycle() {
+    get cycleBatches() {
         let timings = this.batchTiming;
         if (timings == null) return 0;
 
@@ -248,20 +230,20 @@ export class MyServer {
      * This should then be the MAX number of threads that CAN target a single server in ideal conditions. (After the initial Weakens)
      * @returns {number} Cycle threads
      */
-    get cycleMaxThreads() {
+    get cycleThreads() {
         let threads = this.batchIdealThreads;
         if (threads == null) return 0;
         let threadCount = Object.values(threads).reduce((a,c) => a + c);
 
-        return Math.round(this.batchesPerCycle * threadCount);
+        return Math.round(this.cycleBatches * threadCount);
     }
 
     /**
      * Gets the minimum Scripts per cycle
      * @returns {number} Min Scripts per cycle
      */
-    get scriptsPerCycle() {
-        return this.batchesPerCycle*4;
+    get cycleScripts() {
+        return this.cycleBatches*4;
     }
 
     /**
@@ -279,7 +261,7 @@ export class MyServer {
             }
         }
 
-        let _priority = (this.moneyMax * this.batchesPerCycle) / maxTime / this.cycleMaxThreads;
+        let _priority = (this.moneyMax * this.cycleBatches) / maxTime / this.cycleThreads;
         if (isNaN(_priority)) _priority = 0;
         return _priority;
     }
