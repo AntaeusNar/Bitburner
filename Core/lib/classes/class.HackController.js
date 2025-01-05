@@ -32,9 +32,6 @@ export class HackController {
         /** @type {MyServer[]}  Array of MyServers */
         this.serverInventory = [];
 
-        /** @type {number[]} Array of Script PIDs */
-        this.trackedScripts = [];
-
         this.scanFromHome();
         this.generateInventory();
         this.sortServersByPriority();
@@ -107,4 +104,20 @@ export class HackController {
             logger(this.ns, this.ns.sprintf("Hostname: %s, Primary Weaken threads: %d, Primary Weaken Time: %s.", server.hostname, server.weakenPrimaryThreads, new Date(server.weakenPrimaryTime * 1000).toISOString().substring(11, 23)));
         }
     }
+
+    hack() {
+
+    }
 }
+
+/**
+ * @typedef BatchTracker
+ * @property {string} hostname
+ * @property {number} growThreads
+ * @property {number} growTime
+ * @property {number} weakenGrowThreads
+ * @property {number} weakenGrowTime
+ * @property {number} hackThreads
+ * @property {number} hackTime
+ * @property {number} weakenHackTime
+ */
