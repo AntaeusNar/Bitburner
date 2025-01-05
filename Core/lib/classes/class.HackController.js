@@ -97,9 +97,9 @@ export class HackController {
             if (hitMaxScripts || hitMaxThreads) {
                return;
             }
-            logger(this.ns, this.ns.sprintf('Hostname: %s, Priority($/Sec/Thread): %s, Max Threads/Cycle: %d, Min Scripts/Cycle: %d.', server.hostname, formatMoney(server.priority), server.cycleMaxThreads, server.scriptsPerCycle));
-            countedThreads += server.cycleMaxThreads;
-            countedScripts += server.scriptsPerCycle;
+            logger(this.ns, this.ns.sprintf('Hostname: %s, Priority($/Sec/Thread): %s, Max Threads/Cycle: %d, Min Scripts/Cycle: %d.', server.hostname, formatMoney(server.priority), server.cycleThreads, server.cycleScripts));
+            countedThreads += server.cycleThreads;
+            countedScripts += server.cycleScripts;
         }
         logger(this.ns, this.ns.sprintf('INFO: Remaining Threads: %d, Remaining Scripts: %d', maxThreads - countedThreads, max_scripts - countedScripts));
     }

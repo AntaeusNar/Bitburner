@@ -1,4 +1,4 @@
-import { calcHackChance, calcPercentMoneyHacked, calculateSingleBatchThreads, calculateSingleBatchTiming, calculateWeakenTime, calcWeakenThreads, getRoot } from "../lib/library.js";
+import { calculateSingleBatchThreads, calculateSingleBatchTiming, calculateWeakenTime, calcWeakenThreads, getRoot, calculateHackingTime, calculateGrowTime } from "../lib/library.js";
 import { base_delay } from "../lib/options.js";
 
 /**
@@ -195,6 +195,29 @@ export class MyServer {
     }
 
     /**
+     * Gets the longest time of a script + delay in batch
+     * @returns {number} time in sec
+     */
+    get batchMaxTime() {
+            let growTime = calculateGrowTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
+            let hackTime = calculateHackingTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
+            let weakenTime = calculateWeakenTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
+            let timing = {
+              G: growTime,
+              Wg: weakenTime + base_delay,
+              H: hackTime + base_delay * 2,
+              Wh: weakenTime + base_delay * 3
+            }
+            let maxTime = -Infinity;
+            for (const key of Object.keys(timing)) {
+                if (timing[key] > maxTime) {
+                    maxTime = timing[key];
+                }
+            }
+            return maxTime;
+    }
+
+    /**
      * Get the timing of a single batch of threads
      * @returns {object|null} Object with timing as GWgHWh
      */
@@ -206,21 +229,16 @@ export class MyServer {
         return threadTiming;
     }
 
+    get cycleTime() {
+        return this.batchMaxTime;
+    }
+
     /**
      * Get the max number of batches that can be run per cycle
      * @returns {number} Maximum number of batches that can be run per cycle
      */
     get cycleBatches() {
-        let timings = this.batchTiming;
-        if (timings == null) return 0;
-
-        let maxTime = -Infinity;
-        for (const key of Object.keys(timings)) {
-            if (timings[key] > maxTime) {
-                maxTime = timings[key];
-            }
-        }
-        return Math.round(maxTime/(base_delay*4));
+        return Math.ceil(this.cycleTime/(base_delay*4));
     }
 
     /**
