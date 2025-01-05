@@ -1,6 +1,7 @@
 import { getNeededRam, logger, multiScan, formatMoney } from "../lib/library";
 import { max_scripts } from "../lib/options";
 import { MyServer } from "./class.MyServer";
+import { Script } from "./class.script";
 /**
  * Represents the hack controller ai.
  *
@@ -37,6 +38,12 @@ export class HackController {
 
         /** @type {number} */
         this.threadsUsable = this.threadsMax;
+
+        /**
+         * @type {Script[]} Array of Script Objects
+         * @see {@link Script}
+        */
+        this.scriptsTracked = [];
 
         this.scanFromHome();
         this.generateInventory();
