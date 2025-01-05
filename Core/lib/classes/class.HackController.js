@@ -32,12 +32,6 @@ export class HackController {
         /** @type {MyServer[]}  Array of MyServers */
         this.serverInventory = [];
 
-        /**
-         * @type {execItem[]} Array of items to exec
-         * @see {@link execItem}
-        */
-        this.execQue = [];
-
         this.scanFromHome();
         this.generateInventory();
         this.sortServersByPriority();
@@ -111,12 +105,3 @@ export class HackController {
         }
     }
 }
-
-/**
- * @typedef execItem
- * @property {string} script
- * @property {number} startTime in secs from start of script
- * @property {string} target
- * @property {number} threads
- * @property {string[]} args
- */
