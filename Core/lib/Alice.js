@@ -31,5 +31,4 @@ export function main(ns){
     logger(ns, 'Initializing Hack Controller. Collecting Needed Files. Initializing network scan.');
     let hackController = new HackController(ns);
     hackController.printPriorities();
-    //hackController.printPrimeWeakens();
 }

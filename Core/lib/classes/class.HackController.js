@@ -111,10 +111,4 @@ export class HackController {
             }
         }
     }
-
-    printPrimeWeakens() {
-        for (const server of this.serverInventory) {
-            logger(this.ns, this.ns.sprintf("Hostname: %s, Primary Weaken threads: %d, Primary Weaken Time: %s.", server.hostname, server.weakenPrimaryThreads, new Date(server.weakenTime * 1000).toISOString().substring(11, 23)));
-        }
-    }
 }

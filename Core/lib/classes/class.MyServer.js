@@ -1,49 +1,60 @@
-import { calculateSingleBatchThreads, calculateSingleBatchTiming, calculateWeakenTime, calcWeakenThreads, getRoot, calculateHackingTime, calculateGrowTime } from "../lib/library.js";
-import { base_delay } from "../lib/options.js";
+import { calculateSingleBatchThreads, calculateGrowTime, calculateWeakenTime, calculateHackingTime, getRoot } from "../lib/library";
+import { base_delay } from "../lib/options";
 
-/**
- * Represents a server in Bitburner.
- *
- * This class is used to create actual objects that represent servers, providing useful
- * methods and properties for interacting with the server in a more manageable way.
- * It generates both the NS version and the getServer version, which do not seem to match
- * but are unified through this class.
- *
- * @class MyServer
- */
 export class MyServer {
 
     /**
-     * Creates a MyServer instance from a given hostname.
+     * Represents a server object with related properties such as max money, security level, and hacking requirements.
      *
-     * @param {NS} ns - The Bitburner NS object used for NS interaction.
-     * @param {string} hostname - The hostname of the server to represent.
-     * @param {number} [neededRam=1.75] - The amount of RAM required for operations on the server (default is 1.75).
+     * @param {object} ns - The Netscript (API) object that provides methods for interacting with the game.
+     * @param {string} hostname - The hostname of the server.
+     * @param {number} [ramNeeded=1.75] - The amount of RAM needed for tasks on the server. Default is 1.75.
      */
-    constructor(ns, hostname, neededRam=1.75) {
-        /** @type {string} */
-        this.hostname = hostname;
-
-        /** @type {number} Max Ram per Thread*/
-        this.ramNeeded = neededRam;
-
-        /** @type {number} */
-        this.moneyMax = ns.getServerMaxMoney(hostname);
-
-        /** @type {number} */
-        this.securityMin = ns.getServerMinSecurityLevel(hostname);
-
-        /** @type {number} */
-        this.growthMultiplier = ns.getServerGrowth(hostname);
-
-        /** @type {number} */
-        this.hackRequired = ns.getServerRequiredHackingLevel(hostname);
-
-        /** @type {NS} */
+    constructor(ns, hostname, ramNeeded = 1.75) {
+        /**
+         * @type {object} ns - The Netscript (API) object.
+         */
         this.ns = ns;
 
-        /** @type {boolean} */
+        /**
+         * @type {string} hostname - The server's hostname.
+         */
+        this.hostname = hostname;
+
+        /**
+         * @type {number} ramNeeded - The amount of RAM required for the server tasks.
+         */
+        this.ramNeeded = ramNeeded;
+
+        /**
+         * @type {number} moneyMax - The maximum amount of money the server can have.
+         */
+        this.moneyMax = ns.getServerMaxMoney(hostname);
+
+        /**
+         * @type {number} securityMin - The minimum security level required to hack the server.
+         */
+        this.securityMin = ns.getServerMinSecurityLevel(hostname);
+
+        /**
+         * @type {number} growthMultiplier - The server's growth multiplier, which affects how quickly the server grows.
+         */
+        this.growthMultiplier = ns.getServerGrowth(hostname);
+
+        /**
+         * @type {number} hackRequired - The required hacking level to hack the server.
+         */
+        this.hackRequired = ns.getServerRequiredHackingLevel(hostname);
+
+        /**
+         * @type {boolean} willBePrimed - Flag indicating if the server will be primed for hacking.
+         */
         this.willBePrimed = false;
+
+        /**
+         * @type {number} batchScale - Scaling factor for batch operations (used for optimization).
+         */
+        this.batchScale = 1;
     }
 
     /**
@@ -170,15 +181,29 @@ export class MyServer {
         return this.ns.ls(this.hostname);
     }
 
-
     /**
-     * Gets the threads needed for a single batch vs server at ideal conditions
-     * @returns {object|null} Object containing threads as GWgHWh or null
+     * Calculates the number of threads required for a batch operation to reach a specified target amount of money.
+     *
+     * @param {number} [targetTake=1] - The percentage of the server's maximum money to target for the hack. Default is 1 (100%).
+     * @returns {Object|null} An Object of threads required for the batch operation as G,Wg,H,Wh, or `null` if unable to calculate.
+     * @see {@link calculateSingleBatchThreads}
      */
-    get batchIdealThreads() {
+    calcBatchThreads(targetTake = 1) {
         let threads = null;
+
+        // If the player’s hacking level is too low, return null
         if (this.hackRequired > this.ns.getHackingLevel()) return threads;
+
+        // If the server has no money, return null
         if (this.moneyMax == 0) return threads;
+
+        // Adjust targetTake to represent percentage
+        targetTake = targetTake * 100;
+
+        // Calculate the target amount of money based on the targetTake percentage
+        let targetMoney = this.moneyMax * targetTake;
+
+        // Use the external function `calculateSingleBatchThreads` to calculate the number of threads needed
         threads = calculateSingleBatchThreads(
             this.hackRequired,
             this.securityMin,
@@ -187,10 +212,11 @@ export class MyServer {
             this.ns.getHackingMultipliers().money,
             this.growthMultiplier,
             this.ns.getHackingMultipliers().growth,
-            this.moneyMax,
+            targetMoney,
             0,
-            100
-        )
+            targetTake
+        );
+
         return threads;
     }
 
@@ -202,9 +228,11 @@ export class MyServer {
         let maxTime = -Infinity;
         if (this.hackRequired > this.ns.getHackingLevel()) return 0;
         if (this.moneyMax == 0 ) return 0;
-        let growTime = calculateGrowTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
-        let hackTime = calculateHackingTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
-        let weakenTime = calculateWeakenTime(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
+        let hackingLevel = this.ns.getHackingLevel();
+        let hackingSpeed = this.ns.getHackingMultipliers().speed;
+        let growTime = calculateGrowTime(this.hackRequired, this.securityMin, hackingLevel, hackingSpeed);
+        let hackTime = calculateHackingTime(this.hackRequired, this.securityMin, hackingLevel, hackingSpeed);
+        let weakenTime = calculateWeakenTime(this.hackRequired, this.securityMin, hackingLevel, hackingSpeed);
         let timing = {
             G: growTime,
             Wg: weakenTime + base_delay,
@@ -220,17 +248,11 @@ export class MyServer {
     }
 
     /**
-     * Get the timing of a single batch of threads
-     * @returns {object|null} Object with timing as GWgHWh
+     * Gets the time for the cycle operation, which is the same as the maximum batch time.
+     *
+     * @returns {number} The maximum cycle time for the operation.
+     * @alias batchMaxTime
      */
-    get batchTiming() {
-        let threadTiming = null;
-        if (this.hackRequired > this.ns.getHackingLevel()) return threadTiming;
-        if (this.moneyMax == 0) return threadTiming;
-        threadTiming = calculateSingleBatchTiming(this.hackRequired, this.securityMin, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
-        return threadTiming;
-    }
-
     get cycleTime() {
         return this.batchMaxTime;
     }
@@ -251,7 +273,7 @@ export class MyServer {
      * @returns {number} Cycle threads
      */
     get cycleThreads() {
-        let threads = this.batchIdealThreads;
+        let threads = this.calcBatchThreads();
         if (threads == null) return 0;
         let threadCount = Object.values(threads).reduce((a,c) => a + c);
 
@@ -276,20 +298,5 @@ export class MyServer {
         return _priority;
     }
 
-    /**
-     * Gets the number of threads needed for the Prime weaken based on current numbers
-     * @returns {number}
-     */
-    get weakenPrimaryThreads() {
-        return calcWeakenThreads(this.securityCurrent - this.securityMin);
-    }
-
-    /**
-     * Gets the time needed for the Prime weaken based on current numbers
-     * @returns {number}
-     */
-    get weakenPrimaryTime() {
-        return this.weakenTime;
-    }
 
 }
