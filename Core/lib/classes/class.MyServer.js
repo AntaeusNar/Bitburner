@@ -289,7 +289,7 @@ export class MyServer {
      * @returns {number}
      */
     get weakenPrimaryTime() {
-        return calculateWeakenTime(this.hackRequired, this.securityCurrent, this.ns.getHackingLevel(), this.ns.getHackingMultipliers().speed);
+        return this.weakenTime;
     }
 
 }
