@@ -25,20 +25,11 @@ class BaseServer {
 
 /** InactiveDrone server class */
 export class InactiveDrone {
-
-  /** Creates an inactive drone
-    * @param {NS} ns
-    * @param {string} hostname
-    */
   constructor(ns, hostname) {
     this.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
     this.threads = 0;
-    if (hostname == 'home') {
-      this.maxRam = ns.getServerMaxRam(hostname) - 32;
-    } else {
-      this.maxRam = ns.getServerMaxRam(hostname);
-    }
-  }//end of constructor
+    this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
+  }
 
   //calculates the number of threads the server can host
   numberOfThreads(neededRam) {
