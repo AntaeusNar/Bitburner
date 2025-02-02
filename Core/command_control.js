@@ -12,7 +12,7 @@
   */
 import {logger, getNeededRam, multiscan, deployVectors} from './lib.js';
 import {ServerFactory, Script} from './ClassesV2.js';
-import {baseDelay, maxScripts, budgetPercentageLimit} from './options.js';
+import {baseDelay, maxScripts} from './options.js';
 export async function main(ns) {
 
 
