@@ -395,14 +395,6 @@ export class ServerFactory {
 
     for (let hostname of serverList) {
       //Check for valid hostname
-      if (typeof(hostname) !== 'string' || !ns.serverExists(hostname)) {
-        throw new Error(hostname + ' is not a valid string or a valid hostname.');
-      }
-      if (hostname == 'w0r1d_d43m0n' && ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel()) {
-        logger(ns, 'Can backdoor w0r1d_d43m0n');
-        ns.exec('map.js');
-        ns.exit();
-      }
       let built = false;
       /**Target and inactive target builds */
       if (getRoot(ns, hostname) &&
