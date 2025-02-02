@@ -1,6 +1,28 @@
 import {getRoot, realVectors, logger, evalVectorsPerBatch, evalWeakenTime, evalPercentTakePerHack, truncateNumber} from './lib.js';
 import {baseDelay, maxScripts} from './options.js';
 
+
+class BaseServer {
+  constructor(ns, hostname, neededRam = 1.75) {
+    this.ns = ns;
+    this.hostname = hostname;
+    this.neededRam = neededRam;
+    this.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
+    this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
+    this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
+    this.growthMultiplier = ns.getServerGrowth(hostname);
+    this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
+    this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
+  }
+
+  get root() { return getRoot(this.ns, this.hostname); }
+  get isHackable() { return this.requiredHackingSkill > this.ns.getHackingLevel() ? false : true; }
+  get ramUsed() { return this.ns.getServerUsedRam(this.hostname); }
+  get ramAvailable() { return this.root ? 0 : this.maxRam - this.ramUsed; }
+  get threads() { return truncateNumber(this.maxRam/this.neededRam, 0, 'floor'); }
+
+}
+
 /** InactiveDrone server class */
 export class InactiveDrone {
 
