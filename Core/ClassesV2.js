@@ -36,7 +36,7 @@ export class InactiveDrone {
     this.threads = truncateNumber(this.maxRam/neededRam, 0, 'floor');
   }
 
-  init(neededRam) {
+  init(neededRam = 1.75) {
     logger(this.ns, 'Initialized InactiveDrone ' + this.hostname, 0);
     this.numberOfThreads(neededRam);
   }
@@ -72,7 +72,7 @@ export class DroneServer extends InactiveDrone {
     return this.maxRam - this.ramUsed;
   }
 
-  init(neededRam) {
+  init(neededRam = 1.75) {
     logger(this.ns, 'Initialized DroneServer ' + this.hostname, 0);
     this.numberOfThreads(neededRam);
   }
@@ -496,12 +496,7 @@ export class ServerFactory {
     Object.defineProperty(server, 'hasAdminRights', {
       get() { return getRoot(this.ns, this.hostname); }
     })
-
-    if (server.serverType == 'InactiveDrone' || server.serverType == 'Drone') {
-      server.init(neededRam);
-    } else {
-      server.init();
-    }
+    server.init();
 
     /** Error Checking */
     if (serverType == 'Target') {
