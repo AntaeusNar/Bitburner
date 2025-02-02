@@ -15,31 +15,19 @@ import {ServerFactory, Script} from './ClassesV2.js';
 import {baseDelay, maxScripts, budgetPercentageLimit} from './options.js';
 export async function main(ns) {
 
-  //Initial Launch
-  logger(ns, 'Launching Command and Control.')
+
+  //Initialization
   ns.disableLog('ALL');
-  //ns.enableLog('exec');
   let files = ['./lt-weaken.js', './lt-grow.js', './lt-hack.js'];
   let neededRam = getNeededRam(ns, files);
-  logger(ns, 'INFO: needed ram is ' + neededRam +'GB.');
-
-
-  //Recursively Scan the network
-  logger(ns, 'INFO: Scanning Network for Servers.');
   let serverList = multiscan(ns, 'home');
-  logger(ns, ns.sprintf('INFO: Found %d Servers on network.', serverList.length));
+  logger(ns, 'Launching Command & Control.  Needed Ram is ' + neededRam + 'GB. Found ' + serverList.length + ' Servers on network.');
 
-  // TODO: add in the ability to auto-purchase access to the darkweb and port openers
 
   //Build working inventory of servers
   logger(ns, 'INFO: Building inventory of Servers');
   const serverFactory = new ServerFactory();
   let inventory = await serverFactory.create(ns, serverList, files, neededRam);
-
-  if (ns.args[0] == true) {
-    logger(ns, 'WARNING: Requested test run only, exiting');
-    ns.exit();
-  }
 
   /** Main Control loop
     * Deploy drone scripts on drones against targets
