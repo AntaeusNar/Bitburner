@@ -126,12 +126,6 @@ export async function main(ns) {
         await ns.sleep(1);
       }//end of iterative deployment handling
 
-      // TODO: switch everything around when just needing to gain exp.
-
-      // IDEA: look incorporating gang management and sleeve management
-      // IDEA: faction server backdooring
-      // IDEA: faction work management
-
       /** Restart Control Section */
       setRestart = false;
       if (inventory.inactiveDrones.length > 0 && inventory.inactiveDrones[0].hasAdminRights) {
