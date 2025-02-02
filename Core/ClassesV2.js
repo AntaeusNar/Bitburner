@@ -487,25 +487,15 @@ export class ServerFactory {
     return inventory
   }//end of create
 
+  /** Common Properties all servers have */
+  // TODO: Refactor into a BaseServer Class
   commonProps(ns, server, hostname, serverType, neededRam=0) {
-    /** Common to all properties */
+    server.ns = ns;
     server.hostname = hostname;
     server.serverType = serverType;
-    server.ns = ns;
-    //hasAdminRights
-    server._hasAdminRights = false;
-    const hasAdminRightsPattern = {
-      get() {
-        if (!this._hasAdminRights) {
-          this._hasAdminRights = this.ns.hasRootAccess(this.hostname);
-        }
-        if (!this._hasAdminRights) {
-          this._hasAdminRights = getRoot(this.ns, this.hostname);
-        }
-        return this._hasAdminRights;
-      }
-    }
-    Object.defineProperty(server, 'hasAdminRights', hasAdminRightsPattern);
+    Object.defineProperty(server, 'hasAdminRights', {
+      get() { return getRoot(this.ns, this.hostname); }
+    })
 
     if (server.serverType == 'InactiveDrone' || server.serverType == 'Drone') {
       server.init(neededRam);
