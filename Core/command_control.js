@@ -20,7 +20,7 @@ export async function main(ns) {
   ns.disableLog('ALL');
   let files = ['./lt-weaken.js', './lt-grow.js', './lt-hack.js'];
   let neededRam = getNeededRam(ns, files);
-  let serverList = multiscan(ns, 'home');
+  let serverList = generateServerList(ns);
   logger(ns, 'Launching Command & Control.  Needed Ram is ' + neededRam + 'GB. Found ' + serverList.length + ' Servers on network.');
 
 
@@ -171,10 +171,27 @@ export async function main(ns) {
         trackedScripts = [];
         usableScripts = 0;
         usableThreads = 0;
-        serverList = multiscan(ns, 'home');
+        serverList = generateServerList(ns);
         inventory = await serverFactory.create(ns, serverList, files, neededRam);
       } else {
         await ns.sleep(sleepTime);
       }
   }//end of main control loop
 } //end of Main Program
+
+
+/** Generates server list, checks for w0r1d_d43m0n
+ * @param {NS}
+ * @returns {String[]}
+ */
+function generateServerList(ns) {
+  let serverList = multiscan(ns, 'home');
+  if (serverList.includes('w0r1d_d43m0n') && ns.getServerRequiredHackingLevel('w0r1d_d43m0n') <= ns.getHackingLevel()) {
+    logger(ns, 'Can backdoor w0r1d_d43m0n!');
+    ns.exec('map.js');
+    // TODO: kill all tracked scripts
+    ns.exit();
+  }
+  return serverList;
+
+}
