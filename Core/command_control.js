@@ -132,7 +132,7 @@ export async function main(ns) {
           ' Remaining Scripts: ' + usableScripts;
         logger(ns, message, 0);
 
-        /** Interive Loop Cleanup */
+        /** Iterative Loop Cleanup */
         if (setBreak) {break;};
         i++;
         await ns.sleep(1);
@@ -144,16 +144,8 @@ export async function main(ns) {
       // IDEA: faction server backdooring
       // IDEA: faction work management
 
-      /**Upgrade Control Section */
-      // TODO: try to purchase new tools if needed.
-      // TODO: add in the eval and purchase of personal servers
+      /** Restart Control Section */
       setRestart = false;
-      /** Limit Ram!!! adds  64gb+
-      if (ns.getServerMoneyAvailable('home')* budgetPercentageLimit > ns.singularity.getUpgradeHomeRamCost() && ns.singularity.upgradeHomeRam()) {
-        setRestart = true;
-        logger(ns, 'INFO: Upgraded Home Ram, requesting restart.')
-      }
-      */
       if (inventory.inactiveDrones.length > 0 && inventory.inactiveDrones[0].hasAdminRights) {
         setRestart = true;
         logger(ns, 'INFO: New Drone Available, requesting restart.')
