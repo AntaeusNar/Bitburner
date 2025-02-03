@@ -17,6 +17,8 @@ class BaseServer {
     this._takePercent = .001;
     this._isPrimedStr = false;
     this._isPrimedMoney = false;
+
+    this.init()
   }
 
   get root() { return getRoot(this.ns, this.hostname); }
@@ -55,23 +57,6 @@ class BaseServer {
     return result;
   }
 
-}
-
-class InactiveTargetV2 extends BaseServer {
-  constructor(ns, hostname, serverType, neededRam) {
-    super(ns, hostname, serverType, neededRam);
-  }
-
-  init() {
-    this._takePercent = this.percentPerSingleHack;
-  }
-}
-
-class TargetServerV2 extends InactiveTargetV2 {
-  constructor(ns, hostname, serverType, neededRam) {
-    super(ns, hostname, serverType, neededRam);
-  }
-
   get isPrimedStr() {
     if (this.ns.getServerSecurityLevel(this.hostname) == this.minDifficulty) {
       this._isPrimedStr = true;
@@ -97,7 +82,6 @@ class TargetServerV2 extends InactiveTargetV2 {
   }
 
   init() {
-    super.init();
     this._takePercent = this.percentPerSingleHack;
     this.betterThanNext = 1;
     this.betterThanLast = 1;
@@ -183,6 +167,19 @@ class TargetServerV2 extends InactiveTargetV2 {
 
       await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget);
     }
+  }
+
+}
+
+class InactiveTargetV2 extends BaseServer {
+  constructor(ns, hostname, serverType, neededRam) {
+    super(ns, hostname, serverType, neededRam);
+  }
+}
+
+class TargetServerV2 extends InactiveTargetV2 {
+  constructor(ns, hostname, serverType, neededRam) {
+    super(ns, hostname, serverType, neededRam);
   }
 }
 
