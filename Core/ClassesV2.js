@@ -10,18 +10,67 @@ class BaseServer {
     this.neededRam = neededRam;
     this.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
     this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
-    this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
-    this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
-    this.growthMultiplier = ns.getServerGrowth(hostname);
-    this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
   }
 
   get root() { return getRoot(this.ns, this.hostname); }
-  get isHackable() { return this.requiredHackingSkill <= this.ns.getHackingLevel() ? true : false; }
   get ramUsed() { return this.ns.getServerUsedRam(this.hostname); }
   get ramAvailable() { return this.root ? this.maxRam - this.ramUsed : 0; }
   get threads() { return truncateNumber(this.maxRam/this.neededRam, 0, 'floor'); }
 
+}
+
+class InactiveTargetV2 extends BaseServer {
+  constructor(ns, hostname, serverType, neededRam) {
+    super(ns, hostname, serverType, neededRam);
+    this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
+    this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
+    this.growthMultiplier = ns.getServerGrowth(hostname);
+    this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
+    this._takePercent = .001;
+  }
+
+  get moneyAvailable() { return this.ns.getServerMoneyAvailable(this.hostname); }
+  get isHackable() { return this.requiredHackingSkill <= this.ns.getHackingLevel() ? true : false; }
+  get takePercent() {
+    return Math.min(1,truncateNumber(this._takePercent, 7));
+  }
+  set takePercent(take) {
+    if (take > 0) {
+      this._takePercent += Math.max(take, this.percentPerSingleHack);
+    } else {
+      this._takePercent -= Math.min(take, this.percentPerSingleHack);
+    }
+  }
+  get batchTime() {
+    return truncateNumber(this.idealWeakenTime*1000+baseDelay*5, 0, 'ceil');
+  }
+  get cycleThreads() {
+    return truncateNumber(this.batchesPerCycle*this.idealVectorsPerBatch, 0, 'ceil');
+  }
+  get basePriority() {
+    return truncateNumber((this.moneyMax*this.percentPerSingleHack)/this.idealVectorsPerBatch/(this.batchTime/1000));
+  }
+  //Ideal/Eval ONLY
+  get percentPerSingleHack() {
+    return truncateNumber(evalPercentTakePerHack(this.ns, this, this.ns.getPlayer()), 7);
+  }
+  get idealWeakenTime() {
+    return evalWeakenTime(this, this.ns.getPlayer());
+  }
+  get idealVectorsPerBatch() {
+    let realTake = this._takePercent;
+    this._takePercent = this.percentPerSingleHack;
+    let result = evalVectorsPerBatch(this.ns, this, this.ns.getPlayer());
+    this._takePercent = realTake;
+    return result;
+  }
+  get batchesPerCycle() {
+    return truncateNumber(this.batchTime/baseDelay, 0, 'floor');
+  }
+
+  init() {
+    this._takePercent = this.percentPerSingleHack;
+  }
 }
 
 /** InactiveTarget server class */
