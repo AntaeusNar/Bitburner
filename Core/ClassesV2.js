@@ -206,7 +206,7 @@ export class ServerFactory {
       }
 
       if (evalServer.maxRam > 0) {
-        if (evalServer.root) {
+        if (evalServer.root || evalServer.hostname == 'home') {
           inventory.drones.push(evalServer);
         } else {
           inventory.inactiveDrones.push(evalServer);
