@@ -37,6 +37,11 @@ class BaseServer {
   get basePriority() { return truncateNumber((this.moneyMax*this.percentPerSingleHack)/this.idealVectorsPerBatch/(this.batchTime/1000)); }
   get actualVectorsPerBatch() { return evalVectorsPerBatch(this.ns, this, this.ns.getPlayer()); }
   get adjustedPriority() { return truncateNumber((this.moneyMax*this.takePercent)/this.actualVectorsPerBatch/(this.batchTime/1000)); }
+  get ls() { return this.ns.ls(this.hostname); }
+  get ps() { return this.ns.ps(this.hostname); }
+  get growTime() { return this.ns.getGrowTime(this.hostname); }
+  get weakenTime() { return this.ns.getWeakenTime(this.hostname); }
+  get hackTime() { return this.ns.getHackTime(this.hostname); }
 
   get takePercent() {
     return Math.min(1,truncateNumber(this._takePercent, 7));
