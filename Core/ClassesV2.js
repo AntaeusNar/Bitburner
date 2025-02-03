@@ -213,6 +213,10 @@ export class ServerFactory {
         }
       }
 
+      if (evalServer.moneyMax == 0 && evalServer.maxRam == 0) {
+        inventory.others.push(evalServer);
+      }
+
     }
 
     //additional drone prep
