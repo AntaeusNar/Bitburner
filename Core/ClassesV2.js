@@ -3,10 +3,9 @@ import {baseDelay, maxScripts} from './options.js';
 
 
 class BaseServer {
-  constructor(ns, hostname, serverType, neededRam = 1.75) {
+  constructor(ns, hostname, neededRam = 1.75) {
     this.ns = ns;
     this.hostname = hostname;
-    this.serverType = serverType;
     this.neededRam = neededRam;
     this.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
     this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
@@ -203,18 +202,18 @@ export class ServerFactory {
         ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel() &&
         ns.getServerMaxMoney(hostname) > 0 &&
         hostname != 'home') {
-          inventory.targets.push(new BaseServer(ns, hostname, 'Target'));
+          inventory.targets.push(new BaseServer(ns, hostname));
           built = true;
         } else if (ns.getServerMaxMoney(hostname) > 0 && hostname != 'home'){
-          inventory.inactiveTargets.push(new BaseServer(ns, hostname, 'InactiveTarget'));
+          inventory.inactiveTargets.push(new BaseServer(ns, hostname));
           built = true;
         }
         /* Drones and InactiveDrones builds */
         if ((ns.getServerMaxRam(hostname) > 0 && getRoot(ns, hostname)) || hostname == 'home') {
-          inventory.drones.push(new BaseServer(ns, hostname, 'Drone', neededRam));
+          inventory.drones.push(new BaseServer(ns, hostname, neededRam));
           built = true;
         } else if (ns.getServerMaxRam(hostname) > 0) {
-          inventory.inactiveDrones.push(new BaseServer(ns, hostname, 'InactiveDrone', neededRam));
+          inventory.inactiveDrones.push(new BaseServer(ns, hostname, neededRam));
           built = true;
         }
         /** others */
