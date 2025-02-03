@@ -3,16 +3,22 @@ import {baseDelay, maxScripts} from './options.js';
 
 
 class BaseServer {
-  constructor(ns, hostname, neededRam = 1.75) {
+  constructor(ns, hostname, serverType, neededRam = 1.75) {
     this.ns = ns;
     this.hostname = hostname;
+    this.serverType = serverType;
     this.neededRam = neededRam;
     this.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
+    this.threads = 0;
+    this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
     this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
     this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
     this.growthMultiplier = ns.getServerGrowth(hostname);
     this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
-    this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
+  }
+
+  init() {
+    this.numberOfThreads();
   }
 
   get root() { return getRoot(this.ns, this.hostname); }
@@ -21,34 +27,20 @@ class BaseServer {
   get ramAvailable() { return this.root ? 0 : this.maxRam - this.ramUsed; }
   get threads() { return truncateNumber(this.maxRam/this.neededRam, 0, 'floor'); }
 
+  numberOfThreads() {
+    this.threads = truncateNumber(this.maxRam/this.neededRam, 0, 'floor');
+  }
+
 }
 
 /** InactiveDrone server class */
 export class InactiveDrone {
-  constructor(ns, hostname) {
-    this.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
-    this.threads = 0;
-    this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
-  }
-
-  //calculates the number of threads the server can host
-  numberOfThreads(neededRam) {
-    this.threads = truncateNumber(this.maxRam/neededRam, 0, 'floor');
+  constructor() {
   }
 
   init(neededRam = 1.75) {
     logger(this.ns, 'Initialized InactiveDrone ' + this.hostname, 0);
     this.numberOfThreads(neededRam);
-  }
-
-  toJSON() {
-    return {
-      hostname: this.hostname,
-      serverType: this.serverType,
-      numberOfPortsRequired: this.numberOfPortsRequired,
-      maxRam: this.maxRam,
-      threads: this.threads,
-    }
   }
 
 }//end of InactiveDrone
@@ -64,29 +56,6 @@ export class DroneServer extends InactiveDrone {
     super(ns, hostname);
   }
 
-  get ramUsed() {
-    return this.ns.getServerUsedRam(this.hostname);
-  }
-
-  get ramAvailable() {
-    return this.maxRam - this.ramUsed;
-  }
-
-  init(neededRam = 1.75) {
-    logger(this.ns, 'Initialized DroneServer ' + this.hostname, 0);
-    this.numberOfThreads(neededRam);
-  }
-
-  toJSON() {
-    return {
-      hostname: this.hostname,
-      serverType: this.serverType,
-      numberOfPortsRequired: this.numberOfPortsRequired,
-      maxRam: this.maxRam,
-      threads: this.threads,
-      ramAvailable: this.ramAvailable,
-    }
-  }
 }// end of Drone
 
 /** InactiveTarget server class */
@@ -485,23 +454,33 @@ export class ServerFactory {
 
   /** Common Properties all servers have */
   // TODO: Refactor into a BaseServer Class
-  commonProps(ns, server, hostname, serverType, neededRam=0) {
+  commonProps(ns, server, hostname, serverType, neededRam = 1.75) {
     server.ns = ns;
     server.hostname = hostname;
     server.serverType = serverType;
-    Object.defineProperty(server, 'hasAdminRights', {
-      get() { return getRoot(this.ns, this.hostname); }
-    })
+    server.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
+    server.threads = 0;
+    server.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
+
+    Object.defineProperties(server, {
+      hasAdminRights: {
+        get() { return getRoot(this.ns, this.hostname); }
+      },
+      ramUsed: {
+        get() { return this.ns.getServerUsedRam(this.hostname); }
+      },
+      ramAvailable: {
+        get() { return this.maxRam - this.ramUsed; }
+      },
+      numberOfThreads: {
+        value: function(neededRam = 1.75) {
+          this.threads = truncateNumber(this.maxRam/neededRam, 0, 'floor');
+        }
+      }
+    });
+
     server.init();
 
-    /** Error Checking */
-    if (serverType == 'Target') {
-      if (server.idealVectorsPerBatch > server.realVectorsPerBatch(1000).totalVectors){
-        let message = server.hostname + ' vector prediction error. Ideal: ' + server.idealVectorsPerBatch + ' Actual: ' + server.realVectorsPerBatch(1000).totalVectors +
-                        ' Please check bitnode level info and core bonus info.';
-        logger(ns, 'WARNING: ' + message);
-      }
-    }
     return server;
   }// end of commonProps
 
