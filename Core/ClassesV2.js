@@ -24,18 +24,6 @@ class BaseServer {
 
 }
 
-export class InactiveDrone extends BaseServer {
-  constructor(ns, hostname, serverType, neededRam) {
-    super(ns, hostname, serverType, neededRam);
-  }
-}
-
-export class DroneServer extends InactiveDrone {
-  constructor(ns, hostname, serverType, neededRam) {
-    super(ns, hostname, serverType, neededRam);
-  }
-}
-
 /** InactiveTarget server class */
 export class InactiveTarget {
 
@@ -367,10 +355,10 @@ export class ServerFactory {
         }
         /* Drones and InactiveDrones builds */
         if ((ns.getServerMaxRam(hostname) > 0 && getRoot(ns, hostname)) || hostname == 'home') {
-          inventory.drones.push(new DroneServer(ns, hostname, 'Drone', neededRam));
+          inventory.drones.push(new BaseServer(ns, hostname, 'Drone', neededRam));
           built = true;
         } else if (ns.getServerMaxRam(hostname) > 0) {
-          inventory.inactiveDrones.push(new InactiveDrone(ns, hostname, 'InactiveDrone', neededRam));
+          inventory.inactiveDrones.push(new BaseServer(ns, hostname, 'InactiveDrone', neededRam));
           built = true;
         }
         /** others */
