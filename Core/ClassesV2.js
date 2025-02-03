@@ -22,10 +22,10 @@ class BaseServer {
 class InactiveTargetV2 extends BaseServer {
   constructor(ns, hostname, serverType, neededRam) {
     super(ns, hostname, serverType, neededRam);
+    this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
     this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
     this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
     this.growthMultiplier = ns.getServerGrowth(hostname);
-    this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
     this._takePercent = .001;
   }
 
@@ -98,13 +98,101 @@ class TargetServerV2 extends InactiveTargetV2 {
   set isPrimedMoney(boolean) {
     this._isPrimedMoney = boolean;
   }
+  get adjustedPriority() {
+    return truncateNumber((this.moneyMax*this.takePercent)/this.actualVectorsPerBatch/(this.batchTime/1000));
+  }
+
+  realVectorsPerBatch(maxThreads) {
+    return realVectors(this.ns, this, maxThreads);
+  }
 
   init() {
     super.init();
+    this._takePercent = this.percentPerSingleHack;
     this.betterThanNext = 1;
     this.betterThanLast = 1;
     this.isPrimedStr;
     this.isPrimedMoney;
+  }
+
+  static betterThanNextLast(targets) {
+    for (let i = 0; i+1 < targets.length; i++) {
+      targets[i].betterThanNext = truncateNumber(targets[i].basePriority/Math.max(targets[i+1].basePriority, .001));
+      targets[i].betterThanLast = truncateNumber(targets[i].basePriority/Math.max(targets[targets.length-1].basePriority, .001));
+    }
+  }
+
+  static async adjustTake(ns, targets, maxThreads, numBatchesPerCycle = 0, reservedThreads = 0, reservedScripts = 0, indexOfTarget = 0 , firstRun = true) {
+    //Setup
+    let i = indexOfTarget;
+    let tempVectorsPerCycle = 0;
+    //first run only
+    if (i == 0 && firstRun) {
+      numBatchesPerCycle = targets[0].batchesPerCycle;
+      reservedThreads = numBatchesPerCycle*targets[0].actualVectorsPerBatch;
+    }
+    if (firstRun) {
+      reservedScripts += numBatchesPerCycle*4;
+    }
+    let oldTake = targets[i].takePercent;
+
+    if (i + 1 == targets.length) { //handling for last server in arrray
+      logger(ns, 'INFO: Last Server ' + targets[i].hostname);
+
+      while (reservedThreads < maxThreads &&
+        targets[i].takePercent < 1 - targets[i].percentPerSingleHack &&
+        reservedScripts < maxScripts) {
+          let oldThreads = numBatchesPerCycle*targets[i].actualVectorsPerBatch;
+          targets[i].takePercent = .001;
+          let newThreads = numBatchesPerCycle*targets[i].actualVectorsPerBatch;
+          reservedThreads = reservedThreads + (newThreads - oldThreads);
+          await ns.sleep(1)
+        }
+    } else { //handling for everything else
+      /** Loop to increase the take % while
+        * there scripts available, threads available, the take % is less then 99%
+        * and the adjustedPriority of a is less then b.
+        */
+      // TODO: in late bitnode progression there maybe more threads available but no more scripts
+        //need to figure out the control structures needed to max thread usage while under script usage
+      while (reservedThreads < maxThreads &&
+        targets[i].takePercent < 1 - targets[i].percentPerSingleHack &&
+        reservedScripts < maxScripts &&
+        targets[i].adjustedPriority > targets[i+1].adjustedPriority) {
+          let oldThreads = numBatchesPerCycle*targets[i].actualVectorsPerBatch;
+          targets[i].takePercent = .001;
+          let newThreads = numBatchesPerCycle*targets[i].actualVectorsPerBatch;
+          reservedThreads = reservedThreads + (newThreads - oldThreads);
+          await ns.sleep(1)
+      }
+    }
+
+    // TODO: adjust take % back down if we are over threads after running
+
+    //Status update on adjustments
+    if (oldTake < targets[i].takePercent) {
+      logger(ns, 'Increased ' + targets[i].hostname + ' from  ' + oldTake*100 + '% to ' + targets[i].takePercent*100 + '%.  Threads at ' + reservedThreads + '/' + maxThreads);
+    } else {
+      logger(ns, 'No adjustment made to ' + targets[i].hostname);
+    }
+
+    //What next control
+    if (reservedThreads >= maxThreads) {//Stop when out of Threads
+      logger(ns, 'INFO: Max Threads limit reached, stopping take increase calc.');
+    } else if (reservedScripts >= maxScripts) {//Stop when out of Scripts
+      logger(ns, 'INFO: Max Scripts limit reached, stopping take increase calc');
+    } else if (indexOfTarget != 0 && oldTake < targets[i].takePercent && targets[i-1].takePercent < 1 - targets[i-1].percentPerSingleHack) { //Recure up if we adjusted the take and not on the best target
+      logger(ns, 'INFO: adjusted take, check previous Target(s).');
+      indexOfTarget--;
+      await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget, false);
+    } else if (indexOfTarget + 1 >= targets.length) { //Stop when finished with last target fully adjusted and all others readjusted
+      logger(ns, 'WARNING: Finished last target, but should only reach this if there are available threads and scripts to still use.');
+    } else { //if we still have threads, scripts, and targets, and have loop up and back to here, check the next one
+      //logger(ns, 'INFO: Calculating take for next Target.');
+      indexOfTarget++;
+
+      await TargetServer.adjustTake(ns, targets, maxThreads, numBatchesPerCycle, reservedThreads, reservedScripts, indexOfTarget);
+    }
   }
 }
 
@@ -117,19 +205,19 @@ export class InactiveTarget {
     */
   constructor(ns, hostname) {
     if (hostname == 'home') {throw new Error('Home is not a valid option for a target.')}
-    this.moneyMax = ns.getServerMaxMoney(hostname);
-    this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
-    this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
-    this._isHackable = false;
-    this._takePercent = .001;
+    this.moneyMax = ns.getServerMaxMoney(hostname); //Added
+    this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname); //Added
+    this.minDifficulty = ns.getServerMinSecurityLevel(hostname); //Added
+    this._isHackable = false; //Refactored into isHackable
+    this._takePercent = .001; //Added
   }
 
   //gets current available money
-  get moneyAvailable() {
+  get moneyAvailable() { //Refactored
     return this.ns.getServerMoneyAvailable(this.hostname);
   }
 
-  get isHackable() {
+  get isHackable() { //Refactored
     if (!this._isHackable) {
       if (this.hasAdminRights && this.requiredHackingSkill <= this.ns.getHackingLevel()){
         this._isHackable = true;
@@ -139,17 +227,17 @@ export class InactiveTarget {
   }
 
   //EVAL ONLY: returns best case.
-  get percentPerSingleHack() {
+  get percentPerSingleHack() { //Added
     return truncateNumber(evalPercentTakePerHack(this.ns, this, this.ns.getPlayer()), 7);
   }
 
   //EVAL ONLY: returns best case in sec.
-  get idealWeakenTime() {
+  get idealWeakenTime() { //Added
     return evalWeakenTime(this, this.ns.getPlayer());
   }
 
   //EVAL ONLY: returns best case at lowest take.
-  get idealVectorsPerBatch() {
+  get idealVectorsPerBatch() { //Added
     let realTake = this._takePercent;
     this._takePercent = this.percentPerSingleHack;
     let result = evalVectorsPerBatch(this.ns, this, this.ns.getPlayer());
@@ -158,15 +246,15 @@ export class InactiveTarget {
   }
 
   //EVAL ONLY: returns best case.
-  get batchesPerCycle() {
+  get batchesPerCycle() { //Added
     return truncateNumber(this.batchTime/baseDelay, 0, 'floor');
   }
 
-  get takePercent() {
+  get takePercent() { //Added
     return Math.min(1,truncateNumber(this._takePercent, 7));
   }
 
-  set takePercent(take) {
+  set takePercent(take) { //Added
     if (take > 0) {
       this._takePercent += Math.max(take, this.percentPerSingleHack);
     } else {
@@ -175,21 +263,21 @@ export class InactiveTarget {
   }
 
   //time in milliseconds
-  get batchTime() {
+  get batchTime() { //Added
     return truncateNumber(this.idealWeakenTime*1000+baseDelay*5, 0, 'ceil');
   }
 
-  get cycleThreads() {
+  get cycleThreads() { //Added
     return truncateNumber(this.batchesPerCycle*this.idealVectorsPerBatch, 0, 'ceil');
   }
 
   //$/threads/sec/batch at lowest take and ideal conditions
-  get basePriority() {
+  get basePriority() { //Added
 
     return truncateNumber((this.moneyMax*this.percentPerSingleHack)/this.idealVectorsPerBatch/(this.batchTime/1000));
   }
 
-  init() {
+  init() { //Refactored/added
     logger(this.ns, 'Initialized InactiveTarget ' + this.hostname, 0);
     this.isHackable;
     this._takePercent = this.percentPerSingleHack;
@@ -223,13 +311,13 @@ export class TargetServer extends InactiveTarget {
     */
   constructor(ns, hostname) {
     super(ns, hostname);
-    this._isPrimedStr = false;
-    this._isPrimedMoney = false;
+    this._isPrimedStr = false; //Added
+    this._isPrimedMoney = false; //Added
 
   }
 
   //gets/checks if target is/projected to be at min security
-  get isPrimedStr() {
+  get isPrimedStr() { //Added
     if (this.ns.getServerSecurityLevel(this.hostname) == this.minDifficulty) {
       this._isPrimedStr = true;
     }
@@ -237,12 +325,12 @@ export class TargetServer extends InactiveTarget {
   }
 
   //sets isPrimedStr (should only come from realVectors and only when used to realworld delpoyment)
-  set isPrimedStr(boolean) {
+  set isPrimedStr(boolean) { //Added
     this._isPrimedStr = boolean;
   }
 
   //gets/checks if target is/projected to be at max money
-  get isPrimedMoney() {
+  get isPrimedMoney() { //Added
     if (this.moneyMax == this.moneyAvailable) {
       this._isPrimedMoney = true;
     }
@@ -250,7 +338,7 @@ export class TargetServer extends InactiveTarget {
   }
 
   //sets isPrimedMoney (should only come from realVectors and only when used to realworld deploment)
-  set isPrimedMoney(boolean) {
+  set isPrimedMoney(boolean) { //Added
     this._isPrimedMoney = boolean;
   }
 
@@ -260,21 +348,21 @@ export class TargetServer extends InactiveTarget {
   }
 
   //$/threads/sec/batch at take and ideal conditions
-  get adjustedPriority() {
+  get adjustedPriority() { //Added
     return truncateNumber((this.moneyMax*this.takePercent)/this.actualVectorsPerBatch/(this.batchTime/1000));
   }
 
   init() {
     logger(this.ns, 'Initialized TargetServer ' + this.hostname, 0);
-    this.isHackable;
-    this._takePercent = this.percentPerSingleHack;
-    this.betterThanNext = 1;
-    this.betterThanLast = 1;
-    this.isPrimedStr;
-    this.isPrimedMoney;
+    this.isHackable; //Refactored
+    this._takePercent = this.percentPerSingleHack; //Added
+    this.betterThanNext = 1; //Added
+    this.betterThanLast = 1; //Added
+    this.isPrimedStr; //Added
+    this.isPrimedMoney; //Added
   }
 
-  realVectorsPerBatch(maxThreads) {
+  realVectorsPerBatch(maxThreads) { //Added
     return realVectors(this.ns, this, maxThreads);
   }
 
@@ -306,7 +394,7 @@ export class TargetServer extends InactiveTarget {
   /** Calculates how much better each target is the the target with the next lowest basePriority and the Last
     *@param {array} targets - array of TargetServer Objects sorted buy basePriority, decending
     */
-  static betterThanNextLast(targets) {
+  static betterThanNextLast(targets) { //Added
     for (let i = 0; i+1 < targets.length; i++) {
       targets[i].betterThanNext = truncateNumber(targets[i].basePriority/Math.max(targets[i+1].basePriority, .001));
       targets[i].betterThanLast = truncateNumber(targets[i].basePriority/Math.max(targets[targets.length-1].basePriority, .001));
@@ -329,7 +417,7 @@ export class TargetServer extends InactiveTarget {
     * @param {number} [indexOfTarget=0] - the current target index in array of targets
     * @param {boolean} [firstRun=true] - if this is the first time running
     */
-  static async adjustTake(ns, targets, maxThreads, numBatchesPerCycle = 0, reservedThreads = 0, reservedScripts = 0, indexOfTarget = 0 , firstRun = true) {
+  static async adjustTake(ns, targets, maxThreads, numBatchesPerCycle = 0, reservedThreads = 0, reservedScripts = 0, indexOfTarget = 0 , firstRun = true) { //Added
     //Setup
     let i = indexOfTarget;
     let tempVectorsPerCycle = 0;
