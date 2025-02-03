@@ -195,31 +195,23 @@ export class ServerFactory {
     }
 
     for (let hostname of serverList) {
-      //Check for valid hostname
-      let built = false;
-      /**Target and inactive target builds */
-      if (getRoot(ns, hostname) &&
-        ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel() &&
-        ns.getServerMaxMoney(hostname) > 0 &&
-        hostname != 'home') {
-          inventory.targets.push(new BaseServer(ns, hostname));
-          built = true;
-        } else if (ns.getServerMaxMoney(hostname) > 0 && hostname != 'home'){
-          inventory.inactiveTargets.push(new BaseServer(ns, hostname));
-          built = true;
+      // Sorting Hat
+      let evalServer = new BaseServer(ns, hostname, neededRam);
+      if (evalServer.moneyMax > 0) {
+        if (evalServer.isHackable) {
+          inventory.targets.push(evalServer);
+        } else {
+          inventory.inactiveTargets.push(evalServer);
         }
-        /* Drones and InactiveDrones builds */
-        if ((ns.getServerMaxRam(hostname) > 0 && getRoot(ns, hostname)) || hostname == 'home') {
-          inventory.drones.push(new BaseServer(ns, hostname, neededRam));
-          built = true;
-        } else if (ns.getServerMaxRam(hostname) > 0) {
-          inventory.inactiveDrones.push(new BaseServer(ns, hostname, neededRam));
-          built = true;
+      }
+
+      if (evalServer.maxRam > 0) {
+        if (evalServer.root) {
+          inventory.drones.push(evalServer);
+        } else {
+          inventory.inactiveDrones.push(evalServer);
         }
-        /** others */
-        if (!built) {
-          inventory.others.push(hostname);
-        }
+      }
 
     }
 
