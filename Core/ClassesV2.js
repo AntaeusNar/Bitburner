@@ -10,6 +10,13 @@ class BaseServer {
     this.neededRam = neededRam;
     this.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
     this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
+    this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
+    this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
+    this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
+    this.growthMultiplier = ns.getServerGrowth(hostname);
+    this._takePercent = .001;
+    this._isPrimedStr = false;
+    this._isPrimedMoney = false;
   }
 
   get root() { return getRoot(this.ns, this.hostname); }
@@ -22,11 +29,6 @@ class BaseServer {
 class InactiveTargetV2 extends BaseServer {
   constructor(ns, hostname, serverType, neededRam) {
     super(ns, hostname, serverType, neededRam);
-    this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
-    this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
-    this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
-    this.growthMultiplier = ns.getServerGrowth(hostname);
-    this._takePercent = .001;
   }
 
   get moneyAvailable() { return this.ns.getServerMoneyAvailable(this.hostname); }
@@ -76,8 +78,6 @@ class InactiveTargetV2 extends BaseServer {
 class TargetServerV2 extends InactiveTargetV2 {
   constructor(ns, hostname, serverType, neededRam) {
     super(ns, hostname, serverType, neededRam);
-    this._isPrimedStr = false;
-    this._isPrimedMoney = false;
   }
 
   get isPrimedStr() {
