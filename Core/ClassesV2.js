@@ -9,7 +9,6 @@ class BaseServer {
     this.serverType = serverType;
     this.neededRam = neededRam;
     this.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
-    this.threads = 0;
     this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
     this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
     this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
@@ -17,46 +16,25 @@ class BaseServer {
     this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
   }
 
-  init() {
-    this.numberOfThreads();
-  }
-
   get root() { return getRoot(this.ns, this.hostname); }
-  get isHackable() { return this.requiredHackingSkill > this.ns.getHackingLevel() ? false : true; }
+  get isHackable() { return this.requiredHackingSkill <= this.ns.getHackingLevel() ? true : false; }
   get ramUsed() { return this.ns.getServerUsedRam(this.hostname); }
-  get ramAvailable() { return this.root ? 0 : this.maxRam - this.ramUsed; }
+  get ramAvailable() { return this.root ? this.maxRam - this.ramUsed : 0; }
   get threads() { return truncateNumber(this.maxRam/this.neededRam, 0, 'floor'); }
-
-  numberOfThreads() {
-    this.threads = truncateNumber(this.maxRam/this.neededRam, 0, 'floor');
-  }
 
 }
 
-/** InactiveDrone server class */
-export class InactiveDrone {
-  constructor() {
+export class InactiveDrone extends BaseServer {
+  constructor(ns, hostname, serverType, neededRam) {
+    super(ns, hostname, serverType, neededRam);
   }
+}
 
-  init(neededRam = 1.75) {
-    logger(this.ns, 'Initialized InactiveDrone ' + this.hostname, 0);
-    this.numberOfThreads(neededRam);
-  }
-
-}//end of InactiveDrone
-
-/** Drone server class */
 export class DroneServer extends InactiveDrone {
-
-  /** Creates an active drone
-    * @param {NS} ns
-    * @param {string} hostname
-    */
-  constructor(ns, hostname) {
-    super(ns, hostname);
+  constructor(ns, hostname, serverType, neededRam) {
+    super(ns, hostname, serverType, neededRam);
   }
-
-}// end of Drone
+}
 
 /** InactiveTarget server class */
 export class InactiveTarget {
@@ -389,10 +367,10 @@ export class ServerFactory {
         }
         /* Drones and InactiveDrones builds */
         if ((ns.getServerMaxRam(hostname) > 0 && getRoot(ns, hostname)) || hostname == 'home') {
-          inventory.drones.push(this.commonProps(ns, new DroneServer(ns, hostname, neededRam), hostname, 'Drone', neededRam));
+          inventory.drones.push(new DroneServer(ns, hostname, 'Drone', neededRam));
           built = true;
         } else if (ns.getServerMaxRam(hostname) > 0) {
-          inventory.inactiveDrones.push(this.commonProps(ns, new InactiveDrone(ns, hostname, neededRam), hostname, 'InactiveDrone', neededRam));
+          inventory.inactiveDrones.push(new InactiveDrone(ns, hostname, 'InactiveDrone', neededRam));
           built = true;
         }
         /** others */
