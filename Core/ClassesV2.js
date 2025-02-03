@@ -198,7 +198,7 @@ export class ServerFactory {
       // Sorting Hat
       let evalServer = new BaseServer(ns, hostname, neededRam);
       if (evalServer.moneyMax > 0) {
-        if (evalServer.isHackable) {
+        if (evalServer.isHackable && evalServer.root) {
           inventory.targets.push(evalServer);
         } else {
           inventory.inactiveTargets.push(evalServer);
