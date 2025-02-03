@@ -73,6 +73,41 @@ class InactiveTargetV2 extends BaseServer {
   }
 }
 
+class TargetServerV2 extends InactiveTargetV2 {
+  constructor(ns, hostname, serverType, neededRam) {
+    super(ns, hostname, serverType, neededRam);
+    this._isPrimedStr = false;
+    this._isPrimedMoney = false;
+  }
+
+  get isPrimedStr() {
+    if (this.ns.getServerSecurityLevel(this.hostname) == this.minDifficulty) {
+      this._isPrimedStr = true;
+    }
+    return this._isPrimedStr;
+  }
+  set isPrimedStr(boolean) {
+    this._isPrimedStr = boolean;
+  }
+  get isPrimedMoney() {
+    if (this.moneyMax == this.moneyAvailable) {
+      this._isPrimedMoney = true;
+    }
+    return this._isPrimedMoney;
+  }
+  set isPrimedMoney(boolean) {
+    this._isPrimedMoney = boolean;
+  }
+
+  init() {
+    super.init();
+    this.betterThanNext = 1;
+    this.betterThanLast = 1;
+    this.isPrimedStr;
+    this.isPrimedMoney;
+  }
+}
+
 /** InactiveTarget server class */
 export class InactiveTarget {
 
