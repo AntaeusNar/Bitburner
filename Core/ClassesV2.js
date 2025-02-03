@@ -184,7 +184,7 @@ export class ServerFactory {
     * @param {array} files
     * @param {number} [neededRam=0] - ram per thread
     */
-  create(ns, serverList, files, neededRam=0){
+  async create(ns, serverList, files, neededRam=0){
     let inventory = {
       estThreads: 0,
       targets: [],
