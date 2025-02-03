@@ -41,6 +41,7 @@ class BaseServer {
   get growTime() { return this.ns.getGrowTime(this.hostname); }
   get weakenTime() { return this.ns.getWeakenTime(this.hostname); }
   get hackTime() { return this.ns.getHackTime(this.hostname); }
+  get currentDifficulty() { return this.ns.getServerSecurityLevel(this.hostname); }
 
   get takePercent() {
     return Math.min(1,truncateNumber(this._takePercent, 7));
