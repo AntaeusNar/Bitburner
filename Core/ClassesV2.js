@@ -27,13 +27,14 @@ class BaseServer {
   get isHackable() { return this.requiredHackingSkill <= this.ns.getHackingLevel() ? true : false; }
   get hasAdminRights() { return this.root; }
   get numberOfThreads() { return truncateNumber(this.maxRam/this.neededRam, 0 , 'floor'); }
-
-}
-
-class InactiveTargetV2 extends BaseServer {
-  constructor(ns, hostname, serverType, neededRam) {
-    super(ns, hostname, serverType, neededRam);
-  }
+  get idealWeakenTime() { return evalWeakenTime(this, this.ns.getPlayer()); }
+  get batchTime() { return truncateNumber(this.idealWeakenTime*1000+baseDelay*5, 0, 'ceil'); }
+  get percentPerSingleHack() { return truncateNumber(evalPercentTakePerHack(this.ns, this, this.ns.getPlayer()), 7); }
+  get batchesPerCycle() { return truncateNumber(this.batchTime/baseDelay, 0, 'floor'); }
+  get cycleThreads() { return truncateNumber(this.batchesPerCycle*this.idealVectorsPerBatch, 0, 'ceil'); }
+  get basePriority() { return truncateNumber((this.moneyMax*this.percentPerSingleHack)/this.idealVectorsPerBatch/(this.batchTime/1000)); }
+  get actualVectorsPerBatch() { return evalVectorsPerBatch(this.ns, this, this.ns.getPlayer()); }
+  get adjustedPriority() { return truncateNumber((this.moneyMax*this.takePercent)/this.actualVectorsPerBatch/(this.batchTime/1000)); }
 
   get takePercent() {
     return Math.min(1,truncateNumber(this._takePercent, 7));
@@ -45,22 +46,7 @@ class InactiveTargetV2 extends BaseServer {
       this._takePercent -= Math.min(take, this.percentPerSingleHack);
     }
   }
-  get batchTime() {
-    return truncateNumber(this.idealWeakenTime*1000+baseDelay*5, 0, 'ceil');
-  }
-  get cycleThreads() {
-    return truncateNumber(this.batchesPerCycle*this.idealVectorsPerBatch, 0, 'ceil');
-  }
-  get basePriority() {
-    return truncateNumber((this.moneyMax*this.percentPerSingleHack)/this.idealVectorsPerBatch/(this.batchTime/1000));
-  }
-  //Ideal/Eval ONLY
-  get percentPerSingleHack() {
-    return truncateNumber(evalPercentTakePerHack(this.ns, this, this.ns.getPlayer()), 7);
-  }
-  get idealWeakenTime() {
-    return evalWeakenTime(this, this.ns.getPlayer());
-  }
+
   get idealVectorsPerBatch() {
     let realTake = this._takePercent;
     this._takePercent = this.percentPerSingleHack;
@@ -68,8 +54,12 @@ class InactiveTargetV2 extends BaseServer {
     this._takePercent = realTake;
     return result;
   }
-  get batchesPerCycle() {
-    return truncateNumber(this.batchTime/baseDelay, 0, 'floor');
+
+}
+
+class InactiveTargetV2 extends BaseServer {
+  constructor(ns, hostname, serverType, neededRam) {
+    super(ns, hostname, serverType, neededRam);
   }
 
   init() {
@@ -91,6 +81,7 @@ class TargetServerV2 extends InactiveTargetV2 {
   set isPrimedStr(boolean) {
     this._isPrimedStr = boolean;
   }
+
   get isPrimedMoney() {
     if (this.moneyMax == this.moneyAvailable) {
       this._isPrimedMoney = true;
@@ -99,9 +90,6 @@ class TargetServerV2 extends InactiveTargetV2 {
   }
   set isPrimedMoney(boolean) {
     this._isPrimedMoney = boolean;
-  }
-  get adjustedPriority() {
-    return truncateNumber((this.moneyMax*this.takePercent)/this.actualVectorsPerBatch/(this.batchTime/1000));
   }
 
   realVectorsPerBatch(maxThreads) {
@@ -345,7 +333,7 @@ export class TargetServer extends InactiveTarget {
   }
 
   //returns ideal vectors at actual take
-  get actualVectorsPerBatch() {
+  get actualVectorsPerBatch() { //Added to V2
     return evalVectorsPerBatch(this.ns, this, this.ns.getPlayer());
   }
 
