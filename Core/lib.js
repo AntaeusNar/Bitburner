@@ -105,6 +105,7 @@ export function backdoorTo(ns, dest) {
 */
 export function getRoot(ns, hostname) {
 	let result = false;
+	if (hostname == 'home') { return true; }
 	let ports = 0;
 		if (can(ns, "brutessh.exe")) { ns.brutessh(hostname); ++ports; }
 		if (can(ns, "ftpcrack.exe")) { ns.ftpcrack(hostname); ++ports; }
