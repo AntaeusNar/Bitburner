@@ -184,7 +184,7 @@ export class ServerFactory {
     * @param {array} files
     * @param {number} [neededRam=0] - ram per thread
     */
-  async create(ns, serverList, files, neededRam=0){
+  create(ns, serverList, files, neededRam=0){
     let inventory = {
       estThreads: 0,
       targets: [],
@@ -222,7 +222,7 @@ export class ServerFactory {
     //additional drone prep
     for (let drone of inventory.drones) {
       if(drone.hostname != 'home'){
-        await ns.scp(files, drone.hostname, 'home');
+        ns.scp(files, drone.hostname, 'home');
         let running_scripts = ns.ps(drone.hostname);
         for (let script of running_scripts) {
           ns.kill(script.pid)
