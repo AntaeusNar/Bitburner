@@ -138,7 +138,7 @@ class TargetServerV2 extends InactiveTargetV2 {
     }
     let oldTake = targets[i].takePercent;
 
-    if (i + 1 == targets.length) { //handling for last server in arrray
+    if (i + 1 == targets.length) { //handling for last server in array
       logger(ns, 'INFO: Last Server ' + targets[i].hostname);
 
       while (reservedThreads < maxThreads &&
