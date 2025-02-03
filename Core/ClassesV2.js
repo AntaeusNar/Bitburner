@@ -23,6 +23,10 @@ class BaseServer {
   get ramUsed() { return this.ns.getServerUsedRam(this.hostname); }
   get ramAvailable() { return this.root ? this.maxRam - this.ramUsed : 0; }
   get threads() { return truncateNumber(this.maxRam/this.neededRam, 0, 'floor'); }
+  get moneyAvailable() { return this.ns.getServerMoneyAvailable(this.hostname); }
+  get isHackable() { return this.requiredHackingSkill <= this.ns.getHackingLevel() ? true : false; }
+  get hasAdminRights() { return this.root; }
+  get numberOfThreads() { return truncateNumber(this.maxRam/this.neededRam, 0 , 'floor'); }
 
 }
 
@@ -31,8 +35,6 @@ class InactiveTargetV2 extends BaseServer {
     super(ns, hostname, serverType, neededRam);
   }
 
-  get moneyAvailable() { return this.ns.getServerMoneyAvailable(this.hostname); }
-  get isHackable() { return this.requiredHackingSkill <= this.ns.getHackingLevel() ? true : false; }
   get takePercent() {
     return Math.min(1,truncateNumber(this._takePercent, 7));
   }
@@ -593,25 +595,25 @@ export class ServerFactory {
   /** Common Properties all servers have */
   // TODO: Refactor into a BaseServer Class
   commonProps(ns, server, hostname, serverType, neededRam = 1.75) {
-    server.ns = ns;
-    server.hostname = hostname;
-    server.serverType = serverType;
-    server.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname);
-    server.threads = 0;
-    server.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
+    server.ns = ns; //Base
+    server.hostname = hostname; //Base
+    server.serverType = serverType; //Base
+    server.numberOfPortsRequired = ns.getServerNumPortsRequired(hostname); //Base
+    server.threads = 0; //Base
+    server.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname); //Base
 
     Object.defineProperties(server, {
-      hasAdminRights: {
+      hasAdminRights: { //Base
         get() { return getRoot(this.ns, this.hostname); }
       },
-      ramUsed: {
+      ramUsed: { //Base
         get() { return this.ns.getServerUsedRam(this.hostname); }
       },
-      ramAvailable: {
+      ramAvailable: { //Base
         get() { return this.maxRam - this.ramUsed; }
       },
       numberOfThreads: {
-        value: function(neededRam = 1.75) {
+        value: function(neededRam = 1.75) { //Base, refactored
           this.threads = truncateNumber(this.maxRam/neededRam, 0, 'floor');
         }
       }
