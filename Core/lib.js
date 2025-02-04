@@ -413,22 +413,13 @@ export function evalPercentTakePerHack(server, player) {
 	* @param {Object} player
 	* @returns {number} caclulated total attack vectors
 	*/
-export function evalVectorsPerBatch(ns, server, player) {
+export function evalVectorsPerBatch(server, player) {
 
 	/** Setup */
 	const weakenRate = .05;
 	const growRate = .004;
 	const hackRate = .002;
-	//in order to eval even if the players hacking level is too low
-	let playerHackingSkill = Math.max(server.requiredHackingSkill, player.skills.hacking);
-
-	/** Grow Threads -> https://github.com/danielyxie/bitburner/blob/dev/src/Server/ServerHelpers.ts*/
-	let growth = server.moneyMax/Math.max(1, (server.moneyMax * (1-server.takePercent)));
-	let ajdGrowthRate = Math.min(1.0035, 1 + (1.03-1)/server.minDifficulty);
-	let serverGrowthPercentage = ns.getServerGrowth(server.hostname)/100;
-	let coreBonus = 16.32/16; //// BUG: This is ....wrong? but works?
-
-	let growThreads = Math.ceil(Math.log(growth) / (Math.log(ajdGrowthRate) * player.mults.hacking_grow * serverGrowthPercentage * bitNodeMultipliers.ServerGrowthRate * coreBonus));
+	let growThreads = calcGrowThreads(server, player, server.moneyMax, 0, true);
 
 	/** Hack Threads */
 	let hackThreads = Math.ceil(server.takePercent/evalPercentTakePerHack(server, player));

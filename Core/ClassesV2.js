@@ -34,7 +34,7 @@ class BaseServer {
   get batchesPerCycle() { return truncateNumber(this.batchTime/baseDelay, 0, 'floor'); }
   get cycleThreads() { return truncateNumber(this.batchesPerCycle*this.idealVectorsPerBatch, 0, 'ceil'); }
   get basePriority() { return truncateNumber((this.moneyMax * (this.percentPerSingleHack / 100))/this.idealVectorsPerBatch/(this.batchTime/1000)); }
-  get actualVectorsPerBatch() { return evalVectorsPerBatch(this.ns, this, this.ns.getPlayer()); }
+  get actualVectorsPerBatch() { return evalVectorsPerBatch(this, this.ns.getPlayer()); }
   get adjustedPriority() { return truncateNumber((this.moneyMax*this.takePercent)/this.actualVectorsPerBatch/(this.batchTime/1000)); }
   get ls() { return this.ns.ls(this.hostname); }
   get ps() { return this.ns.ps(this.hostname); }
@@ -57,7 +57,7 @@ class BaseServer {
   get idealVectorsPerBatch() {
     let realTake = this._takePercent;
     this._takePercent = this.percentPerSingleHack;
-    let result = evalVectorsPerBatch(this.ns, this, this.ns.getPlayer());
+    let result = evalVectorsPerBatch(this, this.ns.getPlayer());
     this._takePercent = realTake;
     return result;
   }
