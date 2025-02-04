@@ -21,12 +21,12 @@ class BaseServer {
   }
 
   get root() { return getRoot(this.ns, this.hostname); }
+  get hasAdminRights() { return this.hostname === 'home' ? true : this.root; }
   get ramUsed() { return this.ns.getServerUsedRam(this.hostname); }
   get ramAvailable() { return this.root ? this.maxRam - this.ramUsed : 0; }
   get threads() { return truncateNumber(this.maxRam/this.neededRam, 0, 'floor'); }
   get moneyAvailable() { return this.ns.getServerMoneyAvailable(this.hostname); }
   get isHackable() { return this.requiredHackingSkill <= this.ns.getHackingLevel() ? true : false; }
-  get hasAdminRights() { return this.hostname === 'home' ? true : this.root; }
   get numberOfThreads() { return truncateNumber(this.maxRam/this.neededRam, 0 , 'floor'); }
   get idealWeakenTime() { return evalWeakenTime(this, this.ns.getPlayer()); }
   get batchTime() { return truncateNumber(this.idealWeakenTime*1000+baseDelay*5, 0, 'ceil'); }
