@@ -29,3 +29,7 @@ export const colors = {
 		brightWhite: "\u001b[37;1m",
 		reset: "\u001b[0m"
 	};
+export const currentBitNode = {
+	n: 12,
+	lvl: 1
+}

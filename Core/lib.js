@@ -1,4 +1,19 @@
-import {baseDelay, bitNodeMultipliers} from './options.js';
+import { localBitNodeMultipliers } from './BitBurnerMulti.js';
+import {baseDelay, bitNodeMultipliers, currentBitNode} from './options.js';
+
+
+const BitMults = localBitNodeMultipliers(currentBitNode.n, currentBitNode.lvl);
+
+/**
+ * Clamps the value on a lower and an upper bound
+ * @param {number} value Value to clamp
+ * @param {number} min Lower bound, defaults to negative Number.MAX_VALUE
+ * @param {number} max Upper bound, defaults to Number.MAX_VALUE
+ * @returns {number} Clamped value
+ */
+export function clampNumber(value, min = -Number.MAX_VALUE, max = Number.MAX_VALUE) {
+    return Math.max(Math.min(value, max), min);
+}
 
 /** Checks for existence of file on the specified or home server
   * @param {NS} ns
@@ -227,6 +242,44 @@ export function truncateNumber(number, decimal = 3, type = 'round'){
 	}
 	return result;
 }
+
+/** Calculates the chance of a hack working vs a server
+ * https://github.com/bitburner-official/bitburner-src/blob/dev/src/Hacking.ts
+ * @param {BaseServer} server
+ * @param {Object} player
+ * @param {Boolean} [planning=false] if true, uses the minDifficulty
+ * @returns {number} chance of hack success as decimal
+ */
+export function calcHackChance(server, player, planning = false) {
+	const hackDifficulty = planning ? server.minDifficulty : server.currentDifficulty;
+	const requiredHackingSkill = server.requiredHackingSkill;
+	const hackFactor = 1.75;
+	const difficultyMult = (100 - hackDifficulty) / 100;
+	const skillMult = clampNumber(hackFactor * player.skills.hacking, 1);
+	const skillChance = (skillMult - requiredHackingSkill) / skillMult
+	// TODO: this is a hack for the instelligence bonus
+	const chance = skillChance * difficultyMult * player.mults.hacking_chance * (1 + (1 * Math.pow(1, 0.8)) / 600);
+	return clampNumber(chance, 0 , 1); 
+}
+
+/** Calculates the % of money that will be stolen from a server if 
+ * it is successfully hacked per single thread as a decimal
+ * https://github.com/bitburner-official/bitburner-src/blob/dev/src/Hacking.ts
+ * @param {BaseServer} server
+ * @param {Object} player
+ * @param {Boolean} [planning=false] if true, uses the minDifficulty
+ * @returns {number}
+ */
+export function calcPercentMoneyHacked(server, player, planning=false) {
+	const hackDifficulty = planning ? server.minDifficulty : server.currentDifficulty;
+	const requiredHackingSkill = server.requiredHackingSkill;
+	const balanceFactor = 240;
+	const difficultyMult = (100 - hackDifficulty) / 100;
+	const skillMult = (player.skills.hacking - (requiredHackingSkill - 1)) / player.skills.hacking;
+	const percentMoneyHacked = (difficultyMult * skillMult * player.mults.hacking_money * BitMults.ScriptHackMoney) / balanceFactor;
+	return Math.min(1, Math.max(percentMoneyHacked, 0));
+}
+
 
 /** evalPercentTakePerHack: calculates the % takes per single hack thread
 	* https://github.com/danielyxie/bitburner/blob/dev/src/Hacking.ts
