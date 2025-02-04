@@ -501,9 +501,9 @@ export function realVectors(ns, server, maxThreads) {
     growWeakens: 0,
     hackThreads: 0,
     hackWeakens: 0,
-		totalVectors: 0,
-		shouldPrimeStr: false,
-		shouldPrimeMoney: false,
+	totalVectors: 0,
+	shouldPrimeStr: false,
+	shouldPrimeMoney: false,
   }
 
   //Primary Weaken: only done if !isPrimedStr
@@ -610,6 +610,7 @@ export function realVectors(ns, server, maxThreads) {
 	if ( count != vectors.totalVectors) {
 		throw new Error(server.hostname + ' has a vector count mismatch. Counted ' + count + ' totalVectors: ' + vectors.totalVectors);
 	}
+	if (vectors.totalVectors <= 4) { throw new Error(server.hostname + ' has a totalVector count of less then or equal to 4! ' + JSON.stringify(vectors)); }
 
   return vectors;
 }// end of realVectors
