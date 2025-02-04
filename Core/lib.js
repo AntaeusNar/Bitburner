@@ -1,5 +1,5 @@
 import { localBitNodeMultipliers } from './BitBurnerMulti.js';
-import {baseDelay, bitNodeMultipliers, currentBitNode} from './options.js';
+import {baseDelay, ServerConstants, currentBitNode} from './options.js';
 
 
 const BitMults = localBitNodeMultipliers(currentBitNode.n, currentBitNode.lvl);
@@ -336,7 +336,7 @@ export function calcServerGrowthLog(server, player, planning = false, threads = 
 	const coreBonus = 1 + (cores - 1) * (1 / 16);
 	// It is critical that numServerGrowthCycles (aka threads) is multiplied last,
 	// so that it rounds the same way as numCycleForGrowthCorrected.
-	return adjGrowthLog * serverGrowthPercentageAdjusted * player.mults.growthMultiplier * coreBonus * numServerGrowthCycles;
+	return adjGrowthLog * serverGrowthPercentageAdjusted * player.mults.hacking_grow * coreBonus * numServerGrowthCycles;
 }
 
 /**
@@ -353,6 +353,7 @@ export function calcServerGrowthLog(server, player, planning = false, threads = 
 export function calcGrowThreads(server, player, targetMoney, startingMoney, planning, cores = 1) {
 
 	const k = calcServerGrowthLog(server, player, planning, 1, cores);
+	if (isNaN(k)) { throw new Error('calcServerGrowthLog in calcGrowThreads got a k of NaN'); }
 
 	const guess = (targetMoney - startingMoney) / (1 + (targetMoney * (1 / 16) + startingMoney * (15 / 16)) * k);
 	let x = guess;
@@ -406,13 +407,13 @@ export function evalPercentTakePerHack(server, player) {
 	return percentPerSingleHack/chancePerHack;
 }// end of evalPercentTakePerHack
 
-/** evalVectorsPerBatch: calculates the number of GWHW threads under Ideal settings
- 	* ONLY USED for establishing priority of targets, NOT FOR REALWORLD USE
-	* @param {NS} ns
-	* @param {Object} server
-	* @param {Object} player
-	* @returns {number} caclulated total attack vectors
-	*/
+/** evalVectorsPerBatch: calculates the number of GWgHWh Threads needed to take 100% of 
+ * server's money at minDifficulty
+ * @param {NS} ns
+ * @param {Object} server
+ * @param {Object} player
+ * @returns {number} calculated total attack vectors
+ */
 export function evalVectorsPerBatch(server, player) {
 
 	/** Setup */
@@ -429,6 +430,12 @@ export function evalVectorsPerBatch(server, player) {
 
 	/** Wrap-up */
 	let totalVectors = Math.max(growThreads + hackThreads + weakenThreads, 4);
+	if (isNaN(totalVectors)) { 
+		if (isNaN(growThreads)) { throw new Error("evalVectorsPerBatch had growthThreads of NaN"); }
+		if (isNaN(hackThreads)) { throw new Error('evalVectorsPerBatch had hackThreads of NaN'); }
+		if (isNaN(weakenThreads)) { throw new Error('evalVectorsPerBatch had weakenThreads of NaN'); }
+		throw new Error('evalVectorsPerBatch had totalVectors of NaN');
+	}
 	return totalVectors;
 
 }//end of evalVectorsPerBatch
@@ -451,9 +458,6 @@ export function evalHackingTime(server, player) {
 	skillFactor /= playerHackingSkill + baseSkill;
 	const hackTimeMultiplier = 5;
 	const hackingTime = (hackTimeMultiplier * skillFactor) / (player.mults.hacking_speed * calculateIntelligenceBonus(player.skills.intelligence, 1));
-	if (hackingTime > server.ns.getHackTime(server.hostname)) {
-		throw new Error('evalHackingTime returned a worse time then getHackTime() for ' + server.hostname);
-	}
 	return hackingTime;
 }
 
