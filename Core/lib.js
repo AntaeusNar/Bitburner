@@ -257,12 +257,11 @@ export function calcHackChance(server, player, planning = false) {
 	const difficultyMult = (100 - hackDifficulty) / 100;
 	const skillMult = clampNumber(hackFactor * player.skills.hacking, 1);
 	const skillChance = (skillMult - requiredHackingSkill) / skillMult
-	// TODO: this is a hack for the instelligence bonus
-	const chance = skillChance * difficultyMult * player.mults.hacking_chance * (1 + (1 * Math.pow(1, 0.8)) / 600);
-	return clampNumber(chance, 0 , 1); 
+	const chance = skillChance * difficultyMult * player.mults.hacking_chance * calculateIntelligenceBonus(player.skills.intelligence, 1);
+	return clampNumber(chance, 0 , 1);
 }
 
-/** Calculates the % of money that will be stolen from a server if 
+/** Calculates the % of money that will be stolen from a server if
  * it is successfully hacked per single thread as a decimal
  * https://github.com/bitburner-official/bitburner-src/blob/dev/src/Hacking.ts
  * @param {BaseServer} server
@@ -281,24 +280,14 @@ export function calcPercentMoneyHacked(server, player, planning=false) {
 }
 
 
-/** evalPercentTakePerHack: calculates the % takes per single hack thread
-	* https://github.com/danielyxie/bitburner/blob/dev/src/Hacking.ts
-	* @param {NS} ns
-	* @param {Object} server
+/** evalPercentTakePerHack: calculates the % takes per single hack thread in Evaluation Mode
+	* @param {BaseServer} server
 	* @param {Object} player
 	*/
-export function evalPercentTakePerHack(ns, server, player) {
+export function evalPercentTakePerHack(server, player) {
 	/** Setup */
-	let playerHackingSkill = Math.max(server.requiredHackingSkill, player.skills.hacking);
-	let difficultyMult = (100 - server.minDifficulty) / 100;
-	//calculatePercentPerThread
-	let skillMult = (playerHackingSkill - (server.requiredHackingSkill -1)) / playerHackingSkill;
-	let balanceFactor = 240;
-	let percentPerSingleHack = (difficultyMult * skillMult * player.mults.hacking_money * bitNodeMultipliers.ScriptHackMoney) / balanceFactor;
-	//CalculateHackChance
-	let skillMultChance = 1.75 * playerHackingSkill;
-	let skillChance = (skillMultChance - server.requiredHackingSkill) / skillMultChance;
-	let chancePerHack = skillChance * difficultyMult * player.mults.hacking_chance * calculateIntelligenceBonus(player.skills.intelligence, 1);
+	let percentPerSingleHack = calcPercentMoneyHacked(server, player, true);
+	let chancePerHack = calcHackChance(server, player, true);
 	return percentPerSingleHack/chancePerHack;
 }// end of evalPercentTakePerHack
 
@@ -319,22 +308,22 @@ export function evalVectorsPerBatch(ns, server, player) {
 	let playerHackingSkill = Math.max(server.requiredHackingSkill, player.skills.hacking);
 
 	/** Grow Threads -> https://github.com/danielyxie/bitburner/blob/dev/src/Server/ServerHelpers.ts*/
-  let growth = server.moneyMax/Math.max(1, (server.moneyMax * (1-server.takePercent)));
-  let ajdGrowthRate = Math.min(1.0035, 1 + (1.03-1)/server.minDifficulty);
-  let serverGrowthPercentage = ns.getServerGrowth(server.hostname)/100;
-  let coreBonus = 16.32/16; //// BUG: This is ....wrong? but works?
+	let growth = server.moneyMax/Math.max(1, (server.moneyMax * (1-server.takePercent)));
+	let ajdGrowthRate = Math.min(1.0035, 1 + (1.03-1)/server.minDifficulty);
+	let serverGrowthPercentage = ns.getServerGrowth(server.hostname)/100;
+	let coreBonus = 16.32/16; //// BUG: This is ....wrong? but works?
 
-  let growThreads = Math.ceil(Math.log(growth) / (Math.log(ajdGrowthRate) * player.mults.hacking_grow * serverGrowthPercentage * bitNodeMultipliers.ServerGrowthRate * coreBonus));
+	let growThreads = Math.ceil(Math.log(growth) / (Math.log(ajdGrowthRate) * player.mults.hacking_grow * serverGrowthPercentage * bitNodeMultipliers.ServerGrowthRate * coreBonus));
 
-  /** Hack Threads */
-  let hackThreads = Math.ceil(server.takePercent/evalPercentTakePerHack(ns, server, player));
+	/** Hack Threads */
+	let hackThreads = Math.ceil(server.takePercent/evalPercentTakePerHack(server, player));
 
-  /** Weaken Threads */
-  let weakenThreads = Math.ceil(hackThreads*hackRate/weakenRate) + Math.ceil(growThreads*growRate/weakenRate);
+	/** Weaken Threads */
+	let weakenThreads = Math.ceil(hackThreads*hackRate/weakenRate) + Math.ceil(growThreads*growRate/weakenRate);
 
-  /** Wrap-up */
-  let totalVectors = Math.max(growThreads + hackThreads + weakenThreads, 4);
-  return totalVectors;
+	/** Wrap-up */
+	let totalVectors = Math.max(growThreads + hackThreads + weakenThreads, 4);
+	return totalVectors;
 
 }//end of evalVectorsPerBatch
 

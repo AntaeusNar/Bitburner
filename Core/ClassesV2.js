@@ -30,10 +30,10 @@ class BaseServer {
   get numberOfThreads() { return truncateNumber(this.maxRam/this.neededRam, 0 , 'floor'); }
   get idealWeakenTime() { return evalWeakenTime(this, this.ns.getPlayer()); }
   get batchTime() { return truncateNumber(this.idealWeakenTime*1000+baseDelay*5, 0, 'ceil'); }
-  get percentPerSingleHack() { return truncateNumber(evalPercentTakePerHack(this.ns, this, this.ns.getPlayer()), 7); }
+  get percentPerSingleHack() { return evalPercentTakePerHack(this, this.ns.getPlayer()); }
   get batchesPerCycle() { return truncateNumber(this.batchTime/baseDelay, 0, 'floor'); }
   get cycleThreads() { return truncateNumber(this.batchesPerCycle*this.idealVectorsPerBatch, 0, 'ceil'); }
-  get basePriority() { return truncateNumber((this.moneyMax*this.percentPerSingleHack)/this.idealVectorsPerBatch/(this.batchTime/1000)); }
+  get basePriority() { return truncateNumber((this.moneyMax * (this.percentPerSingleHack / 100))/this.idealVectorsPerBatch/(this.batchTime/1000)); }
   get actualVectorsPerBatch() { return evalVectorsPerBatch(this.ns, this, this.ns.getPlayer()); }
   get adjustedPriority() { return truncateNumber((this.moneyMax*this.takePercent)/this.actualVectorsPerBatch/(this.batchTime/1000)); }
   get ls() { return this.ns.ls(this.hostname); }
