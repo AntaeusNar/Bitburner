@@ -430,12 +430,10 @@ export function evalVectorsPerBatch(server, player) {
 
 	/** Wrap-up */
 	let totalVectors = Math.max(growThreads + hackThreads + weakenThreads, 4);
-	if (isNaN(totalVectors)) { 
-		if (isNaN(growThreads)) { throw new Error("evalVectorsPerBatch had growthThreads of NaN"); }
-		if (isNaN(hackThreads)) { throw new Error('evalVectorsPerBatch had hackThreads of NaN'); }
-		if (isNaN(weakenThreads)) { throw new Error('evalVectorsPerBatch had weakenThreads of NaN'); }
-		throw new Error('evalVectorsPerBatch had totalVectors of NaN');
-	}
+	if (isNaN(growThreads) || growThreads == null || growThreads == 0) { throw new Error("evalVectorsPerBatch had growthThreads of NaN/null/0"); }
+	if (isNaN(hackThreads) || hackThreads == null || hackThreads == 0) { throw new Error('evalVectorsPerBatch had hackThreads of NaN/null/0'); }
+	if (isNaN(weakenThreads) || weakenThreads == null || hackThreads == 0) { throw new Error('evalVectorsPerBatch had weakenThreads of NaN/null/0'); }
+	if (isNaN(totalVectors)) { throw new Error('evalVectorsPerBatch had totalVectors of NaN'); }
 	return totalVectors;
 
 }//end of evalVectorsPerBatch
