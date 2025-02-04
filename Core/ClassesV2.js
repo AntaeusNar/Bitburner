@@ -26,7 +26,7 @@ class BaseServer {
   get threads() { return truncateNumber(this.maxRam/this.neededRam, 0, 'floor'); }
   get moneyAvailable() { return this.ns.getServerMoneyAvailable(this.hostname); }
   get isHackable() { return this.requiredHackingSkill <= this.ns.getHackingLevel() ? true : false; }
-  get hasAdminRights() { return this.root; }
+  get hasAdminRights() { return this.hostname === 'home' ? true : this.root; }
   get numberOfThreads() { return truncateNumber(this.maxRam/this.neededRam, 0 , 'floor'); }
   get idealWeakenTime() { return evalWeakenTime(this, this.ns.getPlayer()); }
   get batchTime() { return truncateNumber(this.idealWeakenTime*1000+baseDelay*5, 0, 'ceil'); }
@@ -199,7 +199,7 @@ export class ServerFactory {
       // Sorting Hat
       let evalServer = new BaseServer(ns, hostname, neededRam);
       if (evalServer.moneyMax > 0) {
-        if (evalServer.isHackable && evalServer.root) {
+        if (evalServer.isHackable && evalServer.hasAdminRights) {
           inventory.targets.push(evalServer);
         } else {
           inventory.inactiveTargets.push(evalServer);
@@ -207,7 +207,7 @@ export class ServerFactory {
       }
 
       if (evalServer.maxRam > 0) {
-        if (evalServer.root) {
+        if (evalServer.hasAdminRights) {
           inventory.drones.push(evalServer);
         } else {
           inventory.inactiveDrones.push(evalServer);
