@@ -269,7 +269,7 @@ export function calcHackChance(server, player, planning = false) {
  * @param {Boolean} [planning=false] if true, uses the minDifficulty
  * @returns {number}
  */
-export function calcPercentMoneyHacked(server, player, planning=false) {
+export function calcPercentMoneyHacked(server, player, planning = false) {
 	const hackDifficulty = planning ? server.minDifficulty : server.currentDifficulty;
 	const requiredHackingSkill = server.requiredHackingSkill;
 	const balanceFactor = 240;
@@ -277,6 +277,121 @@ export function calcPercentMoneyHacked(server, player, planning=false) {
 	const skillMult = (player.skills.hacking - (requiredHackingSkill - 1)) / player.skills.hacking;
 	const percentMoneyHacked = (difficultyMult * skillMult * player.mults.hacking_money * BitMults.ScriptHackMoney) / balanceFactor;
 	return Math.min(1, Math.max(percentMoneyHacked, 0));
+}
+
+/**
+ * Returns time it takes to complete a hack on a server, in seconds
+ * -> https://github.com/bitburner-official/bitburner-src/blob/dev/src/Hacking.ts#L58
+ * @param {BaseServer} server
+ * @param {Object} player
+ * @param {boolean} [planning = false]
+ * @returns {number} seconds
+ */
+export function calculateHackingTime(server, player, planning = false) {
+	const serverSecurity = planning ? server.minDifficulty : server.currentDifficulty;
+	const difficultyMult = server.requiredHackingSkill * serverSecurity;
+
+	const baseDiff = 500;
+	const baseSkill = 50;
+	const diffFactor = 2.5;
+	let skillFactor = diffFactor * difficultyMult + baseDiff;
+	skillFactor /= player.skills.hacking + baseSkill;
+
+	const hackTimeMultiplier = 5;
+	const hackingTime =
+	  (hackTimeMultiplier * skillFactor) /
+	  (player.mults.hacking_speed *
+		BitMults.HackingSpeedMultiplier *
+		calculateIntelligenceBonus(player.skills.intelligence, 1));
+
+	return hackingTime;
+}
+
+/**
+ * Returns the log of the growth rate. When passing 1 for the threads, this gives a useful constant.
+ * -> https://github.com/bitburner-official/bitburner-src/blob/dev/src/Server/formulas/grow.ts#L6
+ * @param {BaseServer} server
+ * @param {Object} player
+ * @param {boolean} [planning = false]
+ * @param {number} [threads = 1]
+ * @param {number} [cores = 1]
+ * @returns {number}
+ */
+export function calcServerGrowthLog(server, player, planning = false, threads = 1, cores = 1) {
+	const numServerGrowthCycles = Math.max(threads, 0);
+	const serverSecurity = planning ? server.minDifficulty : server.currentDifficulty;
+
+	//Get adjusted growth log, which accounts for server security
+	//log1p computes log(1+p), it is far more accurate for small values.
+	let adjGrowthLog = Math.log1p(ServerConstants.ServerBaseGrowthIncr / serverSecurity);
+	if (adjGrowthLog >= ServerConstants.ServerMaxGrowthLog) {
+	  adjGrowthLog = ServerConstants.ServerMaxGrowthLog;
+	}
+
+	//Calculate adjusted server growth rate based on parameters
+	const serverGrowthPercentage = server.growthMultiplier / 100;
+	const serverGrowthPercentageAdjusted = serverGrowthPercentage * BitMults.ServerGrowthRate;
+
+	//Apply serverGrowth for the calculated number of growth cycles
+	const coreBonus = 1 + (cores - 1) * (1 / 16);
+	// It is critical that numServerGrowthCycles (aka threads) is multiplied last,
+	// so that it rounds the same way as numCycleForGrowthCorrected.
+	return adjGrowthLog * serverGrowthPercentageAdjusted * player.mults.growthMultiplier * coreBonus * numServerGrowthCycles;
+}
+
+/**
+ * Calculates the number of Grow threads needed to grow a server
+ * -> https://github.com/bitburner-official/bitburner-src/blob/dev/src/Server/ServerHelpers.ts#L58 
+ * @param {BaseServer} server
+ * @param {Object} player
+ * @param {number} targetMoney How much to grow the server TO; ns.getServerMaxMoney(hostname) is ideal
+ * @param {number} startingMoney How much to grow the server FROM; 0 is ideal
+ * @param {boolean} [planning = false]
+ * @param {number} [cores = 1] Number of cores used on attacking server
+ * @returns
+ */
+export function calcGrowThreads(server, player, targetMoney, startingMoney, planning, cores = 1) {
+
+	const k = calcServerGrowthLog(server, player, planning, 1, cores);
+
+	const guess = (targetMoney - startingMoney) / (1 + (targetMoney * (1 / 16) + startingMoney * (15 / 16)) * k);
+	let x = guess;
+	let diff;
+	do {
+	  const ox = startingMoney + x;
+	  // Have to use division instead of multiplication by inverse, because
+	  // if targetMoney is MIN_VALUE then inverting gives Infinity
+	  const newx = (x - ox * Math.log(ox / targetMoney)) / (1 + ox * k);
+	  diff = newx - x;
+	  x = newx;
+	} while (diff < -1 || diff > 1);
+	/* If we see a diff of 1 or less we know all future diffs will be smaller, and the rate of
+	 * convergence means the *sum* of the diffs will be less than 1.
+
+	 * In most cases, our result here will be ceil(x).
+	 */
+	const ccycle = Math.ceil(x);
+	if (ccycle - x > 0.999999) {
+	  // Rounding-error path: It's possible that we slightly overshot the integer value due to
+	  // rounding error, and more specifically precision issues with log and the size difference of
+	  // startingMoney vs. x. See if a smaller integer works. Most of the time, x was not close enough
+	  // that we need to try.
+	  const fcycle = ccycle - 1;
+	  if (targetMoney <= (startingMoney + fcycle) * Math.exp(k * fcycle)) {
+		return fcycle;
+	  }
+	}
+	if (ccycle >= x + ((diff <= 0 ? -diff : diff) + 0.000001)) {
+	  // Fast-path: We know the true value is somewhere in the range [x, x + |diff|] but the next
+	  // greatest integer is past this. Since we have to round up grows anyway, we can return this
+	  // with no more calculation. We need some slop due to rounding errors - we can't fast-path
+	  // a value that is too small.
+	  return ccycle;
+	}
+	if (targetMoney <= (startingMoney + ccycle) * Math.exp(k * ccycle)) {
+	  return ccycle;
+	}
+	return ccycle + 1;
 }
 
 
