@@ -14,7 +14,11 @@ export class MyServer {
         this.percent = -Infinity;
         this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
         this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
-        this.percent = 'not set';
+        this.percent = .02;
+    }
+
+    init() {
+        this.calculateTargetPercentage();
     }
 
     get currentDifficulty() { return this.ns.getServerSecurityLevel(this.hostname); }
@@ -75,6 +79,40 @@ export class MyServer {
     get batchThreads() {
         if (!this.isHackable) { return null; }
         return calculateSingleBatchThreads(this, this.ns.getPlayer(), true);
+
+    }
+
+    /**
+     * Helper function to calculate the best % to target the server with.
+     * increasing the number of hack threads dramatically increase the number of needed growth threads.
+     * Therefore there is a sweet spot of min number of threads to get the most money based on the % of moneyMax
+     * we are trying to steal.
+     */
+    calculateTargetPercentage() {
+        if (this.moneyMax == 0) { return; }
+
+        let increasing = true;
+        while (increasing) {
+            let cP = this.percent;
+            let current = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.total;
+            this.percent += .01;
+            let increased = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.total;
+            if (increased <= current) {
+                increasing = false;
+                this.percent = cP;
+            }
+        }
+        let decreasing = true;
+        while (decreasing) {
+            let cP = this.percent;
+            let current = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.total;
+            this.percent -= .01;
+            let decreased = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.total;
+            if (decreased <= current) {
+                decreasing = false;
+                this.percent = cP;
+            }
+        }
 
     }
 }

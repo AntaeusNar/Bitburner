@@ -16,6 +16,7 @@ export class HackController {
         let serverList = multiScan(this.ns, 'home');
         for (let hostname of serverList) {
             let server = new MyServer(this.ns, hostname)
+            server.init();
             this.inventory.targets.push(server)
             this.inventory.drones.push(server)
         }
