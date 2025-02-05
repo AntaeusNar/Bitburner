@@ -268,6 +268,17 @@ export class ServerFactory {
     logger(ns, 'INFO: Starting adjustments, standby....');
     await BaseServer.adjustTake(ns, inventory.targets, inventory.estThreads);
 
+    let logList = false;
+    //logList = true;
+    if (logList) {
+      for (let server of inventory.targets) {
+        logger(ns, 'Target: ' + server.hostname + ' priority: ' + server.basePriority);
+      }
+      for (let server of inventory.drones) {
+        logger(ns, 'Drone: ' + server.hostname);
+      }
+    }
+
     return inventory
   }//end of create
 
