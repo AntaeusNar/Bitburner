@@ -507,8 +507,9 @@ export function realVectors(ns, server, maxThreads) {
   //Primary Weaken: only done if !isPrimedStr
   if(!server.isPrimedStr) {
     let currentDifficulty = ns.getServerSecurityLevel(server.hostname); //get current security level
-    let targetPrimeWeakens = Math.ceil((currentDifficulty - server.minDifficulty)/weakenRate); //calc totale needed weaken threads
+    let targetPrimeWeakens = Math.ceil((currentDifficulty - server.minDifficulty)/weakenRate); //calc total needed weaken threads
     vectors.primeWeaken = Math.min(targetPrimeWeakens, maxThreads); //stay inside available threads
+	if (vectors.primeWeaken == 0) { throw new Error('vectors.primeWeaken was 0.'); }
     vectors.totalVectors = vectors.primeWeaken; //update total vectors
     maxThreads -= vectors.totalVectors; //reduce maxThreads
     if (vectors.primeWeaken == targetPrimeWeakens) {vectors.shouldPrimeStr = true;} //setting the isPrimedStr flag to true
@@ -550,6 +551,7 @@ export function realVectors(ns, server, maxThreads) {
     targetgrowWeakens = Math.max(1, targetgrowWeakens);
 
     vectors.growThreads = Math.min(targetGrowThreads, maxThreads);//stay inside maxThreads
+	if (vectors.growThreads == 0) { throw new Error('vectors.growThreads is 0'); }
     vectors.totalVectors += vectors.growThreads;//update total vectors
     maxThreads -= vectors.growThreads; //reduce maxThreads
     vectors.growWeakens = Math.min(targetgrowWeakens, maxThreads);//stay inside maxThreads
@@ -588,6 +590,7 @@ export function realVectors(ns, server, maxThreads) {
       targethackWeakens = Math.max(1, targethackWeakens);
 
       vectors.hackThreads = Math.min(targetHackThreads, maxThreads);//stay inside maxThreads
+	  if (vectors.hackThreads == 0) { throw new Error('vectors.hackThreads is 0'); }
       vectors.totalVectors += vectors.hackThreads; //update total vectors
       maxThreads -= vectors.hackThreads; //reduce maxThreads
       vectors.hackWeakens = Math.min(targethackWeakens, maxThreads); //stay inside maxThreads
@@ -731,7 +734,8 @@ export function deployVectors(ns, target, drones, usableThreads, usableScripts, 
 	}
 
 	let deployedThreads = 0;
-	pids.forEach(pid => deployedThreads += ns.getRunningScript(pid).threads)
+	pids.forEach(pid => deployedThreads += ns.getRunningScript(pid).threads);
+	if (deployedThreads == 0) { throw new Error('No Threads deployed'); }
 	if (deployedThreads > vectors.totalVectors) {
 		throw new Error('Deployed more Threads than expected: ' + vectors.totalVectors + ' vs ' + deployedThreads + ' against ' + target.hostname);
 	}

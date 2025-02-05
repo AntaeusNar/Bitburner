@@ -55,6 +55,7 @@ export async function main(ns) {
       trackedScripts = trackedScripts.filter(pid => pid.isActive);
       let inUseThreads = 0;
       let inUseScripts = trackedScripts.length;
+      if (inUseScripts == 0 || inUseScripts == null || isNaN(inUseScripts)) { throw new Error('No Tracked Scripts'); }
       trackedScripts.forEach( pid => inUseThreads += pid.threads)
       usableThreads = inventory.estThreads - inUseThreads;
       usableScripts = maxScripts - inUseScripts;
@@ -67,6 +68,7 @@ export async function main(ns) {
     let scriptsMessage = 'Deployed/Available Scripts: ' + deployedScripts + '/' + maxScripts + '.  ';
     let threadsMessage = 'Deployed/Available Threads: ' + deployedThreads + '/' + inventory.estThreads + '. ';
     logger(ns,  'INFO: ' + cycleBatchMessage + threadsMessage + scriptsMessage, 0);
+    if (cycle > 2 && (deployedScripts == 0 || deployedThreads == 0)) { throw new Error('Tracking 0 for running scripts or threads after cycles have run.'); }
 
     /** Iterative deployment handling */
     let i = 0;
@@ -90,6 +92,7 @@ export async function main(ns) {
           let maxNumBatches = Math.max(1, Math.min(inventory.estThreads/results.vectors.totalVectors, maxScripts/4));
           let theoryTime = Math.max(results.batchTime/maxNumBatches, baseDelay);
           actualNumOfBatches = Math.floor(results.batchTime/theoryTime);
+          if (isNaN(actualNumOfBatches) || actualNumOfBatches == null || actualNumOfBatches == 0) { throw new Error('actualNumberOfBatches errored.')}
           sleepTime = Math.ceil(results.batchTime/actualNumOfBatches);
         } else if (i == 0 && !results.successful){
           logger(ns, 'WARNING: Primary Target deployments unsuccessful.  Allowing cleanup to happen.');
