@@ -5,6 +5,6 @@ export function main(ns) {
     let hackingController = new HackController(ns);
 
     for (let server of hackingController.inventory.targets) {
-        logger(ns, server.hostname + " Priority: " + server.priority);
+        logger(ns, server.hostname + " Priority: $" + server.priority);
     }
 }

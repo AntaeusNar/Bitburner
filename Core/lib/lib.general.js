@@ -209,10 +209,11 @@ export function getWeakenEffect(cores = 1) {
  */
 export function calcPercentMoneyHacked(server, player, planning = false) {
     const hackDifficulty = planning ? server.minDifficulty : server.currentDifficulty;
+    const hackingSkill = planning ? server.requiredHackingSkill : player.skills.hacking;
     const requiredHackingSkill = server.requiredHackingSkill;
     const balanceFactor = 240;
     const difficultyMult = (100 - hackDifficulty) / 100;
-    const skillMult = (player.skills.hacking - (requiredHackingSkill - 1)) / player.skills.hacking;
+    const skillMult = (hackingSkill - (requiredHackingSkill - 1)) / player.skills.hacking;
     const percentMoneyHacked = (difficultyMult * skillMult * player.mults.hacking_money * BitMults.ScriptHackMoney) / balanceFactor;
     return Math.min(1, Math.max(percentMoneyHacked, 0));
 }
@@ -226,10 +227,11 @@ export function calcPercentMoneyHacked(server, player, planning = false) {
   */
  export function calcHackChance(server, player, planning = false) {
     const hackDifficulty = planning ? server.minDifficulty : server.currentDifficulty;
+    const hackingSkill = planning ? server.requiredHackingSkill : player.skills.hacking;
     const requiredHackingSkill = server.requiredHackingSkill;
     const hackFactor = 1.75;
     const difficultyMult = (100 - hackDifficulty) / 100;
-    const skillMult = clampNumber(hackFactor * player.skills.hacking, 1);
+    const skillMult = clampNumber(hackFactor * hackingSkill, 1);
     const skillChance = (skillMult - requiredHackingSkill) / skillMult
     const chance = skillChance * difficultyMult * player.mults.hacking_chance * calculateIntelligenceBonus(player.skills.intelligence, 1);
     return clampNumber(chance, 0 , 1);
@@ -240,14 +242,13 @@ export function calcPercentMoneyHacked(server, player, planning = false) {
  * @param {Myserver} server
  * @param {Object} player
  * @param {boolean} [planning = false]
- * @param {number} [targetHackPercent = 100] percent of maxMoney to hack
  * @returns
  */
-export function calcHackThreads(server, player, planning = false, targetHackPercent = 100) {
+export function calcHackThreads(server, player, planning = false) {
   let percent = calcPercentMoneyHacked(server, player, planning);
   if (isNaN(percent)) { throw new Error(server.hostname + ' calcPercentMoneyHacked is NaN && planning is ' + planning); }
   let chance = calcHackChance(server, player, planning);
-  return targetHackPercent / (percent * chance);
+  return server.percent / (percent * chance);
 }
 
 /**

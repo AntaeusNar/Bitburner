@@ -45,7 +45,7 @@ export class MyServer {
     }
 
     init() {
-        this.calculateTargetPercentage();
+        //this.calculateTargetPercentage();
     }
 
     get currentDifficulty() { return this.ns.getServerSecurityLevel(this.hostname); }
@@ -79,7 +79,7 @@ export class MyServer {
         if (!this.isHackable) { return 0; }
         let _priority = (this.moneyMax * this.percent) / this.batchTime.IdealMaxTime / this.batchThreads.IdealTotal;
         if (isNaN(_priority) || _priority < 0) { _priority = 0; }
-        return _priority;
+        return Math.floor(_priority * 100 + .5) / 100;
     }
 
     /**
