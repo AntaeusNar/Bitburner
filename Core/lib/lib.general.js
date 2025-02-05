@@ -136,16 +136,14 @@ export function calculateIntelligenceBonus(intelligence, weight) {
  * Calculates the number of needed threads in each batch of one cycle of GWHW
  * @param {MyServer} server
  * @param {Object} player
- * @param {number} targetMoney How much to grow the server TO; ns.getServerMaxMoney(hostname) is ideal
- * @param {number} startingMoney How much to grow the server FROM; 0 is ideal
  * @param {boolean} [planning = true]
  * @param {number} [targetHackPercent=100] percent of maxMoney to hack
  * @param {number} [cores=1] Number of cores used on attacking server
  * @returns object containing the threads as GWgHWh
  */
-export function calculateSingleBatchThreads(server, player, planning = true, targetMoney, startingMoney, targetHackPercent = 100 ,cores = 1) {
+export function calculateSingleBatchThreads(server, player, planning = true, targetHackPercent = 100 ,cores = 1) {
   let threads = {};
-  let growthThreads = Math.floor(calcGrowThreads(server, player, targetMoney, startingMoney) + .5);
+  let growthThreads = Math.floor(calcGrowThreads(server, player) + .5);
   let growWeakenThreads = calcWeakenThreads(growthThreads * 0.002, cores);
   let hackThreads = Math.floor(calcHackThreads(server, player, planning, targetHackPercent) + .5);
   let hackWeakenThreads = calcWeakenThreads(hackThreads * 0.002, cores);
@@ -270,7 +268,10 @@ export function calcServerGrowthLog(server, player, planning = false, threads = 
  * @param {number} [cores = 1] Number of cores used on attacking server
  * @returns
  */
-export function calcGrowThreads(server, player, targetMoney, startingMoney, planning, cores = 1) {
+export function calcGrowThreads(server, player, planning, cores = 1) {
+    // TODO: this is using all the grows for all the money
+    let targetMoney = server.maxMoney;
+    let startingMoney = 0;
 
     const k = calcServerGrowthLog(server, player, planning, 1, cores);
     if (isNaN(k)) { throw new Error('calcServerGrowthLog in calcGrowThreads got a k of NaN'); }
