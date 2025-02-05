@@ -9,6 +9,7 @@ export class MyServer {
         this._maxRam = 0;
         this._moneyMax = 0;
         this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
+        this.growthMultiplier = ns.getServerGrowth(hostname);
     }
 
     get currentDifficulty() { return this.ns.getServerSecurityLevel(this.hostname); }
