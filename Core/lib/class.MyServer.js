@@ -10,6 +10,7 @@ export class MyServer {
         this._moneyMax = 0;
         this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
         this.growthMultiplier = ns.getServerGrowth(hostname);
+        this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
     }
 
     get currentDifficulty() { return this.ns.getServerSecurityLevel(this.hostname); }
@@ -38,7 +39,9 @@ export class MyServer {
     }
 
     get priority() {
-        let _priority = this.moneyMax / this.batchTime.maxTime / this.batchThreads.total;
+        if (this.moneyMax == 0) { return 0; }
+        let threads = this.batchThreads;
+        let _priority = this.moneyMax / this.batchTime.maxTime / threads.total;
         if (isNaN(_priority)) { _priority = 0; }
         return _priority;
     }

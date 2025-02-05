@@ -164,14 +164,18 @@ export function calculateIntelligenceBonus(intelligence, weight) {
 export function calculateSingleBatchThreads(server, player, planning = true, targetHackPercent = 100 ,cores = 1) {
   let threads = {};
   let growthThreads = Math.floor(calcGrowThreads(server, player) + .5);
+  if (isNaN(growthThreads)) { throw new Error(server.hostname + ' calcGrowThreads is NaN'); }
   let growWeakenThreads = calcWeakenThreads(growthThreads * 0.002, cores);
   let hackThreads = Math.floor(calcHackThreads(server, player, planning, targetHackPercent) + .5);
+  if (isNaN(hackThreads)) { throw new Error(server.hostname + ' calcHackThreads is NaN'); }
   let hackWeakenThreads = calcWeakenThreads(hackThreads * 0.002, cores);
 
   threads.G = growthThreads;
   threads.Wg = Math.floor(growWeakenThreads + .5);
   threads.H = hackThreads;
   threads.Wh = Math.floor(hackWeakenThreads + .5);
+  threads.total = threads.G + threads.Wg + threads.H + threads.Wh;
+  if (isNaN(threads.total)) { throw new Error('Total threads is NaN'); }
   return threads;
 }
 
@@ -241,6 +245,7 @@ export function calcPercentMoneyHacked(server, player, planning = false) {
  */
 export function calcHackThreads(server, player, planning = false, targetHackPercent = 100) {
   let percent = calcPercentMoneyHacked(server, player, planning);
+  if (isNaN(percent)) { throw new Error(server.hostname + ' calcPercentMoneyHacked is NaN && planning is ' + planning); }
   let chance = calcHackChance(server, player, planning);
   return targetHackPercent / (percent * chance);
 }
@@ -290,8 +295,8 @@ export function calcServerGrowthLog(server, player, planning = false, threads = 
  */
 export function calcGrowThreads(server, player, planning, cores = 1) {
     // TODO: this is using all the grows for all the money
-    let targetMoney = server.maxMoney;
-    let startingMoney = 0;
+    let targetMoney = server.moneyMax;
+    let startingMoney = 1;
 
     const k = calcServerGrowthLog(server, player, planning, 1, cores);
     if (isNaN(k)) { throw new Error('calcServerGrowthLog in calcGrowThreads got a k of NaN'); }
