@@ -1,5 +1,5 @@
 import { MyServer } from "./class.MyServer";
-import { multiscan } from "./lib.general";
+import { multiScan } from "./lib.general";
 
 export class HackController {
     constructor(ns) {
@@ -12,7 +12,7 @@ export class HackController {
     }
 
     generateInventory() {
-        let serverList = multiscan(this.ns, 'home');
+        let serverList = multiScan(this.ns, 'home');
         for (let hostname of serverList) {
             let server = new MyServer(this.ns, hostname)
             this.inventory.targets.push(server)

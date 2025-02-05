@@ -35,7 +35,7 @@ export function getRoot(ns, hostname) {
   * @param {string} [serverName=home] - hostname of starting server
   * @return {array} list of all found server hostnames
   */
-export function multiscan(ns, serverName='home') {
+export function multiScan(ns, serverName='home') {
   let serverList = [];
   function scanning(serverName) {
     let currentScan = ns.scan(serverName);
