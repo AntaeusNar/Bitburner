@@ -9,6 +9,7 @@ export class HackController {
             drones: []
         }
         this.generateInventory();
+        this.sort();
     }
 
     generateInventory() {

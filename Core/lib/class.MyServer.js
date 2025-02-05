@@ -25,7 +25,7 @@ export class MyServer {
         if (this._moneyMax > 0) { return this._moneyMax; }
         if (this.ns.getServerMaxMoney(this.hostname) == 0) { return 0; }
         if (this.hostname === 'home') { return 0; }
-        if (this.hasAdminRights && this.ns.getServerRequiredHackingLevel() <= this.ns.getHackingLevel()) { this._moneyMax = this.ns.getServerMaxMoney(this.hostname); }
+        if (this.hasAdminRights && this.ns.getServerRequiredHackingLevel(this.hostname) <= this.ns.getHackingLevel()) { this._moneyMax = this.ns.getServerMaxMoney(this.hostname); }
         return this._moneyMax;
     }
 
