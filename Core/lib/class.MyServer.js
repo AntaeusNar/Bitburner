@@ -1,5 +1,4 @@
-import { calcGrowThreads, calcHackThreads, calculateGrowTime, calculateHackingTime, calculateSingleBatchThreads, calculateWeakenTime, calcWeakenThreads, getRoot } from "./lib.general";
-import { baseDelay } from "./options.general";
+import { calcGrowThreads, calcHackThreads, calculateHackingTime, getRoot } from "./lib.general";
 
 
 /**
@@ -14,6 +13,19 @@ import { baseDelay } from "./options.general";
  * @param {number} GrowWeakens
  * @param {number} IdealTotal
  * @param {number} CompleteTotal
+ */
+
+/**
+ * @typedef {Object} timings
+ * @param {number} PrimeWeakensDelay
+ * @param {number} PrimeGrowsDelay
+ * @param {number} PrimeGrowWeakensDelay
+ * @param {number} PrimeMaxTime
+ * @param {number} HacksDelay
+ * @param {number} HackWeakensDelay
+ * @param {number} GrowsDelay
+ * @param {number} GrowWeakensDelay
+ * @param {number} IdealMaxTime
  */
 
 export class MyServer {
@@ -70,24 +82,57 @@ export class MyServer {
         return _priority;
     }
 
+    /**
+     * Calculates the timing of threads of each type for a single batch in sec
+     * @returns {timings}
+     */
     get batchTime() {
-        if (!this.isHackable) { return 0; }
-        let growTime = calculateGrowTime(this, this.ns.getPlayer(), true);
-        let weakenTime = calculateWeakenTime(this, this.ns.getPlayer(), true);
-        let hackTime = calculateHackingTime(this, this.ns.getPlayer(), true)
-        let timing = {
-            G: growTime,
-            Wg: weakenTime + baseDelay,
-            H: hackTime + baseDelay * 2,
-            Wh: weakenTime + baseDelay * 3,
-            maxTime: -Infinity
+        /** Each group of threads Pw, Pg, Pgw, H, Hw, G, Gw need to all hit 1 sec after another.
+         * all weakens = hack * 4
+         * all grows = hack * 3.2
+         */
+        let timings = {
+            PrimeWeakensDelay: -Infinity,
+            PrimeGrowsDelay: -Infinity,
+            PrimeGrowWeakensDelay: -Infinity,
+            PrimeMaxTime: -Infinity,
+            HacksDelay: -Infinity,
+            HackWeakensDelay: -Infinity,
+            GrowsDelay: -Infinity,
+            GrowWeakensDelay: -Infinity,
+            IdealMaxTime: -Infinity,
         }
-        for (const key of Object.keys(timing)) {
-            if (timing[key] > timing.maxTime) {
-                timing.maxTime = timing[key]
-            }
+
+
+        let idealHackingTime = calculateHackingTime(this, this.ns.getPlayer(), true);
+        let idealWeakensTime = idealHackingTime * 4;
+        let idealGrowsTime = idealHackingTime * 3.2;
+
+        if (!this.isPrimed) {
+            let realHackingTime = calculateHackingTime(this, this.ns.getPlayer());
+            let primeWeakensTime = realHackingTime * 4;
+            let primeGrowsTime = realHackingTime * 3.2;
+            timings.PrimeWeakensDelay = 0;
+            timings.PrimeGrowsDelay = primeWeakensTime + 1 - primeGrowsTime;
+            timings.PrimeGrowWeakensDelay = 2;
+            timings.PrimeMaxTime = primeWeakensTime + 2;
+            timings.HacksDelay = primeWeakensTime + 3 - idealHackingTime;
+            timings.HackWeakensDelay = primeWeakensTime + 4 - idealWeakensTime;
+            timings.GrowsDelay = primeWeakensTime + 5 - idealGrowsTime;
+            timings.GrowWeakensDelay = primeWeakensTime + 6 - idealWeakensTime;
+            timings.IdealMaxTime = idealWeakensTime + 3;
+        } else {
+            timings.PrimeWeakensDelay = 0;
+            timings.PrimeGrowsDelay = 0;
+            timings.PrimeGrowWeakensDelay = 0;
+            timings.PrimeMaxTime = 0;
+            timings.HacksDelay = idealWeakensTime - idealHackingTime - 1;
+            timings.HackWeakensDelay = 0;
+            timings.GrowsDelay = idealWeakensTime + 1 - idealGrowsTime;
+            timings.GrowWeakensDelay = 2
+            timings.IdealMaxTime = idealWeakensTime + 2;
         }
-        return timing;
+        return timings;
     }
 
     /**
