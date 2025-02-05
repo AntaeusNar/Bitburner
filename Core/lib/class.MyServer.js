@@ -42,6 +42,7 @@ export class MyServer {
         this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
         this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
         this.percent = .03;
+        this.maxThreads = Infinity;
     }
 
     get currentDifficulty() { return this.ns.getServerSecurityLevel(this.hostname); }
@@ -170,10 +171,12 @@ export class MyServer {
      * increasing the number of hack threads dramatically increase the number of needed growth threads.
      * Therefore there is a sweet spot of min number of threads to get the most money based on the % of moneyMax
      * we are trying to steal.
+     * @param {number} [maxThreads = Infinity]
      */
-    calculateTargetPercentage() {
+    calculateTargetPercentage(maxThreads = Infinity) {
         if (this.moneyMax == 0) { return; }
         let startingPercent = this.percent;
+        this.maxThreads = maxThreads;
 
         let increasing = true;
         while (increasing) {
@@ -182,7 +185,6 @@ export class MyServer {
             this.percent += .01;
             if (cP == this.percent) { throw new Error('this.percent not increased.'); }
             let increased = this.priority;
-            if (current == increased) { throw new Error('this.priority did not change.'); }
             if (increased <= current || this.percent >= 1) {
                 increasing = false;
                 this.percent = cP;
@@ -195,7 +197,6 @@ export class MyServer {
             this.percent -= .01;
             if (cP == this.percent) { throw new Error('this.percent not decreased.'); }
             let decreased = this.priority;
-            if (current == decreased) { throw new Error('this.priority did not change.'); }
             if (decreased <= current || this.percent <= 0) {
                 decreasing = false;
                 this.percent = cP;

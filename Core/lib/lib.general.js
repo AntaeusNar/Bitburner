@@ -341,3 +341,22 @@ export function calcGrowThreads(server, player, planning, cores = 1) {
     }
     return ccycle + 1;
 }
+
+/** Given an array of files, will return the max ram requirements
+  * @param {NS} ns
+  * @param {string[]} files - list of file names
+  * @return {number} maximum needed ram
+  */
+export function getNeededRam(ns, files) {
+    let needRam = 0;
+    for (let file of files) {
+    if (can(ns, file)) {
+      if (ns.getScriptRam(file) > needRam) {
+            needRam = ns.getScriptRam(file);
+        }
+    } else {
+      ns.tprintf('WARNING: File %s not found on home, the ram calculation will be wrong.', file);
+    }
+    }
+    return needRam;
+}
