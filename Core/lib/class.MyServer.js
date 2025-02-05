@@ -1,4 +1,4 @@
-import { calcGrowThreads, calcHackThreads, calculateHackingTime, getRoot } from "./lib.general";
+import { calcGrowThreads, calcHackThreads, calculateHackingTime, getRoot, logger } from "./lib.general";
 
 
 /**
@@ -41,11 +41,7 @@ export class MyServer {
         this.percent = -Infinity;
         this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
         this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
-        this.percent = .02;
-    }
-
-    init() {
-        //this.calculateTargetPercentage();
+        this.percent = .03;
     }
 
     get currentDifficulty() { return this.ns.getServerSecurityLevel(this.hostname); }
@@ -177,14 +173,17 @@ export class MyServer {
      */
     calculateTargetPercentage() {
         if (this.moneyMax == 0) { return; }
+        let startingPercent = this.percent;
 
         let increasing = true;
         while (increasing) {
             let cP = this.percent;
-            let current = (this.moneyMax * this.percent) / this.batchTime.IdealMaxTime / this.batchThreads.IdealTotal;
+            let current = this.priority;
             this.percent += .01;
-            let increased = (this.moneyMax * this.percent) / this.batchTime.IdealMaxTime / this.batchThreads.IdealTotal;
-            if (increased <= current) {
+            if (cP == this.percent) { throw new Error('this.percent not increased.'); }
+            let increased = this.priority;
+            if (current == increased) { throw new Error('this.priority did not change.'); }
+            if (increased <= current || this.percent >= 1) {
                 increasing = false;
                 this.percent = cP;
             }
@@ -192,13 +191,19 @@ export class MyServer {
         let decreasing = true;
         while (decreasing) {
             let cP = this.percent;
-            let current = (this.moneyMax * this.percent) / this.batchTime.IdealMaxTime / this.batchThreads.IdealTotal;
+            let current = this.priority;
             this.percent -= .01;
-            let decreased = (this.moneyMax * this.percent) / this.batchTime.IdealMaxTime / this.batchThreads.IdealTotal;
-            if (decreased <= current) {
+            if (cP == this.percent) { throw new Error('this.percent not decreased.'); }
+            let decreased = this.priority;
+            if (current == decreased) { throw new Error('this.priority did not change.'); }
+            if (decreased <= current || this.percent <= 0) {
                 decreasing = false;
                 this.percent = cP;
             }
+        }
+
+        if (startingPercent != this.percent) {
+            logger(this.ns, this.hostname + " started at " + startingPercent + ' and adjusted to ' + this.percent);
         }
 
     }
