@@ -9,18 +9,18 @@ export class HackController {
             drones: []
         }
         this.maxThreads = 0;
-        this.batchFiles = ['./lt-weaken.js', './lt-grow.js', './lt-hack.js'];
+        this.batchFiles = ['./lib/lt-weaken.js', './lib/lt-grow.js', './lib/lt-hack.js'];
         this.neededRam = getNeededRam(ns, this.batchFiles);
         this.generateInventory();
+        this.calculateTargetPercentage();
         this.sort();
-        this.calculateTargetPercent();
     }
 
     generateInventory() {
         let serverList = multiScan(this.ns, 'home');
         for (let hostname of serverList) {
             let server = new MyServer(this.ns, hostname)
-            this.maxThreads += server.maxRam/this.neededRam;
+            this.maxThreads += Math.floor(server.maxRam/this.neededRam);
             this.inventory.targets.push(server)
             this.inventory.drones.push(server)
         }
@@ -31,12 +31,11 @@ export class HackController {
         this.inventory.drones.sort((a, b) => b.maxRam - a.maxRam);
     }
 
-    calculateTargetPercent() {
+    calculateTargetPercentage() {
         let maxThreads = this.maxThreads;
         for (let server of this.inventory.targets) {
             if (maxThreads <= 0 ) { break; }
-            server.calculateTargetPercent(maxThreads);
-            maxThreads - server.batchThreads.IdealTotal;
+            server.calculateTargetPercentage(maxThreads);
         }
     }
 }

@@ -41,7 +41,7 @@ export class MyServer {
         this.percent = -Infinity;
         this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
         this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
-        this.percent = .03;
+        this.percent = .001;
         this.maxThreads = Infinity;
     }
 
@@ -159,7 +159,7 @@ export class MyServer {
         threads.Hacks = Math.floor(calcHackThreads(this, this.ns.getPlayer(), true) +.5);
         threads.HackWeakens = Math.floor(threads.Hacks * .002 / .05 + .5);
         threads.Grows = Math.floor(calcGrowThreads(this, this.ns.getPlayer(), true) + .5);
-        threads.GrowWeakens = Math.floor(threads.Grows * .002 / .5 + .5);
+        threads.GrowWeakens = Math.floor(threads.Grows * .002 / .05 + .5);
         threads.IdealTotal = threads.Hacks + threads.HackWeakens + threads.Grows + threads.GrowWeakens;
         threads.CompleteTotal = threads.PrimeTotal + threads.IdealTotal;
 
@@ -182,10 +182,9 @@ export class MyServer {
         while (increasing) {
             let cP = this.percent;
             let current = this.priority;
-            this.percent += .01;
-            if (cP == this.percent) { throw new Error('this.percent not increased.'); }
+            this.percent += .001;
             let increased = this.priority;
-            if (increased <= current || this.percent >= 1) {
+            if (increased <= current || this.percent >= 1 || this.batchThreads.IdealTotal >= this.maxThreads) {
                 increasing = false;
                 this.percent = cP;
             }
@@ -194,8 +193,7 @@ export class MyServer {
         while (decreasing) {
             let cP = this.percent;
             let current = this.priority;
-            this.percent -= .01;
-            if (cP == this.percent) { throw new Error('this.percent not decreased.'); }
+            this.percent -= .001;
             let decreased = this.priority;
             if (decreased <= current || this.percent <= 0) {
                 decreasing = false;

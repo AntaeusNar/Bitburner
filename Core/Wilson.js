@@ -5,7 +5,9 @@ export function main(ns) {
     ns.disableLog('ALL');
     let hackingController = new HackController(ns);
 
+    logger(ns, 'Available Threads: ' + hackingController.maxThreads);
+
     for (let server of hackingController.inventory.targets) {
-        logger(ns, server.hostname + " Priority: $" + server.priority + ' as $/Sec/Thread. Threads per batch: ' + server.batchThreads.IdealTotal + ' Priming Threads needed: ' + server.batchThreads.PrimeTotal);
+        logger(ns, server.hostname + " Priority: $" + server.priority + ' as $/Sec/Thread. Threads per batch: ' + server.batchThreads.IdealTotal + ' Priming Threads needed: ' + server.batchThreads.PrimeTotal + ' Take %: ' + server.percent);
     }
 }
