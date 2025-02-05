@@ -6,10 +6,12 @@ export class MyServer {
         this.ns = ns;
         this.hostname = hostname;
         this._admin = false;
+        this._hackable = false;
         this._maxRam = 0;
         this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
         this.growthMultiplier = ns.getServerGrowth(hostname);
         this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
+        this.percent = -Infinity;
     }
 
     get currentDifficulty() { return this.ns.getServerSecurityLevel(this.hostname); }
@@ -20,6 +22,14 @@ export class MyServer {
             if (getRoot(this.ns, this.hostname)) { this._admin = true; }
         }
         return this._admin;
+    }
+
+    get isHackable() {
+        if (!this._hackable) {
+            if (this.hostname === 'home' || !this.hasAdminRights || this.requiredHackingSkill > this.ns.getHackingLevel()) { return false; }
+            this._hackable = true;
+        }
+        return this._hackable;
     }
 
     get moneyMax() {
@@ -35,11 +45,15 @@ export class MyServer {
         return this._maxRam;
     }
 
+    /**
+     * @returns {number} $/Sec(batch)/Thread(batch) @ target %
+     */
     get priority() {
         if (this.moneyMax == 0) { return 0; }
+        if (!this.hasAdminRights || !this.isHackable) { return 0}
         let threads = this.batchThreads;
-        let _priority = this.moneyMax / this.batchTime.maxTime / threads.total;
-        if (isNaN(_priority)) { _priority = 0; }
+        let _priority = (this.moneyMax * this.percent) / this.batchTime.maxTime / threads.total;
+        if (isNaN(_priority) || _priority < 0) { _priority = 0; }
         return _priority;
     }
 
