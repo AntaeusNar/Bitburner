@@ -1,4 +1,4 @@
-import { calculateGrowTime, calculateHackingTime, calculateSingleBatchThreads, calculateWeakenTime, getRoot } from "./lib.general";
+import { calcGrowThreads, calcHackThreads, calculateGrowTime, calculateHackingTime, calculateSingleBatchThreads, calculateWeakenTime, calcWeakenThreads, getRoot } from "./lib.general";
 import { baseDelay } from "./options.general";
 
 
@@ -7,6 +7,7 @@ import { baseDelay } from "./options.general";
  * @param {number} PrimeWeakens
  * @param {number} PrimeGrows
  * @param {number} PrimeGrowWeakens
+ * @param {number} PrimeTotal
  * @param {number} Hacks
  * @param {number} HackWeakens
  * @param {number} Grows
@@ -64,8 +65,7 @@ export class MyServer {
      */
     get priority() {
         if (!this.isHackable) { return 0; }
-        let threads = this.batchThreads;
-        let _priority = (this.moneyMax * this.percent) / this.batchTime.maxTime / threads.total;
+        let _priority = (this.moneyMax * this.percent) / this.batchTime.maxTime / this.batchThreads.IdealTotal;
         if (isNaN(_priority) || _priority < 0) { _priority = 0; }
         return _priority;
     }
@@ -95,8 +95,33 @@ export class MyServer {
      * @returns {threads}
      */
     get batchThreads() {
-        return calculateSingleBatchThreads(this, this.ns.getPlayer());
+        let threads = {
+            PrimeWeakens: 0,
+            PrimeGrows: 0,
+            PrimeGrowWeakens: 0,
+            PrimeTotal: 0,
+            Hacks: 0,
+            HackWeakens: 0,
+            Grows: 0,
+            GrowWeakens: 0,
+            IdealTotal: 0,
+            CompleteTotal: 0,
+        }
 
+        if (!this.isPrimed) {
+            threads.PrimeWeakens = Math.floor((this.currentDifficulty - this.minDifficulty) / .05 +.5) ;
+            threads.PrimeGrows = Math.floor(calcGrowThreads(this, this.ns.getPlayer()) + .5);
+            threads.PrimeGrowWeakens = Math.floor(threads.PrimeGrows * .002 / .05 + .5);
+            threads.PrimeTotal = threads.PrimeWeakens + threads.PrimeGrows + threads.PrimeGrowWeakens;
+        }
+        threads.Hacks = Math.floor(calcHackThreads(this, this.ns.getPlayer(), true) +.5);
+        threads.HackWeakens = Math.floor(threads.Hacks * .002 / .05 + .5);
+        threads.Grows = Math.floor(calcGrowThreads(this, this.ns.getPlayer(), true) + .5);
+        threads.GrowWeakens = Math.floor(threads.Grows * .002 / .5 + .5);
+        threads.IdealTotal = threads.Hacks + threads.HackWeakens + threads.Grows + threads.GrowWeakens;
+        threads.CompleteTotal = threads.PrimeTotal + threads.IdealTotal;
+
+        return threads;
     }
 
     /**
@@ -111,9 +136,9 @@ export class MyServer {
         let increasing = true;
         while (increasing) {
             let cP = this.percent;
-            let current = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.total;
+            let current = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.IdealTotal;
             this.percent += .01;
-            let increased = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.total;
+            let increased = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.IdealTotal;
             if (increased <= current) {
                 increasing = false;
                 this.percent = cP;
@@ -122,9 +147,9 @@ export class MyServer {
         let decreasing = true;
         while (decreasing) {
             let cP = this.percent;
-            let current = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.total;
+            let current = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.IdealTotal;
             this.percent -= .01;
-            let decreased = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.total;
+            let decreased = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.IdealTotal;
             if (decreased <= current) {
                 decreasing = false;
                 this.percent = cP;
