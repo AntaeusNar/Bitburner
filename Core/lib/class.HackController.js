@@ -19,4 +19,9 @@ export class HackController {
             this.inventory.drones.push(server)
         }
     }
+
+    sort() {
+        this.inventory.targets.sort((a, b) => b.priority - a.priority);
+        this.inventory.drones.sort((a, b) => b.maxRam - a.maxRam);
+    }
 }
