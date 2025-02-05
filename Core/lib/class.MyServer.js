@@ -95,7 +95,7 @@ export class MyServer {
      * @returns {threads}
      */
     get batchThreads() {
-        return calculateSingleBatchThreads(this, this.ns.getPlayer(), true);
+        return calculateSingleBatchThreads(this, this.ns.getPlayer());
 
     }
 
