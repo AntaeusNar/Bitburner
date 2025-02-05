@@ -1,4 +1,3 @@
-import { MyServer } from "./class.MyServer";
 import { localBitNodeMultipliers } from "./options.bitNode";
 import { currentBitNode } from "./options.general";
 
