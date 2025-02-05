@@ -27,7 +27,8 @@ export class MyServer {
 
     get maxRam() {
         if (this._maxRam > 0) { return this._maxRam; }
-        if (this.hasAdminRights) { this._maxRam = this.ns.getServerMaxMoney(this.hostname); }
+        if (this.hostname === 'home') { this._maxRam = this.ns.getServerMaxRam(this.hostname) - 32; }
+        if (this.hasAdminRights) { this._maxRam = this.ns.getServerMaxRam(this.hostname); }
         return this._maxRam;
     }
 }
