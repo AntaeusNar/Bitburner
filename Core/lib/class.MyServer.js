@@ -12,10 +12,16 @@ export class MyServer {
         this.growthMultiplier = ns.getServerGrowth(hostname);
         this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
         this.percent = -Infinity;
+        this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
+        this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
+        this.percent = 'not set';
     }
 
     get currentDifficulty() { return this.ns.getServerSecurityLevel(this.hostname); }
 
+    /**
+     * @returns {boolean} true if the server is rooted
+     */
     get hasAdminRights() {
         if (!this._admin) {
             if (this.hostname === 'home') { this._admin = true; }
@@ -24,33 +30,22 @@ export class MyServer {
         return this._admin;
     }
 
+    /**
+     * @returns {boolean} true if the server can have hacking scripts ran against it and moneyMax > 0
+     */
     get isHackable() {
         if (!this._hackable) {
-            if (this.hostname === 'home' || !this.hasAdminRights || this.requiredHackingSkill > this.ns.getHackingLevel()) { return false; }
+            if (this.hostname === 'home' || !this.hasAdminRights || this.requiredHackingSkill > this.ns.getHackingLevel() || this.moneyMax == 0) { return false; }
             this._hackable = true;
         }
         return this._hackable;
     }
 
-    get moneyMax() {
-        if (this.ns.getServerMaxMoney(this.hostname) == 0) { return 0; }
-        if (this.hostname === 'home') { return 0; }
-        return this.ns.getServerMaxMoney(this.hostname);
-    }
-
-    get maxRam() {
-        if (this._maxRam > 0) { return this._maxRam; }
-        if (this.hostname === 'home') { this._maxRam = this.ns.getServerMaxRam(this.hostname) - 32; }
-        if (this.hasAdminRights) { this._maxRam = this.ns.getServerMaxRam(this.hostname); }
-        return this._maxRam;
-    }
-
     /**
-     * @returns {number} $/Sec(batch)/Thread(batch) @ target %
+     * @returns {number} $/Sec(batch)/Thread(batch) @ target % if the server is Hackable and has money
      */
     get priority() {
-        if (this.moneyMax == 0) { return 0; }
-        if (!this.hasAdminRights || !this.isHackable) { return 0}
+        if (!this.isHackable) { return 0; }
         let threads = this.batchThreads;
         let _priority = (this.moneyMax * this.percent) / this.batchTime.maxTime / threads.total;
         if (isNaN(_priority) || _priority < 0) { _priority = 0; }
@@ -58,7 +53,7 @@ export class MyServer {
     }
 
     get batchTime() {
-        if (this.moneyMax == 0) { return 0; }
+        if (!this.isHackable) { return 0; }
         let growTime = calculateGrowTime(this, this.ns.getPlayer(), true);
         let weakenTime = calculateWeakenTime(this, this.ns.getPlayer(), true);
         let hackTime = calculateHackingTime(this, this.ns.getPlayer(), true)
@@ -78,7 +73,7 @@ export class MyServer {
     }
 
     get batchThreads() {
-        if (this.moneyMax == 0 ) { return null; }
+        if (!this.isHackable) { return null; }
         return calculateSingleBatchThreads(this, this.ns.getPlayer(), true);
 
     }
