@@ -7,7 +7,6 @@ export class MyServer {
         this.hostname = hostname;
         this._admin = false;
         this._maxRam = 0;
-        this._moneyMax = 0;
         this.minDifficulty = ns.getServerMinSecurityLevel(hostname);
         this.growthMultiplier = ns.getServerGrowth(hostname);
         this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
@@ -24,11 +23,9 @@ export class MyServer {
     }
 
     get moneyMax() {
-        if (this._moneyMax > 0) { return this._moneyMax; }
         if (this.ns.getServerMaxMoney(this.hostname) == 0) { return 0; }
         if (this.hostname === 'home') { return 0; }
-        if (this.hasAdminRights && this.ns.getServerRequiredHackingLevel(this.hostname) <= this.ns.getHackingLevel()) { this._moneyMax = this.ns.getServerMaxMoney(this.hostname); }
-        return this._moneyMax;
+        return this.ns.getServerMaxMoney(this.hostname);
     }
 
     get maxRam() {
