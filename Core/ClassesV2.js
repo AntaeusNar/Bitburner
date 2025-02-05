@@ -254,6 +254,7 @@ export class ServerFactory {
     inventory.estThreads = inventory.drones.reduce((accumulator, drone) => {
       return accumulator + drone.threads;
     }, 0);
+    if (isNaN(inventory.estThreads) || inventory.estThreads == null || inventory.estThreads == 0) { throw new Error('inventory.estThreads was invalid'); }
 
     // status message
     let bestTarget = inventory.targets[0];
