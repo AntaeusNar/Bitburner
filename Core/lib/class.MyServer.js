@@ -1,6 +1,20 @@
 import { calculateGrowTime, calculateHackingTime, calculateSingleBatchThreads, calculateWeakenTime, getRoot } from "./lib.general";
 import { baseDelay } from "./options.general";
 
+
+/**
+ * @typedef {Object} threads
+ * @param {number} PrimeWeakens
+ * @param {number} PrimeGrows
+ * @param {number} PrimeGrowWeakens
+ * @param {number} Hacks
+ * @param {number} HackWeakens
+ * @param {number} Grows
+ * @param {number} GrowWeakens
+ * @param {number} IdealTotal
+ * @param {number} CompleteTotal
+ */
+
 export class MyServer {
     constructor(ns, hostname) {
         this.ns = ns;
@@ -76,8 +90,11 @@ export class MyServer {
         return timing;
     }
 
+    /**
+     * Calculates the number of threads of each type for a single batch
+     * @returns {threads}
+     */
     get batchThreads() {
-        if (!this.isHackable) { return null; }
         return calculateSingleBatchThreads(this, this.ns.getPlayer(), true);
 
     }
