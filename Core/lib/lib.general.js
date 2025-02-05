@@ -29,3 +29,24 @@ export function getRoot(ns, hostname) {
         }
     return result;
 }
+
+/** Given a server, will recursively scan until all servers are found
+  * @param {NS} ns
+  * @param {string} [serverName=home] - hostname of starting server
+  * @return {array} list of all found server hostnames
+  */
+export function multiscan(ns, serverName='home') {
+  let serverList = [];
+  function scanning(serverName) {
+    let currentScan = ns.scan(serverName);
+    currentScan.forEach(serverName => {
+      if (!serverList.includes(serverName)) {
+        serverList.push(serverName);
+        getRoot(ns, serverName);
+        scanning(serverName);
+      }
+    })
+  }
+  scanning(serverName);
+  return serverList;
+}
