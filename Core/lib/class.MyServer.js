@@ -77,7 +77,7 @@ export class MyServer {
      */
     get priority() {
         if (!this.isHackable) { return 0; }
-        let _priority = (this.moneyMax * this.percent) / this.batchTime.maxTime / this.batchThreads.IdealTotal;
+        let _priority = (this.moneyMax * this.percent) / this.batchTime.IdealMaxTime / this.batchThreads.IdealTotal;
         if (isNaN(_priority) || _priority < 0) { _priority = 0; }
         return _priority;
     }
@@ -181,9 +181,9 @@ export class MyServer {
         let increasing = true;
         while (increasing) {
             let cP = this.percent;
-            let current = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.IdealTotal;
+            let current = (this.moneyMax * this.percent) / this.batchTime.IdealMaxTime / this.batchThreads.IdealTotal;
             this.percent += .01;
-            let increased = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.IdealTotal;
+            let increased = (this.moneyMax * this.percent) / this.batchTime.IdealMaxTime / this.batchThreads.IdealTotal;
             if (increased <= current) {
                 increasing = false;
                 this.percent = cP;
@@ -192,9 +192,9 @@ export class MyServer {
         let decreasing = true;
         while (decreasing) {
             let cP = this.percent;
-            let current = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.IdealTotal;
+            let current = (this.moneyMax * this.percent) / this.batchTime.IdealMaxTime / this.batchThreads.IdealTotal;
             this.percent -= .01;
-            let decreased = (this.moneyMax * this.percent) / this.batchTime.total / this.batchThreads.IdealTotal;
+            let decreased = (this.moneyMax * this.percent) / this.batchTime.IdealMaxTime / this.batchThreads.IdealTotal;
             if (decreased <= current) {
                 decreasing = false;
                 this.percent = cP;
