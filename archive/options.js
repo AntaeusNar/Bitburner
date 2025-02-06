@@ -23,7 +23,7 @@ export const colors = {
 		brightCyan: "\u001b[36;1m",
 		brightWhite: "\u001b[37;1m",
 		reset: "\u001b[0m"
-	};
+};
 
 export const currentBitNode = {
 	n: 12,
