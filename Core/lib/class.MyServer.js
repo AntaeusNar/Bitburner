@@ -236,14 +236,13 @@ export class MyServer {
 
     }
 
-    hackSelf(drones, batchFiles, usableScripts) {
+    hackSelf(drones, batchFiles, usableScripts, cycleBatch) {
         let weakenFile = batchFiles[0];
         let growFile = batchFiles[1];
         let hackFile = batchFiles[2];
         let maxScripts = usableScripts;
-        let maxScriptsNotHit = true;
+        let successful = true;
         let pids = [];
-        let successful = false;
         let vectors = this.batchThreads;
         let delays = this.batchTime;
         let usableDrones = drones.filter(drone => drone.availableRam != 0);
@@ -251,48 +250,96 @@ export class MyServer {
 
         //PrimeWeakens
         if (vectors.PrimeWeakens > 0 && maxScriptsNotHit) {
-            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeWeakens, waitTime, cycleBatch);
-
+            successful = false;
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeWeakens, delays.PrimeWeakensDelay, cycleBatch);
+            if (!localResults.successful) {
+                logger(this.ns, 'WARNING: Could not deploy all Primary Weakens against ' + this.hostname, 0);
+                successful = false;
+                this._isPrimedStr = false;
+            } else { this._isPrimedStr = true; }
+            maxScripts -= localResults.deployedScripts;
+            pids.push( ...localResults.pids);
         }
 
         //PrimeGrows
-        if (vectors.PrimeGrows > 0 && successful && maxScriptsNotHit {
-
+        if (vectors.PrimeGrows > 0 && successful && maxScripts > 0) {
+            successful = false;
+            localResults = macroDeploy(this.ns, usableDrones, growFile, this, vectors.PrimeGrows, delays.PrimeGrowsDelay, cycleBatch);
+            if (!localResults.successful) {
+                logger(this.ns, 'WARNING: Could not deploy all Primary Grows against ' + this.hostname, 0);
+                successful = false;
+                this._isPrimedMoney = false;
+            } else { this._isPrimedMoney = true; }
+            maxScripts -= localResults.deployedScripts;
+            pids.push( ...localResults.pids);
         }
 
         //PrimeGrowWeakens
-        if (vectors.PrimeGrowWeakens > 0 && successful && maxScriptsNotHit) {
-
+        if (vectors.PrimeGrowWeakens > 0 && successful && maxScripts > 0) {
+            successful = false;
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeGrowWeakens, delays.PrimeGrowWeakensDelay, cycleBatch);
+            if (!localResults.successful) {
+                logger(this.ns, 'WARNING: Could not deploy all Primary GrowWeakens against ' + this.hostname, 0);
+                successful = false;
+                this._isPrimedStr = false;
+            } else { this._isPrimedStr = true; }
+            maxScripts -= localResults.deployedScripts;
+            pids.push( ...localResults.pids);
         }
 
         //Hacks
-        if (vectors.Hacks > 0 && successful && maxScriptsNotHit) {
-
+        if (vectors.Hacks > 0 && successful && maxScripts > 0) {
+            successful = false;
+            localResults = macroDeploy(this.ns, usableDrones, hackFile, this, vectors.Hacks, delays.HacksDelay, cycleBatch);
+            if (!localResults.successful) {
+                logger(this.ns, 'WARNING: Could not deploy all Hacks against ' + this.hostname, 0);
+                successful = false;
+            } else { this._isPrimedStr = false; this._isPrimedMoney = false; }
+            maxScripts -= localResults.deployedScripts;
+            pids.push( ...localResults.pids);
         }
 
         //HackWeakens
-        if (vectors.HackWeakens > 0 && successful && maxScriptsNotHit) {
-
+        if (vectors.HackWeakens > 0 && successful && maxScripts > 0) {
+            successful = false;
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.HackWeakens, delays.HackWeakensDelay, cycleBatch);
+            if (!localResults.successful) {
+                logger(this.ns, 'WARNING: Could not deploy all Hack Weakens against ' + this.hostname, 0);
+                successful = false;
+                this._isPrimedStr = false;
+            } else { this._isPrimedStr = true; }
+            maxScripts -= localResults.deployedScripts;
+            pids.push( ...localResults.pids);
         }
 
         //Grows
-        if (vectors.Grows > 0 && successful && maxScriptsNotHit) {
+        if (vectors.Grows > 0 && successful && maxScripts > 0) {
+            successful = false;
+            localResults = macroDeploy(this.ns, usableDrones, growFile, this, vectors.Grows, delays.GrowsDelay, cycleBatch);
+            if (!localResults.successful) {
+                logger(this.ns, 'WARNING: Could not deploy all Grows against ' + this.hostname, 0);
+                successful = false;
+                this._isPrimedMoney = false;
+            } else { this._isPrimedMoney = true; this._isPrimedStr = false}
+            maxScripts -= localResults.deployedScripts;
+            pids.push( ...localResults.pids);
 
         }
 
         //GrowWeakens
-        if (vectors.GrowWeakens > 0 && successful && maxScriptsNotHit) {
+        if (vectors.GrowWeakens > 0 && successful && maxScripts > 0) {
+            successful = false;
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.GrowWeakens, delays.GrowWeakensDelay, cycleBatch);
+
 
         }
-
-        if (!successful || !maxScriptsNotHit) { successful = false; }
 
         let results = {
             successful: successful,
             deployedScripts: deployedScripts,
             pids: pids,
         }
-
+        return results;
     }
 }
 
