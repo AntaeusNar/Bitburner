@@ -339,7 +339,7 @@ export class MyServer {
             pids.push( ...localResults.pids);
         }
 
-        let deployedScripts = maxScripts - usableScripts
+        let deployedScripts = usableScripts - maxScripts;
         let results = {
             successful: successful,
             deployedScripts: deployedScripts,
@@ -378,7 +378,7 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
     while (!successful && i < drones.length) {
         let currentDrone = drones[i];
         currentDrone.deployFiles(script);
-        let currentAvailableThreads = Math.floor(currentDrone.availableRam/neededRam + .5);
+        let currentAvailableThreads = Math.floor(currentDrone.availableRam/neededRam);
         let deployableThreads = Math.min(threads, currentAvailableThreads);
         if (deployableThreads > 0) {
             let result = microDeploy(ns, currentDrone.hostname, target.hostname, script, deployableThreads, waitTime, cycleBatch);
@@ -414,7 +414,7 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
 function microDeploy(ns, drone, target, script, deployableThreads, waitTime, cycleBatch) {
     let result = ns.exec(script, drone, deployableThreads, target, waitTime, cycleBatch);
     if (!result) {
-        throw new Error('Failed to deploy ' + script + ' on ' + drone + ' against ' + target)
+        throw new Error('Failed to deploy ' + script + ' on ' + drone + ' against ' + target + ' threads: ' + deployableThreads)
     }
     return result;
 }
