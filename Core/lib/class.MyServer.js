@@ -238,7 +238,6 @@ export class MyServer {
         let vectors = this.batchThreads;
         let delays = this.batchTime;
         let usableDrones = drones.filter(drone => drone.availableRam != 0);
-        usableDrones.sort((a, b) => b.availableRam - a.availableRam);
 
         //PrimeWeakens
         if (vectors.PrimeWeakens > 0) {
@@ -284,6 +283,19 @@ export class MyServer {
     }
 }
 
+
+/** deploys a single script on all drones against a single target until x threads have been reached
+ * @param {NS} ns
+ * @param {MyServer[]} drones array of MyServer class drones
+ * @param {string} script filename
+ * @param {MyServer} target target MyServer class
+ * @param {number} threads # of threads to try to deploy
+ * @param {number} waitTime delay before execution of script
+ * @param {string} cycleBatch string to make script unique
+ * @returns {boolean} results.successful
+ * @returns {number} results.deployedScripts
+ * @returns {number[]} results.pids
+ */
 function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) {
     let neededRam = ns.getScriptRam(script);
     let successful = false;
@@ -306,7 +318,6 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
                     successful = true;
                 }
             }
-
         }
         i++;
     }
@@ -318,7 +329,17 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
     return results;
 }
 
-function microDeploy(ns, drone, target, script, script, deployableThreads, waitTime, cycleBatch) {
+/** Deploys a single script on a single drone against a single target with x threads
+ * @param {NS} ns
+ * @param {string} drone drone.hostname
+ * @param {string} target target.hostname
+ * @param {string} script file name
+ * @param {number} deployableThreads threads to deploy
+ * @param {number} waitTime delay before execution of script
+ * @param {string} cycleBatch string to make script unique
+ * @returns {number} resulting PID
+ */
+function microDeploy(ns, drone, target, script, deployableThreads, waitTime, cycleBatch) {
     let result = ns.exec(script, drone, deployableThreads, target, waitTime, cycleBatch);
     if (!result) {
         throw new Error('Failed to deploy ' + script + ' on ' + drone + ' against ' + target)
