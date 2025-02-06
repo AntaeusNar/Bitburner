@@ -10,4 +10,5 @@ export function main(ns) {
     for (let server of hackingController.inventory.targets) {
         logger(ns, server.hostname + " Priority: $" + server.priority + ' as $/Sec/Thread. Threads per batch: ' + server.batchThreads.IdealTotal + ' Priming Threads needed: ' + server.batchThreads.PrimeTotal + ' Take %: ' + server.percent);
     }
+    hackingController.hackBest();
 }

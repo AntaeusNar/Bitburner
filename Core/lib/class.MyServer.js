@@ -249,7 +249,7 @@ export class MyServer {
         let localResults = {};
 
         //PrimeWeakens
-        if (vectors.PrimeWeakens > 0 && maxScriptsNotHit) {
+        if (vectors.PrimeWeakens > 0 && maxScripts > 0) {
             successful = false;
             localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeWeakens, delays.PrimeWeakensDelay, cycleBatch);
             if (!localResults.successful) {
@@ -330,10 +330,16 @@ export class MyServer {
         if (vectors.GrowWeakens > 0 && successful && maxScripts > 0) {
             successful = false;
             localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.GrowWeakens, delays.GrowWeakensDelay, cycleBatch);
-
-
+            if (!localResults.successful) {
+                logger(this.ns, 'WARNING: Could not deploy all GrowWeakens against ' + this.hostname, 0);
+                successful = false;
+                this._isPrimedStr = false;
+            } else { this._isPrimedStr = true}
+            maxScripts -= localResults.deployedScripts;
+            pids.push( ...localResults.pids);
         }
 
+        let deployedScripts = maxScripts - usableScripts
         let results = {
             successful: successful,
             deployedScripts: deployedScripts,

@@ -1,5 +1,6 @@
 import { MyServer } from "./class.MyServer";
-import { getNeededRam, multiScan } from "./lib.general";
+import { getNeededRam, logger, multiScan } from "./lib.general";
+import { maxScripts } from "./options.general";
 
 export class HackController {
     constructor(ns) {
@@ -9,6 +10,7 @@ export class HackController {
             drones: []
         }
         this.maxThreads = 0;
+        this.maxScripts = maxScripts;
         this.batchFiles = ['./lib/lt-weaken.js', './lib/lt-grow.js', './lib/lt-hack.js'];
         this.neededRam = getNeededRam(ns, this.batchFiles);
         this.cycle = 1;
@@ -39,5 +41,12 @@ export class HackController {
         for (let server of this.inventory.targets) {
             server.calculateTargetPercentage(this.maxThreads);
         }
+    }
+
+    hackBest() {
+        this.sort();
+        let targetServer = this.inventory.targets[0];
+        logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: ' + targetServer.priority);
+        targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.cycleBatch);
     }
 }
