@@ -46,7 +46,7 @@ export class HackController {
     hackBest() {
         this.sort();
         let targetServer = this.inventory.targets[0];
-        logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: ' + targetServer.priority);
+        logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority);
         let results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.cycleBatch);
         logger(this.ns, "INFO: Results: " + JSON.stringify(results));
     }

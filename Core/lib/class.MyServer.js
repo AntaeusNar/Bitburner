@@ -231,7 +231,7 @@ export class MyServer {
         }
 
         if (startingPercent != this.percent) {
-            logger(this.ns, this.hostname + " started at " + startingPercent + ' and adjusted to ' + this.percent);
+            //logger(this.ns, this.hostname + " started at " + startingPercent + ' and adjusted to ' + this.percent);
         }
 
     }
