@@ -29,7 +29,6 @@ export class HackController {
 
     sort() {
         this.inventory.targets.sort((a, b) => b.priority - a.priority);
-        this.inventory.drones.sort((a, b) => b.maxRam - a.maxRam);
     }
 
     calculateTargetPercentage() {

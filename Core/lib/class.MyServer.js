@@ -43,12 +43,30 @@ export class MyServer {
         this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 16 : ns.getServerMaxRam(hostname);
         this.percent = .001;
         this.maxThreads = Infinity;
+        this._isPrimedStr = false;
+        this._isPrimedMoney = false;
     }
 
     get currentDifficulty() { return this.ns.getServerSecurityLevel(this.hostname); }
+    get moneyCurrent() { return this.ns.getServerMoneyAvailable(this.hostname); }
     get availableRam() {
         let availableRam = this.hasAdminRights ? this.maxRam - this.ns.getServerUsedRam(this.hostname) : 0;
         return availableRam;
+    }
+
+    get isPrimed() {
+        if (!this._isPrimedStr) {
+            if (this.minDifficulty == this.currentDifficulty) {
+                this._isPrimedStr == true;
+            }
+        }
+        if (!this._isPrimedMoney) {
+            if (this.moneyMax == this.moneyCurrent) {
+                this._isPrimedMoney == true;
+            }
+        }
+        if (this._isPrimedStr && this._isPrimedMoney) { return true; }
+        return false;
     }
 
     /**
@@ -207,6 +225,59 @@ export class MyServer {
 
         if (startingPercent != this.percent) {
             logger(this.ns, this.hostname + " started at " + startingPercent + ' and adjusted to ' + this.percent);
+        }
+
+    }
+
+    hackSelf(drones, batchFiles) {
+        let weakenFile = batchFiles[0];
+        let growFile = batchFiles[1];
+        let hackFile = batchFiles[2];
+        let pids = [];
+        let successful = false;
+        let vectors = this.batchThreads;
+        let delays = this.batchTime;
+        let usableDrones = drones.filter(drone => drone.availableRam != 0);
+        usableDrones.sort((a, b) => b.availableRam - a.availableRam);
+
+        //PrimeWeakens
+        if (vectors.PrimeWeakens > 0) {
+
+        }
+
+        //PrimeGrows
+        if (vectors.PrimeGrows > 0 && successful) {
+
+        }
+
+        //PrimeGrowWeakens
+        if (vectors.PrimeGrowWeakens > 0 && successful) {
+
+        }
+
+        //Hacks
+        if (vectors.Hacks > 0 && successful) {
+
+        }
+
+        //HackWeakens
+        if (vectors.HackWeakens > 0 && successful) {
+
+        }
+
+        //Grows
+        if (vectors.Grows > 0 && successful) {
+
+        }
+
+        //GrowWeakens
+        if (vectors.GrowWeakens > 0 && successful) {
+
+        }
+
+        let results = {
+            successful: successful,
+            pids: pids,
         }
 
     }
