@@ -264,7 +264,7 @@ export class MyServer {
         //PrimeGrows
         if (vectors.PrimeGrows > 0 && successful && maxScripts > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, growFile, this, vectors.PrimeGrows, delays.PrimeGrowsDelay, cycleBatch);
+            localResults = macroDeploy(this.ns, usableDrones, growFile, this, vectors.PrimeGrows, delays.PrimeGrowsDelay, 'PrimeGrows ' + cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Primary Grows against ' + this.hostname, 0);
                 successful = false;
@@ -277,7 +277,7 @@ export class MyServer {
         //PrimeGrowWeakens
         if (vectors.PrimeGrowWeakens > 0 && successful && maxScripts > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeGrowWeakens, delays.PrimeGrowWeakensDelay, cycleBatch);
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeGrowWeakens, delays.PrimeGrowWeakensDelay, 'PrimeGrowWeakens ' + cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Primary GrowWeakens against ' + this.hostname, 0);
                 successful = false;
@@ -290,7 +290,7 @@ export class MyServer {
         //Hacks
         if (vectors.Hacks > 0 && successful && maxScripts > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, hackFile, this, vectors.Hacks, delays.HacksDelay, cycleBatch);
+            localResults = macroDeploy(this.ns, usableDrones, hackFile, this, vectors.Hacks, delays.HacksDelay, 'Hacks ' + cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Hacks against ' + this.hostname, 0);
                 successful = false;
@@ -302,7 +302,7 @@ export class MyServer {
         //HackWeakens
         if (vectors.HackWeakens > 0 && successful && maxScripts > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.HackWeakens, delays.HackWeakensDelay, cycleBatch);
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.HackWeakens, delays.HackWeakensDelay, 'HackWeakens' + cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Hack Weakens against ' + this.hostname, 0);
                 successful = false;
@@ -315,7 +315,7 @@ export class MyServer {
         //Grows
         if (vectors.Grows > 0 && successful && maxScripts > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, growFile, this, vectors.Grows, delays.GrowsDelay, cycleBatch);
+            localResults = macroDeploy(this.ns, usableDrones, growFile, this, vectors.Grows, delays.GrowsDelay, 'Grows ' + cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Grows against ' + this.hostname, 0);
                 successful = false;
@@ -329,7 +329,7 @@ export class MyServer {
         //GrowWeakens
         if (vectors.GrowWeakens > 0 && successful && maxScripts > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.GrowWeakens, delays.GrowWeakensDelay, cycleBatch);
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.GrowWeakens, delays.GrowWeakensDelay, 'GrowWeakens' + cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all GrowWeakens against ' + this.hostname, 0);
                 successful = false;
@@ -372,6 +372,7 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
     let successful = false;
     let deployedScripts = 0;
     let pids = [];
+    let remainingThreads = threads
     drones.sort((a, b) => b.availableRam - a.availableRam);
 
     let i = 0;
@@ -379,14 +380,14 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
         let currentDrone = drones[i];
         currentDrone.deployFiles(script);
         let currentAvailableThreads = Math.floor(currentDrone.availableRam/neededRam);
-        let deployableThreads = Math.min(threads, currentAvailableThreads);
+        let deployableThreads = Math.min(remainingThreads, currentAvailableThreads);
         if (deployableThreads > 0) {
             let result = microDeploy(ns, currentDrone.hostname, target.hostname, script, deployableThreads, waitTime, cycleBatch);
             if (result > 0) {
                 pids.push(result)
-                threads -= deployableThreads;
+                remainingThreads -= deployableThreads;
                 deployedScripts += 1;
-                if (threads <= 0 ) {
+                if (remainingThreads <= 0 ) {
                     successful = true;
                 }
             }
