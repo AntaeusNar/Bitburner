@@ -360,3 +360,47 @@ export function getNeededRam(ns, files) {
     }
     return needRam;
 }
+
+/**
+ * Pathto finds the path of servers between a source and destination.
+ *
+ * @param {NS} ns
+ * @param {String} dest the hostname to try to find a path to
+ * @param {String} src the hostname to start at
+ * @param {Array} tosrc used for internal recursion
+ * @param {Set} seen used for internal recursion
+ * @returns {Array} the path from src to dest, or null if no path exists
+ */
+export function pathto(ns, dest, src = ns.getHostname(), tosrc = [src], seen = new Set()) {
+	seen.add(src);
+	if (dest == src) return tosrc;
+
+	for (const peer of ns.scan(src)) {
+		if (seen.has(peer)) continue;
+		tosrc.push(peer);
+		var path = pathto(ns, dest, peer, tosrc, seen);
+		if (path != null) return path;
+		// No path via this peer.
+		tosrc.pop();
+	}
+
+	// No path from this src
+	return null;
+}
+
+/**
+  * BackdoorTo takes a destination and returns a copy/pastable string to get backdoor on that destination
+  * @param {NS} ns
+  * @param {String} dest the hostanme of the destination
+  * @returns {String} the command string
+  */
+export function backdoorTo(ns, dest) {
+  let path = pathto(ns, dest);
+  path.shift();
+  for (let i = 0; i < path.length;  i++) {
+    path[i] = ' connect ' + path[i];
+  }
+  path.push(' backdoor');
+  let pathString = path.join(';');
+  return pathString;
+}

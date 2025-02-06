@@ -6,8 +6,8 @@
 - Information if Server is hackable now checks also required Server ports against player capability
 */
 
-import {multiscan, backdoorTo} from './lib.js';
-import {serverOfInterest, colors} from './options.js';
+import {multiScan, backdoorTo} from './lib/lib.general.js';
+import {serverOfInterest, colors} from './lib/options.general.js';
 
 // Switches (Change constants to change design of Tree)
 const controlSymbolTypeColor = true; // True = Colored Root Access Symbols / False = Asscii Art
@@ -44,7 +44,7 @@ export async function main(ns) {
 		ns.tprint("      (de)activated by changing the constants at the beginning of the script")
 		ns.tprint("*********************************************************************************************************************");
 	} else {
-		let serverList = multiscan(_ns);
+		let serverList = multiScan(_ns);
 		let nexthack = 100000000000000;
 		for (let server of serverList) {
 			server = _ns.getServer(server);
