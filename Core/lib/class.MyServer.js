@@ -28,6 +28,13 @@ import { calcGrowThreads, calcHackThreads, calculateHackingTime, getRoot, logger
  * @param {number} IdealMaxTime
  */
 
+/**
+ * @typedef {Object} DeploymentResults
+ * @param {boolean} successful True if all Deployed
+ * @param {number} deployedScripts how many scripts deployed
+ * @param {number[]} pids array of pids created
+ */
+
 export class MyServer {
     constructor(ns, hostname) {
         this.ns = ns;
@@ -229,50 +236,56 @@ export class MyServer {
 
     }
 
-    hackSelf(drones, batchFiles) {
+    hackSelf(drones, batchFiles, usableScripts) {
         let weakenFile = batchFiles[0];
         let growFile = batchFiles[1];
         let hackFile = batchFiles[2];
+        let maxScripts = usableScripts;
+        let maxScriptsNotHit = true;
         let pids = [];
         let successful = false;
         let vectors = this.batchThreads;
         let delays = this.batchTime;
         let usableDrones = drones.filter(drone => drone.availableRam != 0);
+        let localResults = {};
 
         //PrimeWeakens
-        if (vectors.PrimeWeakens > 0) {
+        if (vectors.PrimeWeakens > 0 && maxScriptsNotHit) {
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeWeakens, waitTime, cycleBatch);
 
         }
 
         //PrimeGrows
-        if (vectors.PrimeGrows > 0 && successful) {
+        if (vectors.PrimeGrows > 0 && successful && maxScriptsNotHit {
 
         }
 
         //PrimeGrowWeakens
-        if (vectors.PrimeGrowWeakens > 0 && successful) {
+        if (vectors.PrimeGrowWeakens > 0 && successful && maxScriptsNotHit) {
 
         }
 
         //Hacks
-        if (vectors.Hacks > 0 && successful) {
+        if (vectors.Hacks > 0 && successful && maxScriptsNotHit) {
 
         }
 
         //HackWeakens
-        if (vectors.HackWeakens > 0 && successful) {
+        if (vectors.HackWeakens > 0 && successful && maxScriptsNotHit) {
 
         }
 
         //Grows
-        if (vectors.Grows > 0 && successful) {
+        if (vectors.Grows > 0 && successful && maxScriptsNotHit) {
 
         }
 
         //GrowWeakens
-        if (vectors.GrowWeakens > 0 && successful) {
+        if (vectors.GrowWeakens > 0 && successful && maxScriptsNotHit) {
 
         }
+
+        if (!successful || !maxScriptsNotHit) { successful = false; }
 
         let results = {
             successful: successful,
@@ -292,9 +305,7 @@ export class MyServer {
  * @param {number} threads # of threads to try to deploy
  * @param {number} waitTime delay before execution of script
  * @param {string} cycleBatch string to make script unique
- * @returns {boolean} results.successful
- * @returns {number} results.deployedScripts
- * @returns {number[]} results.pids
+ * @returns {DeploymentResults} results
  */
 function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) {
     let neededRam = ns.getScriptRam(script);

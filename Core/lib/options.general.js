@@ -19,3 +19,5 @@ export const ServerConstants = {
     PurchasedServerLimit: 25,
     PurchasedServerMaxRam: 1048576, // 2^20
 };
+
+export const maxScripts = 20000; // max run of running concurrent scripts
