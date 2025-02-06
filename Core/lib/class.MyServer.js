@@ -241,17 +241,18 @@ export class MyServer {
         let growFile = batchFiles[1];
         let hackFile = batchFiles[2];
         let maxScripts = usableScripts;
-        let successful = true;
+        let successful = false;
         let pids = [];
         let vectors = this.batchThreads;
         let delays = this.batchTime;
-        let usableDrones = drones.filter(drone => drone.availableRam != 0);
+        let usableDrones = drones.filter(server => server.availableRam != 0);
+        logger(this.ns, this.hostname + ' knows of ' + usableDrones.length + ' drones with availableRam.');
         let localResults = {};
 
         //PrimeWeakens
         if (vectors.PrimeWeakens > 0 && maxScripts > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeWeakens, delays.PrimeWeakensDelay, 'PrimeWeakens ' +cycleBatch);
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeWeakens, delays.PrimeWeakensDelay, 'PrimeWeakens ' + cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Primary Weakens against ' + this.hostname, 0);
                 successful = false;
