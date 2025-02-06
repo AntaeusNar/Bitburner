@@ -374,7 +374,6 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
     let i = 0;
     while (!successful && i < drones.length) {
         let currentDrone = drones[i];
-        let preRam = currentDrone.availableRam;
         currentDrone.deployFiles(script);
         let currentAvailableThreads = Math.floor(currentDrone.availableRam/neededRam);
         let deployableThreads = Math.min(remainingThreads, currentAvailableThreads);
