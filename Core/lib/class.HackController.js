@@ -11,10 +11,14 @@ export class HackController {
         this.maxThreads = 0;
         this.batchFiles = ['./lib/lt-weaken.js', './lib/lt-grow.js', './lib/lt-hack.js'];
         this.neededRam = getNeededRam(ns, this.batchFiles);
+        this.cycle = 1;
+        this.batch = 1;
         this.generateInventory();
         this.calculateTargetPercentage();
         this.sort();
     }
+
+    get cycleBatch() { return this.cycle + "/" + this.batch; }
 
     generateInventory() {
         let serverList = multiScan(this.ns, 'home');
