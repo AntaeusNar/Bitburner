@@ -347,6 +347,13 @@ export class MyServer {
         }
         return results;
     }
+
+    deployFiles(files) {
+        if (this.hostname === 'home') { return; }
+        if (!this.ns.scp(files, this.hostname, 'home')) {
+            throw new Error('Failed to copy ' + JSON.stringify(files) + ' to ' + this.hostname);
+        }
+    }
 }
 
 
@@ -370,6 +377,7 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
     let i = 0;
     while (!successful && i < drones.length) {
         let currentDrone = drones[i];
+        currentDrone.deployFiles(script);
         let currentAvailableThreads = Math.floor(currentDrone.availableRam/neededRam + .5);
         let deployableThreads = Math.min(threads, currentAvailableThreads);
         if (deployableThreads > 0) {
