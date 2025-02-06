@@ -23,7 +23,7 @@ export class HackController {
     get cycleBatch() { return this.cycle + "/" + this.batch; }
 
     generateInventory() {
-        let serverList = multiScan(this.ns, 'home');
+        let serverList = multiScan(this.ns);
         for (let hostname of serverList) {
             let server = new MyServer(this.ns, hostname)
             let availableRam = isNaN(server.availableRam) ? 0 : server.availableRam;
@@ -31,6 +31,7 @@ export class HackController {
             this.inventory.targets.push(server)
             this.inventory.drones.push(server)
         }
+        logger(this.ns, 'Found ' + serverList.length + ' servers, ' + this.inventory.targets.length + ' targets, ' + this.inventory.drones.length + ' drones.')
     }
 
     sort() {

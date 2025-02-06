@@ -204,7 +204,6 @@ export class MyServer {
      */
     calculateTargetPercentage(maxThreads = Infinity) {
         if (this.moneyMax == 0) { return; }
-        let startingPercent = this.percent;
         this.maxThreads = maxThreads;
 
         let increasing = true;
@@ -229,11 +228,6 @@ export class MyServer {
                 this.percent = cP;
             }
         }
-
-        if (startingPercent != this.percent) {
-            //logger(this.ns, this.hostname + " started at " + startingPercent + ' and adjusted to ' + this.percent);
-        }
-
     }
 
     hackSelf(drones, batchFiles, usableScripts, cycleBatch) {
@@ -241,12 +235,12 @@ export class MyServer {
         let growFile = batchFiles[1];
         let hackFile = batchFiles[2];
         let maxScripts = usableScripts;
-        let successful = false;
+        let successful = true;
         let pids = [];
         let vectors = this.batchThreads;
         let delays = this.batchTime;
         let usableDrones = drones.filter(server => server.availableRam != 0);
-        logger(this.ns, this.hostname + ' knows of ' + usableDrones.length + ' drones with availableRam.');
+        //logger(this.ns, this.hostname + ' knows of ' + usableDrones.length + ' drones with availableRam.');
         let localResults = {};
 
         //PrimeWeakens
@@ -293,7 +287,7 @@ export class MyServer {
             successful = false;
             localResults = macroDeploy(this.ns, usableDrones, hackFile, this, vectors.Hacks, delays.HacksDelay, 'Hacks ' + cycleBatch);
             if (!localResults.successful) {
-                logger(this.ns, 'WARNING: Could not deploy all Hacks against ' + this.hostname, 0);
+                logger(this.ns, 'WARNING: Could not deploy all Hacks against ' + this.hostname + '. Tried to deploy ' + vectors.Hacks + ' threads on ' + usableDrones.length + ' drones.', 0);
                 successful = false;
             } else { this._isPrimedStr = false; this._isPrimedMoney = false; successful = true;}
             maxScripts -= localResults.deployedScripts;
@@ -375,10 +369,12 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
     let pids = [];
     let remainingThreads = threads
     drones.sort((a, b) => b.availableRam - a.availableRam);
+    logger(ns, 'INFO: Attempting deployment of ' + threads + ' threads of ' + script + ' against ' + target.hostname);
 
     let i = 0;
     while (!successful && i < drones.length) {
         let currentDrone = drones[i];
+        let preRam = currentDrone.availableRam;
         currentDrone.deployFiles(script);
         let currentAvailableThreads = Math.floor(currentDrone.availableRam/neededRam);
         let deployableThreads = Math.min(remainingThreads, currentAvailableThreads);
@@ -400,6 +396,9 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
         deployedScripts: deployedScripts,
         pids: pids,
     }
+    let successMessage = 'Deployment Failed.'
+    if (successful) { successMessage = 'Deployment Succeeded';}
+    logger(ns, 'INFO: Completed attempting deployments: ' + successMessage)
     return results;
 }
 
@@ -415,7 +414,7 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
  */
 function microDeploy(ns, drone, target, script, deployableThreads, waitTime, cycleBatch) {
     let result = ns.exec(script, drone, deployableThreads, target, waitTime, cycleBatch);
-    if (!result) {
+    if (result == 0) {
         throw new Error('Failed to deploy ' + script + ' on ' + drone + ' against ' + target + ' threads: ' + deployableThreads)
     }
     return result;

@@ -3,6 +3,7 @@ import { logger } from "./lib/lib.general";
 
 export function main(ns) {
     ns.disableLog('ALL');
+    //ns.enableLog('exec');
     let hackingController = new HackController(ns);
 
     logger(ns, 'Available Threads: ' + hackingController.maxThreads);
