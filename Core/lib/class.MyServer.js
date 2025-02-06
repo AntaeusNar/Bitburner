@@ -46,8 +46,8 @@ export class MyServer {
         this.growthMultiplier = ns.getServerGrowth(hostname);
         this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
         this.percent = -Infinity;
-        this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
-        this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 16 : ns.getServerMaxRam(hostname);
+        this.moneyMax = hostname == 'home' ? 0 : ns.getServerMaxMoney(hostname);
+        this.maxRam = hostname == 'home' ? ns.getServerMaxRam(hostname) - 16 : ns.getServerMaxRam(hostname);
         this.percent = .001;
         this.maxThreads = Infinity;
         this._isPrimedStr = false;
@@ -81,7 +81,7 @@ export class MyServer {
      */
     get hasAdminRights() {
         if (!this._admin) {
-            if (this.hostname === 'home') { this._admin = true; }
+            if (this.hostname == 'home') { this._admin = true; }
             if (getRoot(this.ns, this.hostname)) { this._admin = true; }
         }
         return this._admin;
