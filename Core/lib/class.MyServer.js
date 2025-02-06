@@ -40,12 +40,16 @@ export class MyServer {
         this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
         this.percent = -Infinity;
         this.moneyMax = hostname === 'home' ? 0 : ns.getServerMaxMoney(hostname);
-        this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 32 : ns.getServerMaxRam(hostname);
+        this.maxRam = hostname === 'home' ? ns.getServerMaxRam(hostname) - 16 : ns.getServerMaxRam(hostname);
         this.percent = .001;
         this.maxThreads = Infinity;
     }
 
     get currentDifficulty() { return this.ns.getServerSecurityLevel(this.hostname); }
+    get availableRam() {
+        let availableRam = this.hasAdminRights ? this.maxRam - this.ns.getServerUsedRam(this.hostname) : 0;
+        return availableRam;
+    }
 
     /**
      * @returns {boolean} true if the server is rooted

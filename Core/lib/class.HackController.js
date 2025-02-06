@@ -20,7 +20,8 @@ export class HackController {
         let serverList = multiScan(this.ns, 'home');
         for (let hostname of serverList) {
             let server = new MyServer(this.ns, hostname)
-            this.maxThreads += Math.floor(server.maxRam/this.neededRam);
+            let availableRam = isNaN(server.availableRam) ? 0 : server.availableRam;
+            this.maxThreads += Math.floor(availableRam/this.neededRam);
             this.inventory.targets.push(server)
             this.inventory.drones.push(server)
         }
@@ -32,10 +33,8 @@ export class HackController {
     }
 
     calculateTargetPercentage() {
-        let maxThreads = this.maxThreads;
         for (let server of this.inventory.targets) {
-            if (maxThreads <= 0 ) { break; }
-            server.calculateTargetPercentage(maxThreads);
+            server.calculateTargetPercentage(this.maxThreads);
         }
     }
 }
