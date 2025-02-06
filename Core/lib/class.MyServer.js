@@ -277,8 +277,51 @@ export class MyServer {
 
         let results = {
             successful: successful,
+            deployedScripts: deployedScripts,
             pids: pids,
         }
 
     }
+}
+
+function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) {
+    let neededRam = ns.getScriptRam(script);
+    let successful = false;
+    let deployedScripts = 0;
+    let pids = [];
+    drones.sort((a, b) => b.availableRam - a.availableRam);
+
+    let i = 0;
+    while (!successful && i < drones.length) {
+        let currentDrone = drones[i];
+        let currentAvailableThreads = Math.floor(currentDrone.availableRam/neededRam + .5);
+        let deployableThreads = Math.min(threads, currentAvailableThreads);
+        if (deployableThreads > 0) {
+            let result = microDeploy(ns, currentDrone.hostname, target.hostname, script, deployableThreads, waitTime, cycleBatch);
+            if (result > 0) {
+                pids.push(result)
+                threads -= deployableThreads;
+                deployedScripts += 1;
+                if (threads <= 0 ) {
+                    successful = true;
+                }
+            }
+
+        }
+        i++;
+    }
+    let results = {
+        successful: successful,
+        deployedScripts: deployedScripts,
+        pids: pids,
+    }
+    return results;
+}
+
+function microDeploy(ns, drone, target, script, script, deployableThreads, waitTime, cycleBatch) {
+    let result = ns.exec(script, drone, deployableThreads, target, waitTime, cycleBatch);
+    if (!result) {
+        throw new Error('Failed to deploy ' + script + ' on ' + drone + ' against ' + target)
+    }
+    return result;
 }
