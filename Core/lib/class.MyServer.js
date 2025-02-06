@@ -251,12 +251,12 @@ export class MyServer {
         //PrimeWeakens
         if (vectors.PrimeWeakens > 0 && maxScripts > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeWeakens, delays.PrimeWeakensDelay, cycleBatch);
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeWeakens, delays.PrimeWeakensDelay, 'PrimeWeakens ' +cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Primary Weakens against ' + this.hostname, 0);
                 successful = false;
                 this._isPrimedStr = false;
-            } else { this._isPrimedStr = true; }
+            } else { this._isPrimedStr = true; successful = true; }
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
         }
@@ -269,7 +269,7 @@ export class MyServer {
                 logger(this.ns, 'WARNING: Could not deploy all Primary Grows against ' + this.hostname, 0);
                 successful = false;
                 this._isPrimedMoney = false;
-            } else { this._isPrimedMoney = true; }
+            } else { this._isPrimedMoney = true; successful = true; }
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
         }
@@ -282,7 +282,7 @@ export class MyServer {
                 logger(this.ns, 'WARNING: Could not deploy all Primary GrowWeakens against ' + this.hostname, 0);
                 successful = false;
                 this._isPrimedStr = false;
-            } else { this._isPrimedStr = true; }
+            } else { this._isPrimedStr = true; successful = true; }
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
         }
@@ -294,7 +294,7 @@ export class MyServer {
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Hacks against ' + this.hostname, 0);
                 successful = false;
-            } else { this._isPrimedStr = false; this._isPrimedMoney = false; }
+            } else { this._isPrimedStr = false; this._isPrimedMoney = false; successful = true;}
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
         }
@@ -307,7 +307,7 @@ export class MyServer {
                 logger(this.ns, 'WARNING: Could not deploy all Hack Weakens against ' + this.hostname, 0);
                 successful = false;
                 this._isPrimedStr = false;
-            } else { this._isPrimedStr = true; }
+            } else { this._isPrimedStr = true; successful = true;}
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
         }
@@ -320,7 +320,7 @@ export class MyServer {
                 logger(this.ns, 'WARNING: Could not deploy all Grows against ' + this.hostname, 0);
                 successful = false;
                 this._isPrimedMoney = false;
-            } else { this._isPrimedMoney = true; this._isPrimedStr = false}
+            } else { this._isPrimedMoney = true; this._isPrimedStr = false; successful = true;}
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
 
@@ -334,7 +334,7 @@ export class MyServer {
                 logger(this.ns, 'WARNING: Could not deploy all GrowWeakens against ' + this.hostname, 0);
                 successful = false;
                 this._isPrimedStr = false;
-            } else { this._isPrimedStr = true}
+            } else { this._isPrimedStr = true; successful = true;}
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
         }
