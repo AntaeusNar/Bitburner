@@ -1,5 +1,4 @@
-import {logger} from './lib.js';
-import {budgetPercentageLimit} from './options.js'
+import { logger } from "./lib/lib.general";
 
 /** attempts to ascend member
 	* @param {NS} ns
@@ -31,7 +30,6 @@ export async function main(ns) {
   ns.disableLog('gang.setMemberTask');
   ns.disableLog('gang.purchaseEquipment');
   let allEquipment = ns.gang.getEquipmentNames();
-  let budgetPercentage = budgetPercentageLimit;
   let vigJust = false;
   let warfare = false;
 
