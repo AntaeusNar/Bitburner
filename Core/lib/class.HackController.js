@@ -13,14 +13,10 @@ export class HackController {
         this.maxScripts = maxScripts;
         this.batchFiles = ['./lib/lt-weaken.js', './lib/lt-grow.js', './lib/lt-hack.js'];
         this.neededRam = getNeededRam(ns, this.batchFiles);
-        this.cycle = 1;
-        this.batch = 1;
         this.generateInventory();
         this.calculateTargetPercentage();
         this.sort();
     }
-
-    get cycleBatch() { return this.cycle + "/" + this.batch; }
 
     generateInventory() {
         let serverList = multiScan(this.ns);
@@ -49,7 +45,7 @@ export class HackController {
         this.sort();
         let targetServer = this.inventory.targets[0];
         logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority + ' isPrimed: ' + targetServer.isPrimed);
-        let results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.cycleBatch, this.maxThreads);
+        let results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.maxThreads);
         logger(this.ns, "INFO: Results: " + JSON.stringify(results));
     }
 }
