@@ -54,6 +54,7 @@ export class MyServer {
         this._isPrimedMoney = false;
         this.cycle = 1;
         this.batch = 1;
+        this.recheckTime = 0;
     }
 
     get cycleBatch() { return this.cycle + '/' + this.batch; }
@@ -142,24 +143,24 @@ export class MyServer {
             let primeWeakensTime = realHackingTime * 4;
             let primeGrowsTime = realHackingTime * 3.2;
             timings.PrimeWeakensDelay = 0;
-            timings.PrimeGrowsDelay = primeWeakensTime + 1 - primeGrowsTime;
-            timings.PrimeGrowWeakensDelay = 2;
-            timings.PrimeMaxTime = primeWeakensTime + 2;
-            timings.HacksDelay = primeWeakensTime + 3 - idealHackingTime;
-            timings.HackWeakensDelay = primeWeakensTime + 4 - idealWeakensTime;
-            timings.GrowsDelay = primeWeakensTime + 5 - idealGrowsTime;
-            timings.GrowWeakensDelay = primeWeakensTime + 6 - idealWeakensTime;
-            timings.IdealMaxTime = idealWeakensTime + 3;
+            timings.PrimeGrowsDelay = primeWeakensTime + .5 - primeGrowsTime;
+            timings.PrimeGrowWeakensDelay = 1;
+            timings.PrimeMaxTime = primeWeakensTime + 1;
+            timings.HacksDelay = primeWeakensTime + 1.5 - idealHackingTime;
+            timings.HackWeakensDelay = primeWeakensTime + 2 - idealWeakensTime;
+            timings.GrowsDelay = primeWeakensTime + 2.5 - idealGrowsTime;
+            timings.GrowWeakensDelay = primeWeakensTime + 3 - idealWeakensTime;
+            timings.IdealMaxTime = idealWeakensTime + 1.5;
         } else {
             timings.PrimeWeakensDelay = 0;
             timings.PrimeGrowsDelay = 0;
             timings.PrimeGrowWeakensDelay = 0;
             timings.PrimeMaxTime = 0;
-            timings.HacksDelay = idealWeakensTime - idealHackingTime - 1;
+            timings.HacksDelay = idealWeakensTime - idealHackingTime - .5;
             timings.HackWeakensDelay = 0;
-            timings.GrowsDelay = idealWeakensTime + 1 - idealGrowsTime;
-            timings.GrowWeakensDelay = 2
-            timings.IdealMaxTime = idealWeakensTime + 2;
+            timings.GrowsDelay = idealWeakensTime + .5 - idealGrowsTime;
+            timings.GrowWeakensDelay = 1;
+            timings.IdealMaxTime = idealWeakensTime + 1;
         }
         return timings;
     }
@@ -426,7 +427,7 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
     let pids = [];
     let remainingThreads = threads
     drones.sort((a, b) => b.availableRam - a.availableRam);
-    logger(ns, 'INFO: Attempting deployment of ' + threads + ' threads of ' + script + ' against ' + target.hostname);
+    //logger(ns, 'INFO: Attempting deployment of ' + threads + ' threads of ' + script + ' against ' + target.hostname);
 
     let i = 0;
     while (!successful && i < drones.length) {
@@ -452,9 +453,6 @@ function macroDeploy(ns, drones, script, target, threads, waitTime, cycleBatch) 
         deployedScripts: deployedScripts,
         pids: pids,
     }
-    let successMessage = 'Deployment Failed.'
-    if (successful) { successMessage = 'Deployment Succeeded';}
-    logger(ns, 'INFO: Completed attempting deployments: ' + successMessage)
     return results;
 }
 

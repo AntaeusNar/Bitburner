@@ -47,7 +47,6 @@ export class HackController {
     }
 
     run() {
-        if (this.recheckTime >= this.ns.getRunningScript().onlineRunningTime) { return; }
         let hackable = this.getHackable;
         if (this.knownHackable < hackable) {
             logger(this.ns, 'INFO: New Targets Available: ' + hackable + ' vs ' + this.knownHackable + '. Recalculating Priorities and Resorting Targets.');
@@ -57,6 +56,7 @@ export class HackController {
         }
         let results = {};
         let targetServer = this.inventory.targets[0];
+        if (targetServer.recheckTime >= this.ns.getRunningScript().onlineRunningTime) { return; }
         logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority + ' isPrimed: ' + targetServer.isPrimed + '. Starting Cycle/Batch: ' + targetServer.cycleBatch, 0);
         results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.maxThreads);
         switch(results.lastCompletedStage) {
@@ -72,7 +72,7 @@ export class HackController {
             default:
                 throw new Error("Results vs " + targetServer.hostname + ' return unexpected stage ' + results.lastCompletedStage);
         }
-        this.recheckTime = this.ns.getRunningScript().onlineRunningTime + results.recheckDelay;
+        targetServer.recheckTime = this.ns.getRunningScript().onlineRunningTime + results.recheckDelay;
 
     }
 }
