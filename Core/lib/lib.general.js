@@ -205,21 +205,22 @@ export function getWeakenEffect(cores = 1) {
  * @param {MyServer} server
  * @param {Object} player
  * @param {Boolean} [planning=false] if true, uses the minDifficulty
- * @returns {number}
+ * @returns {number} as a decimal
  */
 export function calcPercentMoneyHacked(server, player, planning = false) {
     const hackDifficulty = planning ? server.minDifficulty : server.currentDifficulty;
-    const hackingSkill = planning ? server.requiredHackingSkill : player.skills.hacking;
+    const hackingSkill = planning ? Math.max(server.requiredHackingSkill, player.skills.hacking) : player.skills.hacking;
     const requiredHackingSkill = server.requiredHackingSkill;
     const balanceFactor = 240;
     const difficultyMult = (100 - hackDifficulty) / 100;
-    const skillMult = (hackingSkill - (requiredHackingSkill - 1)) / player.skills.hacking;
+    const skillMult = (hackingSkill - (requiredHackingSkill - 1)) / hackingSkill;
     const percentMoneyHacked = (difficultyMult * skillMult * player.mults.hacking_money * BitMults.ScriptHackMoney) / balanceFactor;
     return Math.min(1, Math.max(percentMoneyHacked, 0));
 }
 
 /**
  * Returns the chance the person has to successfully hack a server
+ * https://github.com/bitburner-official/bitburner-src/blob/dev/src/Hacking.ts
  * @param {MyServer} server
   * @param {Object} player
   * @param {Boolean} [planning=false] if true, uses the minDifficulty
@@ -227,7 +228,7 @@ export function calcPercentMoneyHacked(server, player, planning = false) {
   */
  export function calcHackChance(server, player, planning = false) {
     const hackDifficulty = planning ? server.minDifficulty : server.currentDifficulty;
-    const hackingSkill = planning ? server.requiredHackingSkill : player.skills.hacking;
+    const hackingSkill = planning ? Math.max(server.requiredHackingSkill, player.skills.hacking) : player.skills.hacking;
     const requiredHackingSkill = server.requiredHackingSkill;
     const hackFactor = 1.75;
     const difficultyMult = (100 - hackDifficulty) / 100;

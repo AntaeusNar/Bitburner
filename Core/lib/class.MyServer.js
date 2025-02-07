@@ -1,4 +1,4 @@
-import { calcGrowThreads, calcHackThreads, calculateHackingTime, getRoot, logger } from "./lib.general";
+import { calcGrowThreads, calcHackThreads, calcPercentMoneyHacked, calculateHackingTime, getRoot, logger } from "./lib.general";
 
 
 /**
@@ -182,13 +182,14 @@ export class MyServer {
         if (!this.isPrimed) {
             threads.PrimeWeakens = Math.ceil((this.currentDifficulty - this.minDifficulty) / .05) ;
             threads.PrimeGrows = Math.ceil(calcGrowThreads(this, this.ns.getPlayer(), this.moneyMax, this.moneyCurrent));
-            threads.PrimeGrowWeakens = Math.ceil(threads.PrimeGrows * .002 / .05);
+            threads.PrimeGrowWeakens = Math.ceil(threads.PrimeGrows * .004 / .05);
             threads.PrimeTotal = threads.PrimeWeakens + threads.PrimeGrows + threads.PrimeGrowWeakens;
         }
         threads.Hacks = Math.ceil(calcHackThreads(this, this.ns.getPlayer(), true));
         threads.HackWeakens = Math.ceil(threads.Hacks * .002 / .05);
-        threads.Grows = Math.ceil(calcGrowThreads(this, this.ns.getPlayer(), this.moneyMax, this.moneyMax - this.moneyMax * this.percent, true));
-        threads.GrowWeakens = Math.ceil(threads.Grows * .002 / .05);
+        let maxHackedMoney = this.moneyMax - this.moneyMax * (calcPercentMoneyHacked(this, this.ns.getPlayer(), true) * threads.Hacks);
+        threads.Grows = Math.ceil(calcGrowThreads(this, this.ns.getPlayer(), this.moneyMax, maxHackedMoney, true));
+        threads.GrowWeakens = Math.ceil(threads.Grows * .004 / .05);
         threads.IdealTotal = threads.Hacks + threads.HackWeakens + threads.Grows + threads.GrowWeakens;
         threads.CompleteTotal = threads.PrimeTotal + threads.IdealTotal;
 
@@ -249,7 +250,7 @@ export class MyServer {
             pids: pids,
         }
 
-        logger(this.ns, this.hostname + ' Timing: ' + JSON.stringify(delays) + ' Threads: ' + JSON.stringify(vectors));
+        logger(this.ns, this.hostname + ' has $' + this.moneyCurrent + '/$' + this.moneyMax +  ' Timing: ' + JSON.stringify(delays) + ' Threads: ' + JSON.stringify(vectors));
 
         //PrimeWeakens
         if (vectors.PrimeWeakens > 0 && maxScripts > 0) {
