@@ -291,6 +291,7 @@ export class MyServer {
         //Check to continue
         let remainingThreads = maxThreads - vectors.PrimeTotal;
         if (remainingThreads < vectors.IdealTotal) {
+            logger(this.ns, 'INFO: Not enough threads to launch HHwGw ideal threads.');
             deployedScripts = usableScripts - maxScripts;
             results = {
                 successful: successful,

@@ -24,6 +24,7 @@ export class HackController {
 
     generateInventory() {
         let serverList = multiScan(this.ns);
+        this.maxThreads = 0;
         for (let hostname of serverList) {
             let server = new MyServer(this.ns, hostname)
             let availableRam = isNaN(server.availableRam) ? 0 : server.availableRam;
