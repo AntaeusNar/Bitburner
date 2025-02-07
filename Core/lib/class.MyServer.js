@@ -319,7 +319,7 @@ export class MyServer {
         //HackWeakens
         if (vectors.HackWeakens > 0 && successful && maxScripts > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.HackWeakens, delays.HackWeakensDelay, 'HackWeakens' + cycleBatch);
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.HackWeakens, delays.HackWeakensDelay, 'HackWeakens ' + cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Hack Weakens against ' + this.hostname, 0);
                 successful = false;
@@ -346,7 +346,7 @@ export class MyServer {
         //GrowWeakens
         if (vectors.GrowWeakens > 0 && successful && maxScripts > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.GrowWeakens, delays.GrowWeakensDelay, 'GrowWeakens' + cycleBatch);
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.GrowWeakens, delays.GrowWeakensDelay, 'GrowWeakens ' + cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all GrowWeakens against ' + this.hostname, 0);
                 successful = false;
