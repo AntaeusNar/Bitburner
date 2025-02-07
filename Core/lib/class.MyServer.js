@@ -239,17 +239,22 @@ export class MyServer {
         let growFile = batchFiles[1];
         let hackFile = batchFiles[2];
         let maxScripts = usableScripts;
-        let successful = true;
-        let pids = [];
         let vectors = this.batchThreads;
         let delays = this.batchTime;
         let usableDrones = drones.filter(server => server.availableRam != 0);
-        //logger(this.ns, this.hostname + ' knows of ' + usableDrones.length + ' drones with availableRam.');
+        let successful = true;
+        let lastCompletedStage = '';
+        let remainingThreads = maxThreads;
         let deployedScripts = 0;
+        let pids = [];
+        let recheckDelay = 0;
         let localResults = {};
         let results = {
             successful: successful,
-            deployedScripts: deployedScripts,
+            lastCompletedStage: lastCompletedStage,
+            remainingThreads: remainingThreads,
+            remainingScripts: deployedScripts,
+            recheckDelay: recheckDelay,
             pids: pids,
         }
 
@@ -292,19 +297,30 @@ export class MyServer {
             pids.push( ...localResults.pids);
         }
 
-        //Check to continue
-        let remainingThreads = maxThreads - vectors.PrimeTotal;
-        if (remainingThreads < vectors.IdealTotal) {
-            logger(this.ns, 'INFO: Not enough threads to launch HHwGw ideal threads.');
-            deployedScripts = usableScripts - maxScripts;
-            results = {
-                successful: successful,
-                deployedScripts: deployedScripts,
-                pids: pids,
-            }
+
+        if (!successful) {
+            results.successful = successful;
+            results.lastCompletedStage = '';
+            results.remainingThreads = 0;
+            results.remainingScripts = maxScripts;
+            results.recheckDelay = delays.PrimeMaxTime;
+            results.pids = pids;
+            this.cycle += this.cycle;
+            this.batch = 1;
             return results;
         }
-
+        remainingThreads = maxThreads - vectors.PrimeTotal;
+        if (successful && remainingThreads < vectors.IdealTotal) {
+            results.successful = successful;
+            results.lastCompletedStage = 'Priming';
+            results.remainingThreads = remainingThreads;
+            results.remainingScripts = maxScripts;
+            results.recheckDelay = delays.PrimeMaxTime;
+            results.pids = pids;
+            this.cycle += this.cycle;
+            this.batch = 1;
+            return results;
+        }
 
         //Hacks
         if (vectors.Hacks > 0 && successful && maxScripts > 0) {
@@ -361,12 +377,26 @@ export class MyServer {
             pids.push( ...localResults.pids);
         }
 
-        deployedScripts = usableScripts - maxScripts;
-        results = {
-            successful: successful,
-            deployedScripts: deployedScripts,
-            pids: pids,
+        if (!successful) {
+            results.successful = successful;
+            results.lastCompletedStage = 'Priming';
+            results.remainingThreads = 0;
+            results.remainingScripts = maxScripts;
+            results.recheckDelay = delays.PrimeMaxTime + delays.IdealMaxTime;
+            results.pids = pids;
+            this.cycle += this.cycle;
+            this.batch = 1;
+            return results;
         }
+        remainingThreads = maxThreads - vectors.CompleteTotal;
+
+        results.successful = successful;
+        results.lastCompletedStage = 'Batch';
+        results.remainingThreads = remainingThreads;
+        results.remainingScripts = maxScripts;
+        results.recheckDelay = 1;
+        results.pids = pids;
+        this.batch += 1;
         return results;
     }
 
