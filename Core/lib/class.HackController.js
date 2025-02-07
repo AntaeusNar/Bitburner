@@ -54,9 +54,22 @@ export class HackController {
             this.calculateTargetPercentage();
             this.sort();
         }
+        let results = {};
         let targetServer = this.inventory.targets[0];
         logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority + ' isPrimed: ' + targetServer.isPrimed);
-        let results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.maxThreads);
-        logger(this.ns, "INFO: Results: " + JSON.stringify(results));
+        results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.maxThreads);
+        switch(results.lastCompletedStage) {
+            case '':
+                logger(this.ns, "WARNING: Priming vs " + targetServer.hostname + ' did not complete.');
+                break;
+            case 'Priming':
+                logger(this.ns, 'INFO: Priming completed vs ' + targetServer.hostname + ' but batch did not complete.');
+                break;
+            case 'Batch':
+                logger(this.ns, 'INFO: Priming and Batch completed vs ' + targetServer.hostname);
+                break;
+            default:
+                throw new Error("Results vs " + targetServer.hostname + ' return unexpected stage ' + results.lastCompletedStage);
+        }
     }
 }
