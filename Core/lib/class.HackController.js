@@ -17,6 +17,7 @@ export class HackController {
         this.generateInventory();
         this.calculateTargetPercentage();
         this.sort();
+        this.recheckTime = 0;
     }
 
     get getHackable() { return this.inventory.targets.filter((server, i) => { return server.isHackable; }).length; }
@@ -46,7 +47,7 @@ export class HackController {
     }
 
     run() {
-
+        if (this.recheckTime >= this.ns.getRunningScript().onlineRunningTime) { return; }
         let hackable = this.getHackable;
         if (this.knownHackable < hackable) {
             logger(this.ns, 'INFO: New Targets Available: ' + hackable + ' vs ' + this.knownHackable + '. Recalculating Priorities and Resorting Targets.');
@@ -71,5 +72,7 @@ export class HackController {
             default:
                 throw new Error("Results vs " + targetServer.hostname + ' return unexpected stage ' + results.lastCompletedStage);
         }
+        this.recheckTime = this.ns.getRunningScript().onlineRunningTime + results.recheckDelay;
+
     }
 }
