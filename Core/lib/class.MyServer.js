@@ -180,15 +180,15 @@ export class MyServer {
         }
 
         if (!this.isPrimed) {
-            threads.PrimeWeakens = Math.floor((this.currentDifficulty - this.minDifficulty) / .05 +.5) ;
-            threads.PrimeGrows = Math.floor(calcGrowThreads(this, this.ns.getPlayer()) + .5);
-            threads.PrimeGrowWeakens = Math.floor(threads.PrimeGrows * .002 / .05 + .5);
+            threads.PrimeWeakens = Math.ceil((this.currentDifficulty - this.minDifficulty) / .05) ;
+            threads.PrimeGrows = Math.ceil(calcGrowThreads(this, this.ns.getPlayer(), this.moneyMax, this.moneyCurrent));
+            threads.PrimeGrowWeakens = Math.ceil(threads.PrimeGrows * .002 / .05);
             threads.PrimeTotal = threads.PrimeWeakens + threads.PrimeGrows + threads.PrimeGrowWeakens;
         }
-        threads.Hacks = Math.floor(calcHackThreads(this, this.ns.getPlayer(), true) +.5);
-        threads.HackWeakens = Math.floor(threads.Hacks * .002 / .05 + .5);
-        threads.Grows = Math.floor(calcGrowThreads(this, this.ns.getPlayer(), true) + .5);
-        threads.GrowWeakens = Math.floor(threads.Grows * .002 / .05 + .5);
+        threads.Hacks = Math.ceil(calcHackThreads(this, this.ns.getPlayer(), true));
+        threads.HackWeakens = Math.ceil(threads.Hacks * .002 / .05);
+        threads.Grows = Math.ceil(calcGrowThreads(this, this.ns.getPlayer(), this.moneyMax, this.moneyMax - this.moneyMax * this.percent, true));
+        threads.GrowWeakens = Math.ceil(threads.Grows * .002 / .05);
         threads.IdealTotal = threads.Hacks + threads.HackWeakens + threads.Grows + threads.GrowWeakens;
         threads.CompleteTotal = threads.PrimeTotal + threads.IdealTotal;
 
@@ -248,6 +248,8 @@ export class MyServer {
             deployedScripts: deployedScripts,
             pids: pids,
         }
+
+        logger(this.ns, this.hostname + ' Timing: ' + JSON.stringify(delays) + ' Threads: ' + JSON.stringify(vectors));
 
         //PrimeWeakens
         if (vectors.PrimeWeakens > 0 && maxScripts > 0) {

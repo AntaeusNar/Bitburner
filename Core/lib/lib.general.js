@@ -288,16 +288,13 @@ export function calcServerGrowthLog(server, player, planning = false, threads = 
  * -> https://github.com/bitburner-official/bitburner-src/blob/dev/src/Server/ServerHelpers.ts#L58 
  * @param {BaseServer} server
  * @param {Object} player
+ * @param {number} targetMoney
+ * @param {number} startingMoney
  * @param {boolean} [planning = false]
  * @param {number} [cores = 1] Number of cores used on attacking server
  * @returns
  */
-export function calcGrowThreads(server, player, planning = false, cores = 1) {
-  let targetMoney = server.moneyMax;
-  let startingMoney = 1;
-  if (planning) {
-    startingMoney = server.moneyCurrent;
-  }
+export function calcGrowThreads(server, player, targetMoney, startingMoney, planning = false, cores = 1) {
 
     const k = calcServerGrowthLog(server, player, planning, 1, cores);
     if (isNaN(k)) { throw new Error('calcServerGrowthLog in calcGrowThreads got a k of NaN'); }
