@@ -1,7 +1,7 @@
 export const baseDelay = 50; //base delay between batches and cycles in milliseconds // NOTE: decreasing below 200 causes bunching of scripts
 export const currentBitNode = {
 	n: 12,
-	lvl: 1
+	lvl: 2
 };
 
 // -> https://github.com/bitburner-official/bitburner-src/blob/dev/src/Server/data/Constants.ts
