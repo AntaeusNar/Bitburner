@@ -230,7 +230,7 @@ export class MyServer {
         }
     }
 
-    hackSelf(drones, batchFiles, usableScripts, cycleBatch) {
+    hackSelf(drones, batchFiles, usableScripts, cycleBatch, maxThreads) {
         let weakenFile = batchFiles[0];
         let growFile = batchFiles[1];
         let hackFile = batchFiles[2];
@@ -241,7 +241,13 @@ export class MyServer {
         let delays = this.batchTime;
         let usableDrones = drones.filter(server => server.availableRam != 0);
         //logger(this.ns, this.hostname + ' knows of ' + usableDrones.length + ' drones with availableRam.');
+        let deployedScripts = 0;
         let localResults = {};
+        let results = {
+            successful: successful,
+            deployedScripts: deployedScripts,
+            pids: pids,
+        }
 
         //PrimeWeakens
         if (vectors.PrimeWeakens > 0 && maxScripts > 0) {
@@ -281,6 +287,19 @@ export class MyServer {
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
         }
+
+        //Check to continue
+        let remainingThreads = maxThreads - vectors.PrimeTotal;
+        if (remainingThreads < vectors.IdealTotal) {
+            deployedScripts = usableScripts - maxScripts;
+            results = {
+                successful: successful,
+                deployedScripts: deployedScripts,
+                pids: pids,
+            }
+            return results;
+        }
+
 
         //Hacks
         if (vectors.Hacks > 0 && successful && maxScripts > 0) {
@@ -334,8 +353,8 @@ export class MyServer {
             pids.push( ...localResults.pids);
         }
 
-        let deployedScripts = usableScripts - maxScripts;
-        let results = {
+        deployedScripts = usableScripts - maxScripts;
+        results = {
             successful: successful,
             deployedScripts: deployedScripts,
             pids: pids,
