@@ -395,7 +395,7 @@ export class MyServer {
         results.lastCompletedStage = 'Batch';
         results.remainingThreads = remainingThreads;
         results.remainingScripts = maxScripts;
-        results.recheckDelay = 1;
+        results.recheckDelay = .5;
         results.pids = pids;
         this.batch += 1;
         return results;
