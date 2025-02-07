@@ -1,7 +1,7 @@
 import { HackController } from "./lib/class.HackController";
 import { logger } from "./lib/lib.general";
 
-export function main(ns) {
+export async function main(ns) {
     ns.disableLog('ALL');
     //ns.enableLog('exec');
     let hackingController = new HackController(ns);
@@ -20,7 +20,7 @@ export function main(ns) {
 
     while (true) {
         hackingController.run();
-        ns.sleep(1000);
+        await ns.sleep(1000);
     }
 
 }
