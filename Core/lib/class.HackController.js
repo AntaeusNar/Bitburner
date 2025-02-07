@@ -57,14 +57,14 @@ export class HackController {
         }
         let results = {};
         let targetServer = this.inventory.targets[0];
-        logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority + ' isPrimed: ' + targetServer.isPrimed);
+        logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority + ' isPrimed: ' + targetServer.isPrimed + '. Recheck in ' + results.recheckDelay + ' sec.'');
         results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.maxThreads);
         switch(results.lastCompletedStage) {
             case '':
-                logger(this.ns, "WARNING: Priming vs " + targetServer.hostname + ' did not complete.');
+                logger(this.ns, "WARNING: Priming vs " + targetServer.hostname + ' did not complete. Recheck in ' + results.recheckDelay + ' sec.');
                 break;
             case 'Priming':
-                logger(this.ns, 'INFO: Priming completed vs ' + targetServer.hostname + ' but batch did not complete.');
+                logger(this.ns, 'INFO: Priming completed vs ' + targetServer.hostname + ' but batch did not complete. Recheck in ' + results.recheckDelay + ' sec.');
                 break;
             case 'Batch':
                 logger(this.ns, 'INFO: Priming and Batch completed vs ' + targetServer.hostname);
