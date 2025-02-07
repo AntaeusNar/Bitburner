@@ -73,6 +73,5 @@ export class HackController {
                 throw new Error("Results vs " + targetServer.hostname + ' return unexpected stage ' + results.lastCompletedStage);
         }
         targetServer.recheckTime = this.ns.getRunningScript().onlineRunningTime + results.recheckDelay;
-
     }
 }
