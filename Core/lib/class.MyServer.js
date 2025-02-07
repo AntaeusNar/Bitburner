@@ -250,8 +250,6 @@ export class MyServer {
             pids: pids,
         }
 
-        logger(this.ns, this.hostname + 'is isPrimed: ' + this.isPrimed + ' has $' + this.moneyCurrent + '/$' + this.moneyMax +  ' Timing: ' + JSON.stringify(delays) + ' Threads: ' + JSON.stringify(vectors));
-
         //PrimeWeakens
         if (vectors.PrimeWeakens > 0 && maxScripts > 0) {
             successful = false;
