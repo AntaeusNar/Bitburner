@@ -57,7 +57,7 @@ export class HackController {
         }
         let results = {};
         let targetServer = this.inventory.targets[0];
-        logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority + ' isPrimed: ' + targetServer.isPrimed + '. Recheck in ' + results.recheckDelay + ' sec.'');
+        logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority + ' isPrimed: ' + targetServer.isPrimed + '. Recheck in ' + results.recheckDelay + ' sec.');
         results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.maxThreads);
         switch(results.lastCompletedStage) {
             case '':
