@@ -45,7 +45,7 @@ export class HackController {
         }
     }
 
-    hackBest() {
+    run() {
         this.sort();
         let targetServer = this.inventory.targets[0];
         logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority);

@@ -17,5 +17,5 @@ export function main(ns) {
         logger(ns, server.hostname + ' has ' + server.availableRam + 'GB of ' + server.maxRam + 'GB available. Actual maxRam is ' + ns.getServerMaxRam(server.hostname) + 'GB.');
     }
     */
-    hackingController.hackBest();
+    hackingController.run();
 }
