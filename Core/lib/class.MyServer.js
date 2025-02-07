@@ -64,12 +64,12 @@ export class MyServer {
     get isPrimed() {
         if (!this._isPrimedStr) {
             if (this.minDifficulty == this.currentDifficulty) {
-                this._isPrimedStr == true;
+                this._isPrimedStr = true;
             }
         }
         if (!this._isPrimedMoney) {
             if (this.moneyMax == this.moneyCurrent) {
-                this._isPrimedMoney == true;
+                this._isPrimedMoney = true;
             }
         }
         if (this._isPrimedStr && this._isPrimedMoney) { return true; }
@@ -250,7 +250,7 @@ export class MyServer {
             pids: pids,
         }
 
-        logger(this.ns, this.hostname + ' has $' + this.moneyCurrent + '/$' + this.moneyMax +  ' Timing: ' + JSON.stringify(delays) + ' Threads: ' + JSON.stringify(vectors));
+        logger(this.ns, this.hostname + 'is isPrimed: ' + this.isPrimed + ' has $' + this.moneyCurrent + '/$' + this.moneyMax +  ' Timing: ' + JSON.stringify(delays) + ' Threads: ' + JSON.stringify(vectors));
 
         //PrimeWeakens
         if (vectors.PrimeWeakens > 0 && maxScripts > 0) {
@@ -312,7 +312,9 @@ export class MyServer {
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Hacks against ' + this.hostname + '. Tried to deploy ' + vectors.Hacks + ' threads on ' + usableDrones.length + ' drones.', 0);
                 successful = false;
-            } else { this._isPrimedStr = false; this._isPrimedMoney = false; successful = true;}
+            } else { successful = true;}
+            this._isPrimedMoney = false;
+            this._isPrimedStr = false;
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
         }
@@ -338,7 +340,8 @@ export class MyServer {
                 logger(this.ns, 'WARNING: Could not deploy all Grows against ' + this.hostname, 0);
                 successful = false;
                 this._isPrimedMoney = false;
-            } else { this._isPrimedMoney = true; this._isPrimedStr = false; successful = true;}
+            } else { this._isPrimedMoney = true; successful = true;}
+            this._isPrimedStr = false;
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
 
