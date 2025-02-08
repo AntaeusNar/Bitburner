@@ -9,7 +9,6 @@ export class HackController {
             targets: [],
             drones: []
         }
-        this.maxThreads = 0;
         this.maxScripts = maxScripts;
         this.batchFiles = ['./lib/lt-weaken.js', './lib/lt-grow.js', './lib/lt-hack.js'];
         this.neededRam = getNeededRam(ns, this.batchFiles);
