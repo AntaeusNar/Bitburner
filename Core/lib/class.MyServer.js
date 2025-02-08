@@ -65,8 +65,8 @@ export class MyServer {
         let availableRam = this.hasAdminRights ? this.maxRam - this.ns.getServerUsedRam(this.hostname) : 0;
         return availableRam;
     }
-    get maxRam() { return hostname === 'home' ? this.ns.getServerMaxRam() - 16 : this.ns.getServerMaxRam(); }
-    get maxParallelThreads() { return (this.batchTime.IdealMaxTime / (4 * baseDelay)) * this.batchThreads.IdealTotal; }
+    get maxRam() { return this.hostname === 'home' ? this.ns.getServerMaxRam(this.hostname) - 16 : this.ns.getServerMaxRam(this.hostname); }
+    get maxParallelThreads() { return Math.ceil((this.batchTime.IdealMaxTime / (4 * baseDelay)) * this.batchThreads.IdealTotal); }
 
     get isPrimed() {
         if (!this._isPrimedStr) {
