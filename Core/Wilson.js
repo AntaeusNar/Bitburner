@@ -1,5 +1,6 @@
 import { HackController } from "./lib/class.HackController";
 import { logger } from "./lib/lib.general";
+import { baseDelay } from "./lib/options.general";
 
 export async function main(ns) {
     ns.disableLog('ALL');
@@ -20,7 +21,7 @@ export async function main(ns) {
 
     while (true) {
         hackingController.run();
-        await ns.sleep(500);
+        await ns.sleep(baseDelay * 1000);
     }
 
 }

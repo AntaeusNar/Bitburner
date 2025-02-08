@@ -1,4 +1,5 @@
 import { calcGrowThreads, calcHackThreads, calcPercentMoneyHacked, calculateHackingTime, getRoot, logger } from "./lib.general";
+import { baseDelay } from "./options.general";
 
 
 /**
@@ -64,6 +65,7 @@ export class MyServer {
         let availableRam = this.hasAdminRights ? this.maxRam - this.ns.getServerUsedRam(this.hostname) : 0;
         return availableRam;
     }
+    get maxParallelThreads() { return this.batchTime.IdealMaxTime / 4 * baseDelay * this.batchThreads.IdealTotal; }
 
     get isPrimed() {
         if (!this._isPrimedStr) {
@@ -143,24 +145,24 @@ export class MyServer {
             let primeWeakensTime = realHackingTime * 4;
             let primeGrowsTime = realHackingTime * 3.2;
             timings.PrimeWeakensDelay = 0;
-            timings.PrimeGrowsDelay = primeWeakensTime + .5 - primeGrowsTime;
-            timings.PrimeGrowWeakensDelay = 1;
-            timings.PrimeMaxTime = primeWeakensTime + 1;
-            timings.HacksDelay = primeWeakensTime + 1.5 - idealHackingTime;
-            timings.HackWeakensDelay = primeWeakensTime + 2 - idealWeakensTime;
-            timings.GrowsDelay = primeWeakensTime + 2.5 - idealGrowsTime;
-            timings.GrowWeakensDelay = primeWeakensTime + 3 - idealWeakensTime;
-            timings.IdealMaxTime = idealWeakensTime + 1.5;
+            timings.PrimeGrowsDelay = primeWeakensTime + baseDelay - primeGrowsTime;
+            timings.PrimeGrowWeakensDelay = baseDelay * 2;
+            timings.PrimeMaxTime = primeWeakensTime + baseDelay * 2;
+            timings.HacksDelay = primeWeakensTime + baseDelay * 3 - idealHackingTime;
+            timings.HackWeakensDelay = primeWeakensTime + baseDelay * 4 - idealWeakensTime;
+            timings.GrowsDelay = primeWeakensTime + baseDelay * 5 - idealGrowsTime;
+            timings.GrowWeakensDelay = primeWeakensTime + baseDelay * 6 - idealWeakensTime;
+            timings.IdealMaxTime = idealWeakensTime + baseDelay * 3;
         } else {
             timings.PrimeWeakensDelay = 0;
             timings.PrimeGrowsDelay = 0;
             timings.PrimeGrowWeakensDelay = 0;
             timings.PrimeMaxTime = 0;
-            timings.HacksDelay = idealWeakensTime - idealHackingTime - .5;
+            timings.HacksDelay = idealWeakensTime - idealHackingTime - baseDelay * 1;
             timings.HackWeakensDelay = 0;
-            timings.GrowsDelay = idealWeakensTime + .5 - idealGrowsTime;
-            timings.GrowWeakensDelay = 1;
-            timings.IdealMaxTime = idealWeakensTime + 1;
+            timings.GrowsDelay = idealWeakensTime + baseDelay * 1 - idealGrowsTime;
+            timings.GrowWeakensDelay = baseDelay * 2;
+            timings.IdealMaxTime = idealWeakensTime + baseDelay * 2;
         }
         return timings;
     }
@@ -395,7 +397,7 @@ export class MyServer {
         results.lastCompletedStage = 'Batch';
         results.remainingThreads = remainingThreads;
         results.remainingScripts = maxScripts;
-        results.recheckDelay = .5;
+        results.recheckDelay = baseDelay;
         results.pids = pids;
         this.batch += 1;
         return results;
