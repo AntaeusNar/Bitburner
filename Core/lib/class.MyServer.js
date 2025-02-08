@@ -48,7 +48,6 @@ export class MyServer {
         this.requiredHackingSkill = ns.getServerRequiredHackingLevel(hostname);
         this.percent = -Infinity;
         this.moneyMax = hostname == 'home' ? 0 : ns.getServerMaxMoney(hostname);
-        this.maxRam = hostname == 'home' ? ns.getServerMaxRam(hostname) - 16 : ns.getServerMaxRam(hostname);
         this.percent = .001;
         this.maxThreads = Infinity;
         this._isPrimedStr = false;
@@ -66,6 +65,7 @@ export class MyServer {
         let availableRam = this.hasAdminRights ? this.maxRam - this.ns.getServerUsedRam(this.hostname) : 0;
         return availableRam;
     }
+    get maxRam() { return hostname === 'home' ? this.ns.getServerMaxRam() - 16 : this.ns.getServerMaxRam(); }
     get maxParallelThreads() { return (this.batchTime.IdealMaxTime / (4 * baseDelay)) * this.batchThreads.IdealTotal; }
 
     get isPrimed() {
