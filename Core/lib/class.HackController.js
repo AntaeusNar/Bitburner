@@ -59,29 +59,31 @@ export class HackController {
         let targets = this.inventory.targets.filter(server => server.isHackable);
         for (let i = 0; i < targets.length; i++) {
             let targetServer = targets[i];
-            if (targetServer.recheckTime >= this.ns.getRunningScript().onlineTime) { continue; }
-
+            if (targetServer.recheckTime >= this.ns.getRunningScript().onlineTime) {
+                let remainingThreads = this.maxThreads - targetServer.maxParallelThreads;
+                if (remainingThreads <= targetServer.maxParallelThreads) { break; }
+                continue;
+            }
+            let results = {};
+            logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority + ' isPrimed: ' + targetServer.isPrimed + '. Starting Cycle/Batch: ' + targetServer.cycleBatch, 0);
+            results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.maxThreads);
+            switch(results.lastCompletedStage) {
+                case '':
+                    logger(this.ns, "WARNING: Priming vs " + targetServer.hostname + ' did not complete. Recheck in ' + results.recheckDelay + ' sec. Starting Cycle/Batch: ' + targetServer.cycleBatch);
+                    break;
+                case 'Priming':
+                    logger(this.ns, 'INFO: Priming completed vs ' + targetServer.hostname + ' but batch did not complete. Recheck in ' + results.recheckDelay + ' sec.', 0);
+                    break;
+                case 'Batch':
+                    logger(this.ns, 'INFO: Priming and Batch completed vs ' + targetServer.hostname + '. Recheck in ' + results.recheckDelay + ' sec.', 0);
+                    break;
+                default:
+                    throw new Error("Results vs " + targetServer.hostname + ' return unexpected stage ' + results.lastCompletedStage);
+            }
+            targetServer.recheckTime = this.ns.getRunningScript().onlineRunningTime + results.recheckDelay;
 
             let remainingThreads = this.maxThreads - targetServer.maxParallelThreads;
+            if (remainingThreads <= targetServer.maxParallelThreads) { break; }
         }
-        let results = {};
-        let targetServer = this.inventory.targets[0];
-        if (targetServer.recheckTime >= this.ns.getRunningScript().onlineRunningTime) { return; }
-        logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority + ' isPrimed: ' + targetServer.isPrimed + '. Starting Cycle/Batch: ' + targetServer.cycleBatch, 0);
-        results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.maxThreads);
-        switch(results.lastCompletedStage) {
-            case '':
-                logger(this.ns, "WARNING: Priming vs " + targetServer.hostname + ' did not complete. Recheck in ' + results.recheckDelay + ' sec. Starting Cycle/Batch: ' + targetServer.cycleBatch);
-                break;
-            case 'Priming':
-                logger(this.ns, 'INFO: Priming completed vs ' + targetServer.hostname + ' but batch did not complete. Recheck in ' + results.recheckDelay + ' sec.', 0);
-                break;
-            case 'Batch':
-                logger(this.ns, 'INFO: Priming and Batch completed vs ' + targetServer.hostname + '. Recheck in ' + results.recheckDelay + ' sec.', 0);
-                break;
-            default:
-                throw new Error("Results vs " + targetServer.hostname + ' return unexpected stage ' + results.lastCompletedStage);
-        }
-        targetServer.recheckTime = this.ns.getRunningScript().onlineRunningTime + results.recheckDelay;
     }
 }
