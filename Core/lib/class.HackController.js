@@ -21,6 +21,7 @@ export class HackController {
     }
 
     get getHackable() { return this.inventory.targets.filter((server, i) => { return server.isHackable; }).length; }
+    get maxThreads() { return this.inventory.drones.reduce((acc, server) => acc + server.availableRam || 0, 0)}
 
     generateInventory() {
         let serverList = multiScan(this.ns);
@@ -53,6 +54,15 @@ export class HackController {
             this.knownHackable = hackable;
             this.calculateTargetPercentage();
             this.sort();
+        }
+
+        let targets = this.inventory.targets.filter(server => server.isHackable);
+        for (let i = 0; i < targets.length; i++) {
+            let targetServer = targets[i];
+            if (targetServer.recheckTime >= this.ns.getRunningScript().onlineTime) { continue; }
+
+
+            let remainingThreads = this.maxThreads - targetServer.maxParallelThreads;
         }
         let results = {};
         let targetServer = this.inventory.targets[0];
