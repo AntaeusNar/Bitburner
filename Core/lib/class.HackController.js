@@ -20,15 +20,12 @@ export class HackController {
     }
 
     get getHackable() { return this.inventory.targets.filter((server, i) => { return server.isHackable; }).length; }
-    get maxThreads() { return this.inventory.drones.reduce((acc, server) => acc + server.availableRam || 0, 0)}
+    get maxThreads() { return Math.floor(this.inventory.drones.reduce((acc, server) => acc + server.availableRam || 0, 0) / this.neededRam); }
 
     generateInventory() {
         let serverList = multiScan(this.ns);
-        this.maxThreads = 0;
         for (let hostname of serverList) {
             let server = new MyServer(this.ns, hostname)
-            let availableRam = isNaN(server.availableRam) ? 0 : server.availableRam;
-            this.maxThreads += Math.floor(availableRam/this.neededRam);
             this.inventory.targets.push(server)
             this.inventory.drones.push(server)
         }
@@ -55,17 +52,19 @@ export class HackController {
             this.sort();
         }
 
+        let remainingThreads = this.maxThreads;
         let targets = this.inventory.targets.filter(server => server.isHackable);
+        targets.sort((a, b) => b.priority - a.priority);
         for (let i = 0; i < targets.length; i++) {
             let targetServer = targets[i];
-            if (targetServer.recheckTime >= this.ns.getRunningScript().onlineTime) {
-                let remainingThreads = this.maxThreads - targetServer.maxParallelThreads;
-                if (remainingThreads <= targetServer.maxParallelThreads) { break; }
+            if (targetServer.recheckTime >= this.ns.getRunningScript().onlineRunningTime) {
+                remainingThreads -= targetServer.maxParallelThreads;
+                if (remainingThreads <= targetServer.maxParallelThreads || targetServer.lastCompletedStage != 'Batch') { break; }
                 continue;
             }
             let results = {};
             logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority + ' isPrimed: ' + targetServer.isPrimed + '. Starting Cycle/Batch: ' + targetServer.cycleBatch, 0);
-            results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, this.maxThreads);
+            results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, remainingThreads);
             switch(results.lastCompletedStage) {
                 case '':
                     logger(this.ns, "WARNING: Priming vs " + targetServer.hostname + ' did not complete. Recheck in ' + results.recheckDelay + ' sec. Starting Cycle/Batch: ' + targetServer.cycleBatch);
@@ -81,7 +80,7 @@ export class HackController {
             }
             targetServer.recheckTime = this.ns.getRunningScript().onlineRunningTime + results.recheckDelay;
 
-            let remainingThreads = this.maxThreads - targetServer.maxParallelThreads;
+            remainingThreads -= targetServer.maxParallelThreads;
             if (remainingThreads <= targetServer.maxParallelThreads) { break; }
         }
     }

@@ -56,6 +56,7 @@ export class MyServer {
         this.cycle = 1;
         this.batch = 1;
         this.recheckTime = 0;
+        this.lastCompletedStage = '';
     }
 
     get cycleBatch() { return this.cycle + '/' + this.batch; }
@@ -65,7 +66,7 @@ export class MyServer {
         let availableRam = this.hasAdminRights ? this.maxRam - this.ns.getServerUsedRam(this.hostname) : 0;
         return availableRam;
     }
-    get maxParallelThreads() { return this.batchTime.IdealMaxTime / 4 * baseDelay * this.batchThreads.IdealTotal; }
+    get maxParallelThreads() { return (this.batchTime.IdealMaxTime / (4 * baseDelay)) * this.batchThreads.IdealTotal; }
 
     get isPrimed() {
         if (!this._isPrimedStr) {
@@ -304,6 +305,7 @@ export class MyServer {
         if (!successful) {
             results.successful = successful;
             results.lastCompletedStage = '';
+            this.lastCompletedStage = '';
             results.remainingThreads = 0;
             results.remainingScripts = maxScripts;
             results.recheckDelay = delays.PrimeMaxTime;
@@ -316,6 +318,7 @@ export class MyServer {
         if (successful && remainingThreads < vectors.IdealTotal) {
             results.successful = successful;
             results.lastCompletedStage = 'Priming';
+            this.lastCompletedStage = 'Priming';
             results.remainingThreads = remainingThreads;
             results.remainingScripts = maxScripts;
             results.recheckDelay = delays.PrimeMaxTime;
@@ -383,11 +386,12 @@ export class MyServer {
         if (!successful) {
             results.successful = successful;
             results.lastCompletedStage = 'Priming';
+            this.lastCompletedStage = 'Priming';
             results.remainingThreads = 0;
             results.remainingScripts = maxScripts;
             results.recheckDelay = delays.PrimeMaxTime + delays.IdealMaxTime;
             results.pids = pids;
-            this.cycle += this.cycle;
+            this.cycle += 1;
             this.batch = 1;
             return results;
         }
@@ -395,6 +399,7 @@ export class MyServer {
 
         results.successful = successful;
         results.lastCompletedStage = 'Batch';
+        this.lastCompletedStage = 'Batch';
         results.remainingThreads = remainingThreads;
         results.remainingScripts = maxScripts;
         results.recheckDelay = baseDelay;
