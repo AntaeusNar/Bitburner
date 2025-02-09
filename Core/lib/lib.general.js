@@ -1,7 +1,6 @@
 import { localBitNodeMultipliers } from "./options.bitNode";
 import { currentBitNode, ServerConstants } from "./options.general";
 
-
 const BitMults = localBitNodeMultipliers(currentBitNode.n, currentBitNode.lvl);
 
 /**
@@ -89,32 +88,6 @@ export function multiScan(ns, serverName='home') {
 }
 
 /**
- * Returns time it takes to complete a grow on a server, in seconds
- * -> https://github.com/bitburner-official/bitburner-src/blob/dev/src/Hacking.ts#80
- * @param {MyServer} server
- * @param {Object} player
- * @param {boolean} [planning = false]
- * @returns {number} seconds
- */
-export function calculateGrowTime(server, player, planning = false) {
-    const growthTimeMultiplier = 3.2;
-    return growthTimeMultiplier * calculateHackingTime(server, player, planning);
-}
-
-/**
- * Returns time it takes to complete a weaken on a server, in seconds
- * -> https://github.com/bitburner-official/bitburner-src/blob/dev/src/Hacking.ts#L87
- * @param {MyServer} server
- * @param {Object} player
- * @param {boolean} [planning = false]
- * @returns {number} seconds
- */
-export function calculateWeakenTime(server, player, planning = false) {
-    const weakenTimeMultiplier = 4;
-    return weakenTimeMultiplier * calculateHackingTime(server, player, planning)
-}
-
-/**
  * Returns time it takes to complete a hack on a server, in seconds
  * -> https://github.com/bitburner-official/bitburner-src/blob/dev/src/Hacking.ts#L58
  * @param {MyServer} server
@@ -150,33 +123,6 @@ export function calculateHackingTime(server, player, planning = false) {
  */
 export function calculateIntelligenceBonus(intelligence, weight) {
     return 1 + (weight * Math.pow(intelligence, 0.8))/600;
-}
-
-/**
- * Calculates the number of needed threads in each batch of one cycle of GWHW
- * @param {MyServer} server
- * @param {Object} player
- * @param {boolean} [planning = true]
- * @param {number} [targetHackPercent=100] percent of maxMoney to hack
- * @param {number} [cores=1] Number of cores used on attacking server
- * @returns object containing the threads as GWgHWh
- */
-export function calculateSingleBatchThreads(server, player, planning = true, targetHackPercent = 100 ,cores = 1) {
-  let threads = {};
-  let growthThreads = Math.floor(calcGrowThreads(server, player) + .5);
-  if (isNaN(growthThreads)) { throw new Error(server.hostname + ' calcGrowThreads is NaN'); }
-  let growWeakenThreads = calcWeakenThreads(growthThreads * 0.002, cores);
-  let hackThreads = Math.floor(calcHackThreads(server, player, planning, targetHackPercent) + .5);
-  if (isNaN(hackThreads)) { throw new Error(server.hostname + ' calcHackThreads is NaN'); }
-  let hackWeakenThreads = calcWeakenThreads(hackThreads * 0.002, cores);
-
-  threads.G = growthThreads;
-  threads.Wg = Math.floor(growWeakenThreads + .5);
-  threads.H = hackThreads;
-  threads.Wh = Math.floor(hackWeakenThreads + .5);
-  threads.total = threads.G + threads.Wg + threads.H + threads.Wh;
-  if (isNaN(threads.total)) { throw new Error('Total threads is NaN'); }
-  return threads;
 }
 
 /**
