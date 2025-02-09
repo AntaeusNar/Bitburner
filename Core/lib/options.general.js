@@ -1,6 +1,6 @@
 export const currentBitNode = {
 	n: 12,
-	lvl: 2
+	lvl: 3
 };
 
 // -> https://github.com/bitburner-official/bitburner-src/blob/dev/src/Server/data/Constants.ts
