@@ -310,7 +310,7 @@ export class MyServer {
             results.remainingScripts = maxScripts;
             results.recheckDelay = delays.PrimeMaxTime;
             results.pids = pids;
-            this.cycle += this.cycle;
+            this.cycle += 1;
             this.batch = 1;
             return results;
         }
@@ -323,7 +323,7 @@ export class MyServer {
             results.remainingScripts = maxScripts;
             results.recheckDelay = delays.PrimeMaxTime;
             results.pids = pids;
-            this.cycle += this.cycle;
+            this.cycle += 1;
             this.batch = 1;
             return results;
         }
