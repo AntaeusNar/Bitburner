@@ -1,4 +1,3 @@
-export const baseDelay = .5; //base delay between batches and cycles in sec // NOTE: decreasing below 200 causes bunching of scripts
 export const currentBitNode = {
 	n: 12,
 	lvl: 2
@@ -15,13 +14,11 @@ export const ServerConstants = {
     ServerMaxGrowthLog: 0.00349388925425578, // Maximum possible growth rate accounting for server security, precomputed as log1p(.0035)
     ServerFortifyAmount: 0.002, // Amount by which server's security increases when its hacked/grown
     ServerWeakenAmount: 0.05, // Amount by which server's security decreases when weakened
-
     PurchasedServerLimit: 25,
     PurchasedServerMaxRam: 1048576, // 2^20
 };
 
-export const maxScripts = 20000; // max run of running concurrent scripts
-export const serverOfInterest = ['CSEC', 'avmnite-02h', 'I.I.I.I', 'run4theh111z', 'The-Cave', 'w0r1d_d43m0n'];
+export const serverOfInterest = ['CSEC', 'avmnite-02h', 'I.I.I.I', 'run4theh111z', 'w0r1d_d43m0n'];
 export const colors = {
 		black: "\u001b[30m",
 		red: "\u001b[31m",
@@ -41,3 +38,5 @@ export const colors = {
 		brightWhite: "\u001b[37;1m",
 		reset: "\u001b[0m"
 };
+export const maxScripts = 20000; // more scripts then this running at one time will make your real PC sweat...
+export const baseDelay = .5; //base delay between batches and cycles in sec // NOTE: decreasing below 200 causes bunching of scripts
