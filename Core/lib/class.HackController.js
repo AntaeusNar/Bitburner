@@ -1,6 +1,6 @@
 import { MyServer } from "./class.MyServer";
 import { getNeededRam, logger, multiScan } from "./lib.general";
-import { maxScripts } from "./options.general";
+import { baseDelay, maxScripts } from "./options.general";
 
 export class HackController {
     constructor(ns) {
@@ -65,6 +65,7 @@ export class HackController {
             let results = {};
             logger(this.ns, 'INFO: Targeting ' + targetServer.hostname + ' Priority: $' + targetServer.priority + ' isPrimed: ' + targetServer.isPrimed + '. Starting Cycle/Batch: ' + targetServer.cycleBatch, 0);
             results = targetServer.hackSelf(this.inventory.drones, this.batchFiles, this.maxScripts, remainingThreads);
+            results.recheckDelay = Math.max(results.recheckDelay, baseDelay);
             switch(results.lastCompletedStage) {
                 case '':
                     logger(this.ns, "WARNING: Priming vs " + targetServer.hostname + ' did not complete. Recheck in ' + results.recheckDelay + ' sec. Starting Cycle/Batch: ' + targetServer.cycleBatch);
