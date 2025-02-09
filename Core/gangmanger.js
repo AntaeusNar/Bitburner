@@ -43,24 +43,13 @@ export async function main(ns) {
     delete otherGangs[gangInfo.faction];
     let activeWarfare = gangInfo.territoryWarfareEngaged;
 
-    //Try to recrute a new member
+    //Try to recruit a new member
     if (ns.gang.canRecruitMember()) {
       let number = Math.floor(Math.random()*1000);
       let name = "Fish" + number;
       ns.gang.recruitMember(name);
       gangCrew = ns.gang.getMemberNames();
     }
-
-    /** Control Options */
-    //Tasks are Terrorism, Territory Warfare, Vigilante Justice or crime.
-    //Vigilante Justice will be an override (if needed all do)
-
-    let arrTasks = []; //blank available tasks
-    arrTasks.push('Crime'); //add crime option
-    arrTasks.push('Terrorism'); //add Terrorism as addition option
-    if (gangCrew.length < 12) {arrTasks.push('Terrorism'); arrTasks.push('Crime');} // add Terrorism if less then 12 gang members
-    if (gangInfo.territory < 1) {arrTasks.push('Territory Warfare');}//add Warfare if we dont have 100% terriory
-
 
     //Wanted Level
     if (!vigJust && gangInfo.wantedPenalty < .5 && gangInfo.wantedLevel > 2) {
@@ -71,18 +60,32 @@ export async function main(ns) {
       logger(ns, 'INFO: Commit those Crimes!', 0);
     }
 
+    /** Control Options
+     * If we do not need to reduce the wanted level by committing Vigilante Justice, we need to generate a list of selectable options.
+     * Terrorism increases respect, and should only be added to available tasks if we need to recruit new gang members. (less then 12)
+     * Territory Warfare should only be an option if we do not have 100% of the territory.
+     * Crime is a category, not a single task.  Each gang member will pick their own best crime.
+     */
+    let arrTasks = [];
+    if (vigJust) { arrTasks.push('Vigilante Justice'); }
+    else {
+      if (gangCrew.length < 12) {arrTasks.push('Terrorism'); }
+      if (gangInfo.territory < 1 ) {arrTasks.push('Territory Warfare'); }
+      arrTasks.push('Crime');
+    }
+
     for (let member of gangCrew) {
       //try to ascend
       tryToAscend(ns, member);
       //get member info
       let memberInfo = ns.gang.getMemberInformation(member);
-      /** Puchase Equipment */
+      /** Purchase Equipment */
       //Collect equipment info
       //Hack for keeping enough money in the pot to be buying the basics after a reset.
       let budget = ns.getServerMoneyAvailable('home')-250000000;
       let memberEquipment = memberInfo.upgrades; //get a member's equipment
       memberEquipment += memberInfo.augmentations; //add the member's augments
-      let neededEquipment = allEquipment.filter(item => !memberEquipment.includes(item)); //remove everythign the member has from the master list
+      let neededEquipment = allEquipment.filter(item => !memberEquipment.includes(item)); //remove everything the member has from the master list
       //remove all items that are hacking and chr only.
       neededEquipment = neededEquipment.filter(item => ns.gang.getEquipmentStats(item).agi ||
                                                           ns.gang.getEquipmentStats(item).def ||
@@ -106,32 +109,14 @@ export async function main(ns) {
       }
 
       // Assign work
-      if (vigJust) {
-        ns.gang.setMemberTask(member, 'Vigilante Justice');
-      } else {
-        if (memberInfo.str < 50) {
-          ns.gang.setMemberTask(member, 'Train Combat');
-        } else {
-          let task = arrTasks[Math.floor(Math.random()*arrTasks.length)];
-          if (task == 'Crime') {
-            if (memberInfo.str < 50) {
-              ns.gang.setMemberTask(member, "Mug People");
-            }
-            else if (memberInfo.str < 150) {
-              ns.gang.setMemberTask(member, "Strongarm Civilians");
-            }
-            else if (memberInfo.str < 400) {
-              ns.gang.setMemberTask(member, "Traffick Illegal Arms");
-            }
-            else {
-              ns.gang.setMemberTask(member, "Human Trafficking");
-            }
-          } else {
-            ns.gang.setMemberTask(member, task);
-          }
-        }
+      let task = arrTasks[Math.floor(Math.random()*arrTasks.length)];
+      if (memberInfo.str < 50) { task = 'Train Combat'; }
+      if (task == 'Crime') {
+        if (memberInfo.str < 150) { task = 'Strongarm Civilians'; }
+        else if (memberInfo.str < 400) { task = 'Traffick Illegal Arms'; }
+        else { task = 'Human Trafficking'; }
       }
-
+      ns.gang.setMemberTask(member, task);
     }//end of gangcrew loop
 
     // Gang Warfare
