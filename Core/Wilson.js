@@ -20,7 +20,7 @@ export async function main(ns) {
     */
 
     while (true) {
-        hackingController.run();
+        hackingController.runSelf();
         await ns.sleep(baseDelay * 1000);
     }
 

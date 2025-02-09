@@ -43,7 +43,7 @@ export class HackController {
         }
     }
 
-    run() {
+    runSelf() {
         let hackable = this.getHackable;
         if (this.knownHackable < hackable) {
             logger(this.ns, 'INFO: New Targets Available: ' + hackable + ' vs ' + this.knownHackable + '. Recalculating Priorities and Resorting Targets.');
