@@ -59,7 +59,7 @@ export async function main(ns) {
 			  server = _ns.getServer(server);
       }
       catch (error) {
-        _ns.tprint(error);
+        //_ns.tprint(error);
       }
 
 			if(serverList.includes(server.hostname) && !server.backdoorInstalled && server.hasAdminRights && server.requiredHackingSkill <= _ns.getHackingLevel()) {
