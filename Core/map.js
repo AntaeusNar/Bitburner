@@ -12,7 +12,7 @@ import {serverOfInterest, colors} from './lib/options.general.js';
 // Switches (Change constants to change design of Tree)
 const controlSymbolTypeColor = true; // True = Colored Root Access Symbols / False = Asscii Art
 const controlPortsRequiredIndicator = true; // True = Required Ports will be shown after Server Hacking Level Requirement / False = Hidden
-const controlBackdoorIndicator = true; // True = Backdoor Indecator active / False = Hidden
+const controlBackdoorIndicator = true; // True = Backdoor Indicator active / False = Hidden
 const controlMaxMoneyIndicator = true; // True = Show Max Money of Server / False = Hidden
 
 var _ns;
@@ -31,13 +31,13 @@ export async function main(ns) {
 			ns.tprint("- [Optional] Backdoor: [BD] = Backdoor installed / [x] = No Backdoor");
 			ns.tprint("- [Optional] Port Info: Variable behind Servername (Required Hacking Level - Required Server Ports)");
 			ns.tprint('- If "!!!!!!" at the end is shown, your hacking and port hacking level is above the');
-			ns.tprint('  requirements of the server but you dont have root access yet.');
+			ns.tprint('  requirements of the server but you do not have root access yet.');
 		} else {
 			ns.tprint("- ██ = Root access / [ ] = No root access ");
 			ns.tprint("- [Optional] Backdoor: [BD] = Backdoor installed / [NO BD] = No Backdoor");
 			ns.tprint("- [Optional] Port Info: Variable behind Servername (Required Hacking Level - Required Server Ports)");
 			ns.tprint('- "!!!!!!" at the end indicates, that your hacking and port hacking level is above the');
-			ns.tprint('  requirements of the server but you dont have root access yet.');
+			ns.tprint('  requirements of the server but you do not have root access yet.');
 		}
 		ns.tprint("");
 		ns.tprint("Note: Colored Symbols, Required Server Ports, Backdoor Indicator and Max. Money can be ");
@@ -45,15 +45,14 @@ export async function main(ns) {
 		ns.tprint("*********************************************************************************************************************");
 	} else {
 		let serverList = multiScan(_ns);
-		let nexthack = 100000000000000;
+		let nextHack = 100000000000000;
 		for (let server of serverList) {
 			server = _ns.getServer(server);
-			if(server.requiredHackingSkill > _ns.getHackingLevel() && server.requiredHackingSkill < nexthack){
-				nexthack = server.requiredHackingSkill;
+			if(server.requiredHackingSkill > _ns.getHackingLevel() && server.requiredHackingSkill < nextHack){
+				nextHack = server.requiredHackingSkill;
 			}
-
 		}
-		ScanServer("home", seenList, 0, "", nexthack);
+		ScanServer("home", seenList, 0, "", nextHack);
 
 		serverOfInterest.forEach(server => {
       try {
@@ -70,7 +69,7 @@ export async function main(ns) {
 	}
 }
 
-function ScanServer(serverName, seenList, indent, prefix, nexthack) {
+function ScanServer(serverName, seenList, indent, prefix, nextHack) {
 	if (seenList.includes(serverName)) return;
 	seenList.push(serverName);
 
@@ -82,12 +81,12 @@ function ScanServer(serverName, seenList, indent, prefix, nexthack) {
 		var newServer = serverList[i];
 		if (seenList.includes(newServer)) continue;
 		if (i != serverList.length - 1) {
-			PrintServerInfo(newServer, indent, prefix + "├─", nexthack)
-			ScanServer(newServer, seenList, indent + 1, prefix + "│    ", nexthack);
+			PrintServerInfo(newServer, indent, prefix + "├─", nextHack)
+			ScanServer(newServer, seenList, indent + 1, prefix + "│    ", nextHack);
 		}
 		else {
-			PrintServerInfo(newServer, indent, prefix + "└─", nexthack)
-			ScanServer(newServer, seenList, indent + 1, prefix + "     ", nexthack);
+			PrintServerInfo(newServer, indent, prefix + "└─", nextHack)
+			ScanServer(newServer, seenList, indent + 1, prefix + "     ", nextHack);
 		}
 	}
 }
@@ -107,19 +106,19 @@ function ChildCount(serverName) {
 	return count;
 }
 
-function PrintServerInfo(serverName, indent, prefix, nexthack) {
+function PrintServerInfo(serverName, indent, prefix, nextHack) {
 	var indentString = prefix;
-	var serverinfo = _ns.getServer(serverName); //Interface of requested server
+	var serverInfo = _ns.getServer(serverName); //Interface of requested server
 	// Definition of Root Access Symbols
 	if (controlSymbolTypeColor) {
-		var hacked = (serverinfo.hasAdminRights) ? "\u2705" : "\u274C";
+		var hacked = (serverInfo.hasAdminRights) ? "\u2705" : "\u274C";
 	} else {
-		var hacked = (serverinfo.hasAdminRights) ? " \u2611 " : " \u2612 ";
+		var hacked = (serverInfo.hasAdminRights) ? " \u2611 " : " \u2612 ";
 	}
-	var serverHackingLevel = serverinfo.requiredHackingSkill;
-	var serverMinSecLevel = serverinfo.minDifficulty;
-	var serverPortLevel = serverinfo.numOpenPortsRequired;
-	var serverMaxRam = serverinfo.maxRam ;
+	var serverHackingLevel = serverInfo.requiredHackingSkill;
+	var serverMinSecLevel = serverInfo.minDifficulty;
+	var serverPortLevel = serverInfo.numOpenPortsRequired;
+	var serverMaxRam = serverInfo.maxRam ;
 	var serverMaxRamIndicator = ' ' + serverMaxRam + 'GB';
 	var canHackIndicator = "";
 	var backdoorIndicator = "";
@@ -127,7 +126,7 @@ function PrintServerInfo(serverName, indent, prefix, nexthack) {
 	var maxMoneyIndicator = "";
 	var hasContractIndicator = "";
 
-	if (_ns.getHackingLevel() >= serverHackingLevel && HackablePortsPlayer() >= serverPortLevel && !serverinfo.hasAdminRights) {
+	if (_ns.getHackingLevel() >= serverHackingLevel && HackablePortsPlayer() >= serverPortLevel && !serverInfo.hasAdminRights) {
 		canHackIndicator = "  >> !!!!!!!!!  CAN HACK  !!!!!!!!!"
 	}
 	//check for contracts
@@ -136,9 +135,9 @@ function PrintServerInfo(serverName, indent, prefix, nexthack) {
 	}
 	// Definition of Backdoor Symbols
 	if (controlBackdoorIndicator && controlSymbolTypeColor) {
-		backdoorIndicator = (serverinfo.backdoorInstalled) ? " [BD] " : " [X] ";
+		backdoorIndicator = (serverInfo.backdoorInstalled) ? " [BD] " : " [X] ";
 	} else if (controlBackdoorIndicator && !controlSymbolTypeColor) {
-		backdoorIndicator = (serverinfo.backdoorInstalled) ? " [BD] " : " [NO BD] ";
+		backdoorIndicator = (serverInfo.backdoorInstalled) ? " [BD] " : " [NO BD] ";
 	}
 	// Definition of required Port Level indicator
 	if (controlPortsRequiredIndicator) {
@@ -147,18 +146,18 @@ function PrintServerInfo(serverName, indent, prefix, nexthack) {
 	// Definition of Maximum Money Indicator
 	if (controlMaxMoneyIndicator) {
 		//nFormat depreciated
-		//maxMoneyIndicator = " [Max Money" + _ns.nFormat(serverinfo.moneyMax, "($ 0.00a)") + "] ";
-		maxMoneyIndicator = " [Max Money $" + _ns.formatNumber(serverinfo.moneyMax, 2) + "]";
+		//maxMoneyIndicator = " [Max Money" + _ns.nFormat(serverInfo.moneyMax, "($ 0.00a)") + "] ";
+		maxMoneyIndicator = " [Max Money $" + _ns.formatNumber(serverInfo.moneyMax, 2) + "]";
 	}
 	let statusColor = '';
 	if(_ns.getHackingLevel() < serverHackingLevel){
 		statusColor = colors.magenta;
 	}
 	let serverColor = '';
-	if (serverOfInterest.includes(serverinfo.hostname)) {
+	if (serverOfInterest.includes(serverInfo.hostname)) {
 		serverColor = colors.cyan;
 	}
-	if(serverinfo.requiredHackingSkill == nexthack) {
+	if(serverInfo.requiredHackingSkill == nextHack) {
 		serverColor = colors.white;
 	}
 
@@ -184,5 +183,3 @@ function HackablePortsPlayer() {
 	}
 	return hackablePortsPlayer;
 }
-
-//var hacked = (_ns.hasRootAccess(serverName)) ? "██ " : "[] ";
