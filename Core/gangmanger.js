@@ -68,11 +68,9 @@ export async function main(ns) {
      */
     let arrTasks = [];
     if (vigJust) { arrTasks.push('Vigilante Justice'); }
-    else {
-      if (gangCrew.length < 12) {arrTasks.push('Terrorism'); }
-      if (gangInfo.territory < 1 ) {arrTasks.push('Territory Warfare'); }
-      arrTasks.push('Crime');
-    }
+    else if (gangCrew.length < 12) { arrTasks.push('Terrorism'); }
+    else if (gangInfo.territory < 1 ) { arrTasks.push('Territory Warfare'); }
+    else { arrTasks.push('Crime'); }
 
     for (let member of gangCrew) {
       //try to ascend
