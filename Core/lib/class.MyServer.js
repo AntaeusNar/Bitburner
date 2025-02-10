@@ -321,7 +321,7 @@ export class MyServer {
             this.lastCompletedStage = 'Priming';
             results.remainingThreads = remainingThreads;
             results.remainingScripts = maxScripts;
-            results.recheckDelay = delays.PrimeMaxTime;
+            results.recheckDelay = Math.max(delays.PrimeMaxTime, delays.IdealMaxTime);
             results.pids = pids;
             this.cycle += 1;
             this.batch = 1;
