@@ -59,7 +59,7 @@ export class HackController {
             let targetServer = targets[i];
             if (targetServer.recheckTime >= this.ns.getRunningScript().onlineRunningTime) {
                 remainingThreads -= targetServer.maxParallelThreads;
-                if (remainingThreads <= targetServer.maxParallelThreads || targetServer.lastCompletedStage != 'Batch') { break; }
+                if (remainingThreads <= 0 || targetServer.lastCompletedStage != 'Batch') { break; }
                 continue;
             }
             let results = {};
@@ -81,8 +81,8 @@ export class HackController {
             }
             targetServer.recheckTime = this.ns.getRunningScript().onlineRunningTime + results.recheckDelay;
 
-            remainingThreads -= targetServer.maxParallelThreads;
-            if (remainingThreads <= targetServer.maxParallelThreads) { break; }
+            remainingThreads -= (targetServer.maxParallelThreads + targetServer.batchThreads.PrimeTotal);
+            if (remainingThreads < 0) { break; }
         }
     }
 }
