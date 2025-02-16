@@ -1,4 +1,8 @@
-import {budgetPercentageLimit, paybackTimeLimit, bitNodeMultipliers} from 'options.js';
+import { budgetPercentageLimit, paybackTimeLimit} from './lib/options.general';
+import { localBitNodeMultipliers } from './lib/options.bitNode';
+import { currentBitNode } from './lib/options.general';
+
+const bitNodeMultipliers = localBitNodeMultipliers(currentBitNode.n, currentBitNode.lvl);
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -25,7 +29,7 @@ export async function main(ns) {
 		actionList.push(new NewNodeAction(ns, 1));
     	let neglist = actionList.filter(action => action.prodIncrease < 0);
 		if (neglist.length > 0) {
-			throw new Error('Have negative production increases in actions.  Most likley BitNode HackNetNodeMoneyBitNode is wrong.');
+			throw new Error('Have negative production increases in actions.  Most likely BitNode HackNetNodeMoneyBitNode is wrong.');
 		}
 		actionList = actionList.filter(action => action.payBackTime() < paybackLimit);
 		if (actionList.length > 0) {

@@ -40,3 +40,5 @@ export const colors = {
 };
 export const maxScripts = 20000; // more scripts then this running at one time will make your real PC sweat...
 export const baseDelay = .5; //base delay between batches and cycles in sec // NOTE: decreasing below 200 causes bunching of scripts
+export const budgetPercentageLimit = .5; // multiplier for available budget.
+export const paybackTimeLimit = 1 * 60 * 60; //Time in seconds for payback
