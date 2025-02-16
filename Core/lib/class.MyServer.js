@@ -265,44 +265,47 @@ export class MyServer {
         //PrimeWeakens
         if (vectors.PrimeWeakens > 0 && maxScripts > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeWeakens, delays.PrimeWeakensDelay, 'PrimeWeakens ' + this.cycleBatch);
+            let localThreads = Math.min(vectors.PrimeWeakens, remainingThreads);
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, localThreads, delays.PrimeWeakensDelay, 'PrimeWeakens ' + this.cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Primary Weakens against ' + this.hostname, 0);
                 successful = false;
                 this._isPrimedStr = false;
-            } else { this._isPrimedStr = true; successful = true; }
+            } else { this._isPrimedStr = true; successful = true; remainingThreads -= localThreads; }
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
         }
 
         //PrimeGrows
-        if (vectors.PrimeGrows > 0 && successful && maxScripts > 0) {
+        if (vectors.PrimeGrows > 0 && successful && maxScripts > 0 && remainingThreads > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, growFile, this, vectors.PrimeGrows, delays.PrimeGrowsDelay, 'PrimeGrows ' + this.cycleBatch);
+            let localThreads = Math.min(vectors.PrimeGrows, remainingThreads);
+            localResults = macroDeploy(this.ns, usableDrones, growFile, this, localThreads, delays.PrimeGrowsDelay, 'PrimeGrows ' + this.cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Primary Grows against ' + this.hostname, 0);
                 successful = false;
                 this._isPrimedMoney = false;
-            } else { this._isPrimedMoney = true; successful = true; }
+            } else { this._isPrimedMoney = true; successful = true; remainingThreads -= localThreads; }
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
         }
 
         //PrimeGrowWeakens
-        if (vectors.PrimeGrowWeakens > 0 && successful && maxScripts > 0) {
+        if (vectors.PrimeGrowWeakens > 0 && successful && maxScripts > 0 && remainingThreads > 0) {
             successful = false;
-            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, vectors.PrimeGrowWeakens, delays.PrimeGrowWeakensDelay, 'PrimeGrowWeakens ' + this.cycleBatch);
+            let localThreads = Math.min(vectors.PrimeGrowWeakens, remainingThreads)
+            localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, localThreads, delays.PrimeGrowWeakensDelay, 'PrimeGrowWeakens ' + this.cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Primary GrowWeakens against ' + this.hostname, 0);
                 successful = false;
                 this._isPrimedStr = false;
-            } else { this._isPrimedStr = true; successful = true; }
+            } else { this._isPrimedStr = true; successful = true; remainingThreads -= localThreads; }
             maxScripts -= localResults.deployedScripts;
             pids.push( ...localResults.pids);
         }
 
 
-        if (!successful) {
+        if (!successful || (maxThreads - remainingThreads) < vectors.PrimeTotal ) {
             results.successful = successful;
             results.lastCompletedStage = '';
             this.lastCompletedStage = '';
@@ -314,7 +317,7 @@ export class MyServer {
             this.batch = 1;
             return results;
         }
-        remainingThreads = maxThreads - vectors.PrimeTotal;
+
         if (successful && remainingThreads < vectors.IdealTotal) {
             results.successful = successful;
             results.lastCompletedStage = 'Priming';
