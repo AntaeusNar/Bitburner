@@ -265,7 +265,7 @@ export class MyServer {
         //PrimeWeakens
         if (vectors.PrimeWeakens > 0 && maxScripts > 0) {
             successful = false;
-            let localThreads = Math.min(vectors.PrimeWeakens, remainingThreads);
+            let localThreads = Math.min(vectors.PrimeWeakens, remainingThreads, this.maxParallelThreads);
             localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, localThreads, delays.PrimeWeakensDelay, 'PrimeWeakens ' + this.cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Primary Weakens against ' + this.hostname, 0);
@@ -279,7 +279,7 @@ export class MyServer {
         //PrimeGrows
         if (vectors.PrimeGrows > 0 && successful && maxScripts > 0 && remainingThreads > 0) {
             successful = false;
-            let localThreads = Math.min(vectors.PrimeGrows, remainingThreads);
+            let localThreads = Math.min(vectors.PrimeGrows, remainingThreads, this.maxParallelThreads);
             localResults = macroDeploy(this.ns, usableDrones, growFile, this, localThreads, delays.PrimeGrowsDelay, 'PrimeGrows ' + this.cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Primary Grows against ' + this.hostname, 0);
@@ -293,7 +293,7 @@ export class MyServer {
         //PrimeGrowWeakens
         if (vectors.PrimeGrowWeakens > 0 && successful && maxScripts > 0 && remainingThreads > 0) {
             successful = false;
-            let localThreads = Math.min(vectors.PrimeGrowWeakens, remainingThreads)
+            let localThreads = Math.min(vectors.PrimeGrowWeakens, remainingThreads, this.maxParallelThreads)
             localResults = macroDeploy(this.ns, usableDrones, weakenFile, this, localThreads, delays.PrimeGrowWeakensDelay, 'PrimeGrowWeakens ' + this.cycleBatch);
             if (!localResults.successful) {
                 logger(this.ns, 'WARNING: Could not deploy all Primary GrowWeakens against ' + this.hostname, 0);
