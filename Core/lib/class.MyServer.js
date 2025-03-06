@@ -2,6 +2,13 @@ import { calcGrowThreads, calcHackThreads, calcPercentMoneyHacked, calculateHack
 import { baseDelay } from "./options.general";
 
 
+/** Batch Naming:
+ * Prime Weakens (Pw), Prime Grows (Pg), Prime Grow Weakens (Pgw)
+ * Hacks (H), Hack Weakens (Hw), Grows (G), Grow Weakens (Gw)
+ * so all together is Pw, Pg, Pgw, H, Hw, G, Gw
+ * Primes are optional/only happen at the first go.
+ */
+
 /**
  * @typedef {Object} threads
  * @param {number} PrimeWeakens
@@ -201,6 +208,26 @@ export class MyServer {
         threads.CompleteTotal = threads.PrimeTotal + threads.IdealTotal;
 
         return threads;
+    }
+
+    controlArray_v1(batchFiles) {
+        let threads = this.batchThreads;
+        let timing = this.batchTime;
+        let weakenFile = batchFiles[0];
+        let growFile = batchFiles[1];
+        let hackFile = batchFiles[2];
+        let ctrl =[
+            {stageName: 'Primary Weakens', count: threads.PrimeWeakens, delay: timing.PrimeWeakensDelay, file: weakenFile },
+            {stageName: 'Primary Grows', count: threads.PrimeGrows, delay: timing.PrimeGrowsDelay, file: growFile },
+            {stageName: 'Primary Grow Weakens', count: threads.PrimeGrowWeakens, delay: timing.PrimeGrowWeakensDelay, file: weakenFile },
+            {stageName: 'Hacks', count: threads.Hacks, delay: timing.HacksDelay, file: hackFile },
+            {stageName: 'Hack Weakens', count: threads.HackWeakens, delay: timing.HackWeakensDelay, file: weakenFile },
+            {stageName: 'Grows', count: threads.Grows, delay: timing.GrowsDelay, file: growFile },
+            {stageName: 'Grows Weakens', count: threads.GrowWeakens, delay: timing.GrowWeakensDelay, file: weakenFile },
+            {stageName: 'Primes', count: threads.PrimeTotal, delay: timing.PrimeMaxTime},
+            {stageName: 'Batch', count: threads.IdealTotal, delay: timing.IdealMaxTime},
+        ]
+        return ctrl;
     }
 
     /**
@@ -409,6 +436,12 @@ export class MyServer {
         results.pids = pids;
         this.batch += 1;
         return results;
+    }
+
+    hackSelf_v2(drones, batchFiles, usableScripts, maxThreads) {
+        let ctrl = this.control_v1(batchFiles);
+
+
     }
 
     deployFiles(files) {
